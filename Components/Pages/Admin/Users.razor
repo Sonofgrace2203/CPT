@@ -235,7 +235,7 @@
 
         if (currentUser is null)
         {
-            Navigation.NavigateTo("/Login");
+            Navigation.NavigateTo("Login");
             return;
         }
 
@@ -251,7 +251,7 @@
 
         if (!isAdmin && !isSuperAdmin)
         {
-            Navigation.NavigateTo("/Dashboard");
+            Navigation.NavigateTo("Dashboard");
             return;
         }
 

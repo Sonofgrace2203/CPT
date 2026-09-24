@@ -627,12 +627,12 @@
             if (Demo)
             {
                 Nav.NavigateTo(
-                    $"/HeatEquation/Simulate/{simulationId}?demo=true");
+                    $"HeatEquation/Simulate/{simulationId}?demo=true");
             }
             else
             {
                 Nav.NavigateTo(
-                    $"/HeatEquation/Simulate/{simulationId}");
+                    $"HeatEquation/Simulate/{simulationId}");
             }
         }
         finally
@@ -650,23 +650,23 @@
     {
         if (!Demo)
         {
-            Nav.NavigateTo("/Modules");
+            Nav.NavigateTo("Modules");
             return;
         }
 
         switch (From?.ToLowerInvariant())
         {
             case "login":
-                Nav.NavigateTo("/Login");
+                Nav.NavigateTo("Login");
                 break;
 
             case "signup":
-                Nav.NavigateTo("/SignUp");
+                Nav.NavigateTo("SignUp");
                 break;
 
             case "home":
             default:
-                Nav.NavigateTo("/");
+                Nav.NavigateTo("");
                 break;
         }
     }

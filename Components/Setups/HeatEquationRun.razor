@@ -563,12 +563,12 @@
         if (Demo)
         {
             Nav.NavigateTo(
-                $"/SimulationData/{SimulationId}?demo=true");
+                $"SimulationData/{SimulationId}?demo=true");
             return;
         }
 
         Nav.NavigateTo(
-            $"/SimulationData/{SimulationId}");
+            $"SimulationData/{SimulationId}");
     }
 
     private async Task StopSimulation()
@@ -578,7 +578,7 @@
         await HeatEquationApi.CancelSimulationAsync(
             SimulationId);
 
-        Nav.NavigateTo("/Modules");
+        Nav.NavigateTo("Modules");
     }
 
     private void StartProgressAnimation()

@@ -92,7 +92,7 @@
     {
         await AuthService.LogoutAsync();
 
-        Nav.NavigateTo("/Login", true);
+        Nav.NavigateTo("Login", true);
     }
 
     private void RequestLogout()
@@ -106,7 +106,7 @@
 
         await AuthService.LogoutAsync();
 
-        Nav.NavigateTo("/Login", true);
+        Nav.NavigateTo("Login", true);
     }
 
     private void CancelLogout()

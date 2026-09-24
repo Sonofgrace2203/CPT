@@ -501,13 +501,13 @@
     private void ViewSimulation(Guid simulationId)
     {
         Nav.NavigateTo(
-            $"/SimulationData/{simulationId}?from=history");
+            $"SimulationData/{simulationId}?from=history");
     }
 
     private void ExportSimulation(Guid simulationId)
     {
         Nav.NavigateTo(
-            $"/SimulationData/{simulationId}?from=history&tab=export");
+            $"SimulationData/{simulationId}?from=history&tab=export");
     }
 
     private async Task ToggleFavourite(

@@ -24,7 +24,7 @@
 
     <div>
         <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-primary fsz-10"
-                @onclick='() => Nav.NavigateTo("/HeatEquation?demo=true&from=login")'>
+                @onclick='() => Nav.NavigateTo("HeatEquation?demo=true&from=login")'>
             Run Demo
         </button>
     </div>
@@ -37,14 +37,19 @@
 
         <div class="pd">
 
-            <div class="text-center mgb-5">
-                <h1 class="mg-0 pdt-1 pdb-1 fsz-25 cl-primary">
-                    CPT
-                </h1>
+            <div class="flex flex-start">
+                <div class="flex flex-center">
+                    <img src="icons/cpt/cptLogo.png" alt="" class="wx-04 hx-04 mgr-3">
+                    <div class="mgt--2">
+                        <h1 class="mg-0 pdt-1 pdb-1 fsz-25 cl-primary">
+                            CPT
+                        </h1>
 
-                <p class="mg-0 fsz-11">
-                    Computational Physics Toolkit
-                </p>
+                        <p class="mg-0 fsz-11">
+                            Computational Physics Toolkit
+                        </p>
+                    </div>
+                </div>
             </div>
 
 
@@ -132,7 +137,7 @@
 
 
                     <button type="button" class="cl-primary bg-transparent bd-none fsz-10"
-                            @onclick='() => Nav.NavigateTo("/ForgotPassword")'>
+                            @onclick='() => Nav.NavigateTo("ForgotPassword")'>
                         Forget Password?
                     </button>
 
@@ -269,11 +274,11 @@
                 if (result.Response.User.Roles.Contains("Admin") ||
                     result.Response.User.Roles.Contains("SuperAdmin"))
                 {
-                    Nav.NavigateTo("/Admin/Dashboard");
+                    Nav.NavigateTo("Admin/Dashboard");
                 }
                 else
                 {
-                    Nav.NavigateTo("/Dashboard");
+                    Nav.NavigateTo("Dashboard");
                 }
 
                 return;

@@ -622,11 +622,11 @@
                 "Admin",
                 StringComparer.OrdinalIgnoreCase) == true)
         {
-            Nav.NavigateTo("/Admin/Dashboard");
+            Nav.NavigateTo("Admin/Dashboard");
             return;
         }
 
-        Nav.NavigateTo("/Dashboard");
+        Nav.NavigateTo("Dashboard");
     }
 
     private void ExitDemo()
@@ -637,7 +637,7 @@
     private void ConfirmExitDemo()
     {
         ShowExitDemoDialog = false;
-        Nav.NavigateTo("/");
+        Nav.NavigateTo("");
     }
 
     private void CancelExitDemo()
@@ -647,7 +647,7 @@
 
     private void GoToCreateAccount()
     {
-        Nav.NavigateTo("/SignUp");
+        Nav.NavigateTo("SignUp");
     }
 
     private void HideDemoComplete()

@@ -717,7 +717,7 @@
     private void ConfirmExitDemo()
     {
         ShowExitDemoDialog = false;
-        Nav.NavigateTo("/");
+        Nav.NavigateTo("");
     }
 
     private void CancelExitDemo()
@@ -729,17 +729,17 @@
     {
         if (From == "demo-history")
         {
-            Nav.NavigateTo("/Admin/DemoHistory");
+            Nav.NavigateTo("Admin/DemoHistory");
             return;
         }
 
         if (From == "history")
         {
-            Nav.NavigateTo("/SimulationHistory");
+            Nav.NavigateTo("SimulationHistory");
             return;
         }
 
-        Nav.NavigateTo($"/HeatEquation/Simulate/{SimulationId}");
+        Nav.NavigateTo($"HeatEquation/Simulate/{SimulationId}");
     }
 
     private void SetActiveTab(string tab)
@@ -1154,26 +1154,26 @@
         if (Demo)
         {
             Nav.NavigateTo(
-                $"/Result/{SimulationId}?demo=true");
+                $"Result/{SimulationId}?demo=true");
             return;
         }
 
         if (From == "demo-history")
         {
             Nav.NavigateTo(
-                $"/Result/{SimulationId}?from=demo-history");
+                $"Result/{SimulationId}?from=demo-history");
             return;
         }
 
         if (From == "history")
         {
             Nav.NavigateTo(
-                $"/Result/{SimulationId}?from=history");
+                $"Result/{SimulationId}?from=history");
             return;
         }
 
         Nav.NavigateTo(
-            $"/Result/{SimulationId}");
+            $"Result/{SimulationId}");
     }
 
     private string GetDownloadFileName(string extension)
