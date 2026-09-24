@@ -30,6 +30,9 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
+      - name: Clean publish directory
+        run: rm -rf releaseÏ
+
       - name: Publish Blazor WebAssembly
         run: dotnet publish -c Release -o release
 
