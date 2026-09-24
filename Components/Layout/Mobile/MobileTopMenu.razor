@@ -1,0 +1,68 @@
+﻿@using CPT.Models.Auth
+@using CPT.Services.Auth
+@using cpt.Components.Shared
+@inject AuthService AuthService
+@inject NavigationManager Nav
+
+<div class="pdb-5" style="position: fixed; top: 0; left: 0; right: 0; z-index: 10;">
+    <div class="pd-1 bg-primary-01">
+        <div class="bg-primary pd flex flex-spacebetween pd shadow-border-5">
+            <NavLink href="@DashboardUrl" style="text-decoration: none;" class="cl-white">
+                <div class="flex flex-start">
+                    <div class="flex flex-center">
+                        <img src="icons/cpt/cptLogo.png" alt="" class="wx-06 hx-06 mgr-3">
+                        <div class="mgt--2">
+                            <h3 class="mg-0 pdb-1">CPT</h3>
+                            <p class="mg-0 fsz-8">Computational Physics Toolkit</p>
+                        </div>
+                    </div>
+                </div>
+            </NavLink>
+            <div class="flex flex-center">
+                <i class="mdi @(menuIcons ? "mdi-cancel" : "mdi-menu") fsz-25" @onclick="OnViewSubMenu"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* <i
+                            class="mdi @(loginRequest.RememberMe ? "mdi-checkbox-marked cl-primary" : "mdi-checkbox-blank-outline cl-primary") fsz-12 mgr-2"></i> *@
+
+@code
+{
+    private bool menuIcons = false;
+    [Parameter] public EventCallback SubMenu { get; set; }
+
+    private AuthUser? currentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser =
+            await AuthService.GetCurrentUserAsync();
+    }
+
+    private string DashboardUrl =>
+    IsAdminOrSuperAdmin()
+        ? "Admin/Dashboard"
+        : "Dashboard";
+
+    private bool IsAdminOrSuperAdmin()
+    {
+        if (currentUser?.Roles is null)
+            return false;
+
+        return currentUser.Roles.Contains(
+                   "Admin",
+                   StringComparer.OrdinalIgnoreCase)
+               ||
+               currentUser.Roles.Contains(
+                   "SuperAdmin",
+                   StringComparer.OrdinalIgnoreCase);
+    }
+
+    public async Task OnViewSubMenu()
+    {
+        await SubMenu.InvokeAsync();
+        menuIcons = !menuIcons;
+    }
+}

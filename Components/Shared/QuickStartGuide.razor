@@ -1,0 +1,241 @@
+@if (IsOpen)
+{
+    <div class="drawer-overlay" @onclick="Close">
+        <div class="drawer" @onclick:stopPropagation="true">
+
+            <!-- Header -->
+            <div class="drawer-header flex flex-spacebetween flex-center pd bd bg-primary-02">
+                <div>
+                    <h3 class="mg-0 pdb fsz-18 cl-primary">
+                        Quick Start Guide
+                    </h3>
+
+                    <p class="mg-0 fsz-11">
+                        A quick guide to help you get started with CPT.
+                    </p>
+                </div>
+
+                <button class="drawer-close pd bg-transparent bd-none fsz-20"
+                        @onclick="Close"
+                        aria-label="Close guide">
+                    <i class="mdi mdi-close"></i>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="drawer-content pd scroll-y">
+
+                <!-- Welcome -->
+                <div class="drawer-section">
+                    <h4 class="mg-0 pdb cl-primary">
+                        1. Welcome to CPT
+                    </h4>
+
+                    <p class="mg-0 fsz-12">
+                        CPT (Computational Physics Toolkit) is a web-based workspace
+                        for exploring physics through numerical simulation,
+                        interactive visualization, and data analysis.
+                    </p>
+
+                    <p class="mgt-2 mg-b-0 fsz-12">
+                        Start by choosing a physics module, configure the simulation,
+                        run the computation, and explore the results.
+                    </p>
+                </div>
+
+                <!-- Dashboard -->
+                <div class="drawer-section">
+                    <h4 class="mg-0 pdb cl-primary">
+                        2. Dashboard
+                    </h4>
+
+                    <p class="mg-0 fsz-12">
+                        The Dashboard is your main workspace after signing in.
+                        It gives you access to available physics modules and helps
+                        you keep track of your simulation activity.
+                    </p>
+
+                    <p class="mgt-2 mg-b-0 fsz-12">
+                        Use the Dashboard whenever you want to start a new simulation
+                        or return to your CPT workspace.
+                    </p>
+                </div>
+
+                <!-- Physics Modules -->
+                <div class="drawer-section">
+                    <h4 class="mg-0 pdb cl-primary">
+                        3. Choose a Physics Module
+                    </h4>
+
+                    <p class="mg-0 fsz-12">
+                        Physics Modules contain the computational models used by CPT.
+                        Select a module based on the physics problem you want to
+                        investigate.
+                    </p>
+
+                    <p class="mgt-2 mg-b-0 fsz-12">
+                        Each module has its own configuration options, simulation
+                        process, and result visualizations.
+                    </p>
+                </div>
+
+                <!-- Configuration -->
+                <div class="drawer-section">
+                    <h4 class="mg-0 pdb cl-primary">
+                        4. Configure Your Simulation
+                    </h4>
+
+                    <p class="mg-0 fsz-12">
+                        Before running a simulation, provide the parameters required
+                        by the selected physics module.
+                    </p>
+
+                    <p class="mgt-2 mg-b-0 fsz-12">
+                        Read the parameter descriptions carefully and check your
+                        values before starting the computation. Numerical parameters
+                        can affect both the simulation behaviour and computation time.
+                    </p>
+                </div>
+
+                <!-- Running -->
+                <div class="drawer-section">
+                    <h4 class="mg-0 pdb cl-primary">
+                        5. Run Your Simulation
+                    </h4>
+
+                    <p class="mg-0 fsz-12">
+                        Start the simulation after reviewing your configuration.
+                        CPT processes the computation and provides progress information
+                        while it runs.
+                    </p>
+
+                    <p class="mgt-2 mg-b-0 fsz-12">
+                        The progress area and console output help you understand what
+                        CPT is doing during the computation.
+                    </p>
+                </div>
+
+                <!-- Results -->
+                <div class="drawer-section">
+                    <h4 class="mg-0 pdb cl-primary">
+                        6. Explore Your Results
+                    </h4>
+
+                    <p class="mg-0 fsz-12">
+                        When the simulation completes, CPT takes you to the results
+                        workspace where you can explore the computed solution.
+                    </p>
+
+                    <p class="mgt-2 mg-b-0 fsz-12">
+                        Depending on the module, you may have access to different
+                        visualizations such as temperature maps, surface plots,
+                        contour plots, line plots, or animations.
+                    </p>
+                </div>
+
+                <!-- Simulation Data -->
+                <div class="drawer-section">
+                    <h4 class="mg-0 pdb cl-primary">
+                        7. Analyze Simulation Data
+                    </h4>
+
+                    <p class="mg-0 fsz-12">
+                        Use the Simulation Data tools to inspect the numerical output
+                        behind your visualization.
+                    </p>
+
+                    <p class="mgt-2 mg-b-0 fsz-12">
+                        The available tools may include a data table, statistics,
+                        and export options for working with your results outside CPT.
+                    </p>
+                </div>
+
+                <!-- History -->
+                <div class="drawer-section">
+                    <h4 class="mg-0 pdb cl-primary">
+                        8. Review Previous Simulations
+                    </h4>
+
+                    <p class="mg-0 fsz-12">
+                        Completed simulations can be reviewed from your simulation
+                        history.
+                    </p>
+
+                    <p class="mgt-2 mg-b-0 fsz-12">
+                        This allows you to return to previous work without having to
+                        repeat a simulation unnecessarily.
+                    </p>
+                </div>
+
+                <!-- Settings -->
+                <div class="drawer-section">
+                    <h4 class="mg-0 pdb cl-primary">
+                        9. Manage Your Settings
+                    </h4>
+
+                    <p class="mg-0 fsz-12">
+                        Use Settings to manage the account and application options
+                        available to you.
+                    </p>
+
+                    <p class="mgt-2 mgb-0 fsz-12">
+                        Keep your account information and preferences up to date
+                        whenever necessary.
+                    </p>
+                </div>
+
+                <!-- Help -->
+                <div class="drawer-section">
+                    <h4 class="mg-0 pdb cl-primary">
+                        10. Need More Help?
+                    </h4>
+
+                    <p class="mg-0 fsz-12">
+                        The Help section provides additional resources when you need
+                        more than the Quick Start Guide.
+                    </p>
+
+                    <p class="mgt-2 mgb-0 fsz-12">
+                        Explore Tutorials for guided learning, FAQ for common
+                        questions, and Troubleshooting when something does not work
+                        as expected.
+                    </p>
+                </div>
+
+                <!-- Quick Tip -->
+                <div class="drawer-section pd bd corner-2 bg-primary-01">
+                    <div class="flex flex-start">
+                        <i class="mdi mdi-information-outline cl-primary fsz-20 mgr-3"></i>
+
+                        <div>
+                            <h4 class="mg-0 pdb">
+                                Quick Tip
+                            </h4>
+
+                            <p class="mg-0 fsz-12">
+                                Start with a simple configuration when learning a new
+                                module. Once you understand the workflow, experiment
+                                with different parameters and compare the results.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private async Task Close()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

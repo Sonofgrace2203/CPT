@@ -1,0 +1,296 @@
+@page "/Login"
+@using CPT.Models.Auth
+@using CPT.Services.Auth
+@inject AuthService AuthService
+@inject NavigationManager Nav
+
+@layout MobileMainLayout
+
+
+<div class="pd flex flex-spacebetween flex-center homebg1 shadow-border-1"
+     style="position: fixed; top: 0; left: 0; right: 0;">
+
+    <div class="cl-white" @onclick='() => Nav.NavigateTo("")' style="cursor: pointer;">
+        <div class="flex flex-start">
+            <div class="flex flex-center">
+                <img src="icons/cpt/cptLogo.png" alt="" class="wx-04 hx-04 mgr-3">
+                <div class="mgt--2">
+                    <h3 class="mg-0 pdb-1">CPT</h3>
+                    <p class="mg-0 fsz-8">Computational Physics Toolkit</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-primary fsz-10"
+                @onclick='() => Nav.NavigateTo("/HeatEquation?demo=true&from=login")'>
+            Run Demo
+        </button>
+    </div>
+</div>
+
+
+<div class="homebg flex flex-center">
+
+    <div class="bg-card shadow-border-5 pd">
+
+        <div class="pd">
+
+            <div class="text-center mgb-5">
+                <h1 class="mg-0 pdt-1 pdb-1 fsz-25 cl-primary">
+                    CPT
+                </h1>
+
+                <p class="mg-0 fsz-11">
+                    Computational Physics Toolkit
+                </p>
+            </div>
+
+
+            <div class="text-center mgb-5">
+                <h3 class="mg-0 pdb-1 fsz-13">
+                    Welcome Back
+                </h3>
+
+                <p class="mg-0 fsz-10 wx-3">
+                    Log in to your account and continue your computational journey
+                </p>
+            </div>
+
+
+            <EditForm Model="@loginRequest" OnValidSubmit="@LoginUser">
+
+                <DataAnnotationsValidator />
+
+
+                <!-- Email -->
+                <div class="mgb-3">
+
+                    <div class="stack">
+
+                        <label for="email" class="fsz-10 mgb-1">
+                            <i class="mdi mdi-email-outline"></i>
+                            Email Address
+                        </label>
+
+                        <InputText id="email" type="email" placeholder="Enter email"
+                                   class="pd-2 corner-2 bd bd-dark-02 fsz-10" @bind-Value="loginRequest.Email" />
+
+                        <ValidationMessage For="@(() => loginRequest.Email)" class="auth-validation" />
+
+                    </div>
+
+                </div>
+
+
+                <!-- Password -->
+                <div class="mgb-3">
+
+                    <div class="stack">
+
+                        <label for="password" class="fsz-10 mgb-1">
+                            <i class="mdi mdi-lock-outline"></i>
+                            Password
+                        </label>
+
+                        <div class="flex flex-center pos-rel">
+                            <InputText id="password" type="@(showPassword ? "text" : "password")"
+                                       placeholder="Enter password" class="corner-2 pd-2 bd wf fsz-10"
+                                       @bind-Value="loginRequest.Password" />
+
+                            <button type="button" class="bd-none bg-transparent pos-abs r-0 mgr-2"
+                                    @onclick="TogglePassword">
+                                <i class="mdi @(showPassword ? "mdi-eye-off" : "mdi-eye") fsz-12"></i>
+                            </button>
+                        </div>
+                        <ValidationMessage For="@(() => loginRequest.Password)" class="auth-validation" />
+                    </div>
+
+                </div>
+
+
+                <!-- Remember / Forgot Password -->
+                <div class="flex flex-spacebetween mgb-3">
+
+                    <div class="flex flex-center">
+
+                        <label class="flex flex-center" style="cursor: pointer;">
+
+                            <input type="checkbox" class="remember-checkbox-input" @bind="loginRequest.RememberMe" />
+
+                            <i
+                            class="mdi @(loginRequest.RememberMe ? "mdi-checkbox-marked cl-primary" : "mdi-checkbox-blank-outline cl-primary") fsz-12 mgr-2"></i>
+
+                            <p class="cl-dark fsz-10 mg-0">
+                                Remember me
+                            </p>
+
+                        </label>
+
+                    </div>
+
+
+                    <button type="button" class="cl-primary bg-transparent bd-none fsz-10"
+                            @onclick='() => Nav.NavigateTo("/ForgotPassword")'>
+                        Forget Password?
+                    </button>
+
+                </div>
+
+
+                <!-- Error -->
+                @if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    <div class="cl-error fsz-12 pd text-center mgb-3 wx-3">
+                        @errorMessage
+                    </div>
+                }
+
+
+                <!-- Login -->
+                <div class="mgb-3">
+
+                    <button type="submit" class="wf pd-2 bg-primary corner-2 bd-none fsz-10" disabled="@isLoading">
+
+                        @if (isLoading)
+                        {
+                            <span>Logging in...</span>
+                        }
+                        else
+                        {
+                            <span>Log In</span>
+                        }
+
+                    </button>
+
+                </div>
+
+
+                <!-- Social Login -->
+                @* <div class="mgb-3">
+
+                    <p class="text-center wf fsz-10 op-5">
+                        Or Continue with
+                    </p>
+
+                </div>
+
+
+                <div class="flex flex-center mgb-3">
+
+                    <button type="button" class="flex flex-center pdl-5 pdr-5 corner-2 bd bg-card mgr-2">
+
+                        <i class="mdi mdi-google fsz-15 mgr-2"></i>
+
+                        <p class="mg-0 fsz-10">
+                            Google
+                        </p>
+
+                    </button>
+
+
+                    <button type="button" class="flex flex-center pdl-5 pdr-5 corner-2 bd bg-card">
+
+                        <i class="mdi mdi-github fsz-15 mgr-2"></i>
+
+                        <p class="mg-0 fsz-10">
+                            Github
+                        </p>
+
+                    </button>
+
+                </div> *@
+
+
+                <!-- Sign Up -->
+                <div class="mgb-3">
+
+                    <p class="text-center wf fsz-10 op-5">
+
+                        Don't have an account?
+
+                        <button type="button" class="bd-none bg-transparent cl-primary fsz-10 op-10"
+                                @onclick='() => Nav.NavigateTo("SignUp")'>
+
+                            Sign Up
+
+                        </button>
+
+                    </p>
+
+                </div>
+
+            </EditForm>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@code {
+
+    private LoginRequest loginRequest = new();
+
+    private string? errorMessage;
+
+    private bool isLoading = false;
+
+    private bool showPassword = false;
+
+
+    private void TogglePassword()
+    {
+        showPassword = !showPassword;
+    }
+
+
+    private async Task LoginUser()
+    {
+        errorMessage = null;
+        isLoading = true;
+
+        try
+        {
+            var result =
+                await AuthService.LoginAsync(loginRequest);
+
+            if (result.Response is not null)
+            {
+                /*
+                 * Admin and SuperAdmin users go to
+                 * the admin dashboard.
+                 *
+                 * Normal users go to their personal dashboard.
+                 */
+
+                if (result.Response.User.Roles.Contains("Admin") ||
+                    result.Response.User.Roles.Contains("SuperAdmin"))
+                {
+                    Nav.NavigateTo("/Admin/Dashboard");
+                }
+                else
+                {
+                    Nav.NavigateTo("/Dashboard");
+                }
+
+                return;
+            }
+
+            errorMessage =
+                result.ErrorMessage ??
+                "Invalid email or password.";
+        }
+        catch
+        {
+            errorMessage =
+                "Unable to connect to CPT. Please try again.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

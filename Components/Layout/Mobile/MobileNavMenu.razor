@@ -1,0 +1,116 @@
+﻿@using CPT.Models.Auth
+@using CPT.Services.Auth
+@using cpt.Components.Shared
+@inject AuthService AuthService
+@inject NavigationManager Nav
+
+<div class="nav-scrollable shadow-border-5" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="bg-card bdt bdw-3" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;">
+        <div class="flex flex-spacearound bg-primary-01 pd-1">
+            <button class="bg-transparent mg-0 pd bd-none clip bd-primary" @onclick="OnClickHide">
+                <NavLink class="stack block cl-primary" href="@DashboardUrl" Match="NavLinkMatch.All"
+                         style="text-decoration: none;">
+                    <i class="mdi mdi-view-dashboard-outline fsz-20"></i>
+                    <h6 class="mg-0 fsz-05" aria-hidden="true">Dashboard</h6>
+                </NavLink>
+            </button>
+
+            <button class="bg-transparent mg-0 pd bd-none clip bd-primary" @onclick="OnClickHide">
+                <NavLink class="stack block cl-primary" href="Modules" Match="NavLinkMatch.All"
+                         style="text-decoration: none;">
+                    <i class="mdi mdi-molecule fsz-20"></i>
+                    <h6 class="mg-0 fsz-05" aria-hidden="true">Modules</h6>
+                </NavLink>
+            </button>
+
+            <button class="bg-transparent mg-0 pd bd-none clip bd-primary" @onclick="OnClickHide">
+                <NavLink class="stack block cl-primary" href="SimulationHistory" Match="NavLinkMatch.All"
+                         style="text-decoration: none;">
+                    <i class="mdi mdi-history fsz-20"></i>
+                    <h6 class="mg-0 fsz-05" aria-hidden="true">History</h6>
+                </NavLink>
+            </button>
+
+            <button class="bg-transparent mg-0 pd bd-none clip bd-primary" @onclick="OnClickHide">
+                <NavLink class="stack block cl-primary" href="Help" Match="NavLinkMatch.All"
+                         style="text-decoration: none;">
+                    <i class="mdi mdi-help fsz-20"></i>
+                    <h6 class="mg-0 fsz-05" aria-hidden="true">Help & About</h6>
+                </NavLink>
+            </button>
+
+            <button class="bg-transparent mg-0 pd bd-none clip bd-primary" @onclick="OnClickHide">
+                <NavLink class="stack block cl-primary" href="Settings" Match="NavLinkMatch.All"
+                         style="text-decoration: none;">
+                    <i class="mdi mdi-application-settings-outline fsz-20"></i>
+                    <h6 class="mg-0 fsz-05" aria-hidden="true">Settings</h6>
+                </NavLink>
+            </button>
+        </div>
+    </nav>
+</div>
+
+@code
+{
+    private AuthUser? currentUser;
+
+    [Parameter] public EventCallback HideMenu { get; set; }
+
+    private bool showLogoutDialog;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser =
+            await AuthService.GetCurrentUserAsync();
+    }
+
+    private string DashboardUrl =>
+    IsAdminOrSuperAdmin()
+        ? "Admin/Dashboard"
+        : "Dashboard";
+
+    public async Task OnClickHide()
+    {
+        await HideMenu.InvokeAsync();
+    }
+    
+    private bool IsAdminOrSuperAdmin()
+    {
+        if (currentUser?.Roles is null)
+            return false;
+
+        return currentUser.Roles.Contains(
+                   "Admin",
+                   StringComparer.OrdinalIgnoreCase)
+               ||
+               currentUser.Roles.Contains(
+                   "SuperAdmin",
+                   StringComparer.OrdinalIgnoreCase);
+    }
+
+    private async Task LogoutAsync()
+    {
+        await AuthService.LogoutAsync();
+
+        Nav.NavigateTo("/Login", true);
+    }
+
+    private void RequestLogout()
+    {
+        showLogoutDialog = true;
+    }
+
+    private async Task ConfirmLogoutAsync()
+    {
+        showLogoutDialog = false;
+
+        await AuthService.LogoutAsync();
+
+        Nav.NavigateTo("/Login", true);
+    }
+
+    private void CancelLogout()
+    {
+        showLogoutDialog = false;
+    }
+}

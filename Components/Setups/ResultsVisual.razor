@@ -1,0 +1,657 @@
+@page "/Result/{SimulationId:guid}"
+@using System.Text.Json
+@using CPT.Models.SimulationResults
+@using CPT.Services
+@using cpt.Components.Shared
+@using cpt.Models.HeatEquation
+@using cpt.Components.Visualization
+@using CPT.Models.Auth
+@using CPT.Services.Auth
+@inject AuthService AuthService
+@inject HeatEquationApiService HeatEquationApi
+@inject NavigationManager Nav
+
+<ProtectedRouteView AllowAnonymous="@Demo">
+    <div class="hx-1 wvl-5"></div>
+
+    <div class="">
+        <div class="flex flex-center flow flex-end mgb-2 mgt-0 wvl-5">
+            <button class="bg-card pd fsz-10 corner-2 bd wx-15 flex flex-center shadow-border-1 mgr"
+                    @onclick="BackToSimulationData">
+                <i class="mdi mdi-arrow-left mgr-3"></i>
+                Simulation Data
+            </button>
+
+            <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center" @onclick="BackToDashboard">
+                <i class="mdi mdi-view-dashboard mgr-3"></i>
+                Dashboard
+            </button>
+        </div>
+    </div>
+
+    <div class="bg-card">
+        <div class="mgb-5 flex flex-center flex-spacebetween flow bg-primary-02 bd pd border-shadow-5">
+            <div>
+                <h2 class="mg-0 pdb fsz-18 cl-primary">Heat Equation (2D) - Results</h2>
+                <p class="mg-0 fsz-10">Analyse and visualize your simulation results</p>
+            </div>
+
+            <div class="flex flex-center flow flex-end wvg-5">
+                <button class="bg-card pd fsz-10 corner-2 bd wx-15 flex flex-center shadow-border-1 mgr"
+                        @onclick="BackToSimulationData">
+                    <i class="mdi mdi-arrow-left mgr-3"></i>
+                    Simulation Data
+                </button>
+
+                @if (Demo)
+                {
+                    <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center" @onclick="ExitDemo">
+
+                        <i class="mdi mdi-exit-to-app mgr-3"></i>
+                        Exit Demo
+
+                    </button>
+                }
+                else
+                {
+                    <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center" @onclick="BackToDashboard">
+
+                        <i class="mdi mdi-view-dashboard mgr-3"></i>
+                        Dashboard
+
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="mgb-2 scroll wf mgt-2">
+
+        <button
+            class="fsz-10 bd-none bdb pd bg-transparent mgb-1 mgr-1 @(ActiveVisualization == "Temperature Map" ? "bg-primary" : "bg-primary-02")"
+            @onclick='() => ActiveVisualization = "Temperature Map"'>
+            Temperature Map
+        </button>
+
+        <button
+            class="fsz-10 bd-none bdb pd bg-transparent mgb-1 mgr-1 @(ActiveVisualization == "Surface Plot" ? "bg-primary" : "bg-primary-02")"
+            @onclick='() => ActiveVisualization = "Surface Plot"'>
+            Surface Plot
+        </button>
+
+        <button
+            class="fsz-10 bd-none bdb pd bg-transparent mgb-1 mgr-1 @(ActiveVisualization == "Contour Lines" ? "bg-primary" : "bg-primary-02")"
+            @onclick='() => ActiveVisualization = "Contour Lines"'>
+            Contour Lines
+        </button>
+
+        <button
+            class="fsz-10 bd-none bdb pd bg-transparent mgb-1 mgr-1 @(ActiveVisualization == "Line Plot" ? "bg-primary" : "bg-primary-02")"
+            @onclick='() => ActiveVisualization = "Line Plot"'>
+            Line Plot
+        </button>
+
+        <button
+            class="fsz-10 bd-none bdb pd bg-transparent mgb-1 mgr-1 @(ActiveVisualization == "Animation" ? "bg-primary" : "bg-primary-02")"
+            @onclick='() => ActiveVisualization = "Animation"'>
+            Animation
+        </button>
+
+    </div>
+
+
+    @* Desktop Version *@
+    <div class="scroll-y" style="height: 80vh;">
+        @if (IsLoading)
+        {
+            <div class="hf bg-card pd bd corner-2 flex flex-center justify-content-between">
+                <LoadingIndicator Text="Loading simulation results..." />
+            </div>
+        }
+        else if (HasError || Data is null)
+        {
+            <div class="hf bg-card pd bd corner-2 flex flex-center justify-content-between">
+                <p class="fsz-15 fw-bold">Unable to load simulation result.</p>
+            </div>
+        }
+        else
+        {
+            @if (ActiveVisualization == "Temperature Map")
+            {
+                <div class="row responsive mgb">
+
+                    <div class="wf mgb">
+
+                        <div class="pd bd corner-2 bg-card">
+
+                            <div class="mgb-5">
+                                <h5 class="mg-0 pdb fsz-15 cl-primary">
+                                    Temperature Map
+                                </h5>
+
+                                <p class="mg-0 fsz-10">
+                                    2D spatial distribution of temperature
+                                </p>
+                            </div>
+
+                            @if (Data is not null)
+                            {
+                                <Heatmap Temperature="@CurrentResultTemperature" GridWidth="@Data.GridWidth"
+                                         GridHeight="@Data.GridHeight" XMin="0" XMax="@Data.Width" YMin="0" YMax="@Data.Height"
+                                         ColorMap="@SelectedColorMapName" ShowColourbar="@ShowColourbar" ShowGrid="@ShowGrid"
+                                         EqualAspectRatio="@EqualAspectRatio" />
+                            }
+
+                        </div>
+
+                    </div>
+
+                    <div class="miwx-25 mgb-2">
+
+                        <div class="pd bd corner-2 bg-card">
+
+                            <h5 class="mg-0 pdb fsz-15 cl-primary">
+                                Visualization Control
+                            </h5>
+
+                            @* <div class="mgb-5 mgt-5">
+                            <h3 class="mg-0 fsz-12">
+                                Time Steps
+                            </h3>
+
+                            <div class="flex flex-center">
+                                <div class="hx-01 wf corner-5 bg-gray mgr-3">
+                                    <div class="bg-secondary hx-01 corner-3" style="width: @(Data?.TimeSteps > 0 ? 100 : 0)%;">
+                                    </div>
+                                </div>
+
+                                <h3 class="mg-0 fsz-15">
+                                    @(Data?.TimeSteps ?? 0) / @(Data?.TimeSteps ?? 0)
+                                </h3>
+                            </div>
+
+                            <p class="mg-0 mgt-2 fsz-10 cl-gray">
+                                t = @(Data?.FinalTime.ToString("F3") ?? "0.000")
+                            </p>
+                        </div> *@
+
+                            <div class="mgb-5 mgt-5">
+
+                                <div class="flex flex-center flex-spacebetween">
+                                    <h3 class="mg-0 fsz-12">
+                                        Time Steps
+                                    </h3>
+
+                                    <span class="fsz-10">
+                                        @(ResultFrame + 1) / @TotalResultFrames
+                                    </span>
+                                </div>
+
+                                <input type="range" min="0" max="@Math.Max(0, TotalResultFrames - 1)" step="1"
+                                       value="@ResultFrame" @oninput="HandleResultFrameChanged" class="wf mgt-3" />
+
+                                <div class="flex flex-center flex-spacebetween mgt-2">
+
+                                    <span class="fsz-10 cl-gray">
+                                        Step @ResultFrame
+                                    </span>
+
+                                    <span class="fsz-10 cl-gray">
+                                        t = @CurrentResultTime.ToString("F3")
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="mgb-5 mgt-5">
+
+                                <h5 class="mg-0 pdb fsz-12">
+                                    Colour Map
+                                </h5>
+
+                                @* <select class="pd bd corner-1 bg-card wf">
+                                <option value="Thermal">Thermal</option>
+                            </select> *@
+
+                                @* <select @bind="SelectedColorMapName" class="form-select">
+                                <option value="Thermal">Thermal</option>
+                            </select> *@
+
+                                <select value="@SelectedColorMapName" @onchange="OnColorMapChanged"
+                                        class="pd bd corner-1 bg-card wf">
+
+                                    <option value="Thermal">Thermal</option>
+                                    <option value="Viridis">Viridis</option>
+                                    <option value="Grayscale">Grayscale</option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="flex flex-start">
+                                <div class="flex flex-center">
+
+                                    <input type="checkbox" @bind="ShowColourbar">
+
+                                    <p class="fsz-12 mgl-3">
+                                        Show Colourbar
+                                    </p>
+
+                                </div>
+                            </div>
+
+                            <div class="flex flex-start">
+                                <div class="flex flex-center">
+
+                                    <input type="checkbox" @bind="ShowGrid">
+
+                                    <p class="fsz-12 mgl-3">
+                                        Show Grid
+                                    </p>
+
+                                </div>
+                            </div>
+
+                            <div class="flex flex-start">
+                                <div class="flex flex-center">
+
+                                    <input type="checkbox" @bind="EqualAspectRatio">
+
+                                    <p class="fsz-12 mgl-3">
+                                        Equal Aspect Ratio
+                                    </p>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+            @if (ActiveVisualization == "Surface Plot" && Data is not null)
+            {
+                <div class="mgb-5">
+
+                    <div class="pd bd corner-2 bg-card">
+
+                        <div class="mgb-5">
+                            <h5 class="mg-0 pdb fsz-15 cl-primary">
+                                3D Temperature Surface
+                            </h5>
+
+                            <p class="mg-0 fsz-10">
+                                Three-dimensional representation of the temperature distribution
+                            </p>
+                        </div>
+
+                        <Surface3D Temperature="@Data.Temperature" />
+
+                    </div>
+
+                </div>
+            }
+
+            @if (ActiveVisualization == "Contour Lines" && Data is not null)
+            {
+                <div class="pd bd corner-2 bg-card mgb-5">
+
+                    <div class="mgb-5">
+                        <h5 class="mg-0 pdb fsz-15 cl-primary">
+                            Temperature Contour Map
+                        </h5>
+
+                        <p class="mg-0 fsz-10">
+                            Contour representation of the simulated temperature field
+                        </p>
+                    </div>
+
+                    <ContourPlot Temperature="@Data.Temperature" GridWidth="@Data.GridWidth" GridHeight="@Data.GridHeight"
+                                 XMin="0" XMax="@Data.Width" YMin="0" YMax="@Data.Height" />
+
+                </div>
+            }
+
+            @if (ActiveVisualization == "Line Plot" && Data is not null)
+            {
+                <div class="pd bd corner-2 bg-card mgb-5">
+
+                    <TemperatureProfile Temperature="@Data.Temperature" GridWidth="@Data.GridWidth"
+                                        GridHeight="@Data.GridHeight" XMin="0" XMax="@Data.Width" YMin="0" YMax="@Data.Height" />
+
+                </div>
+            }
+
+            @if (ActiveVisualization == "Animation" && Data is not null)
+            {
+                <div class="pd bd corner-2 bg-card mgb-5">
+
+                    <div class="mgb-5">
+                        <h5 class="mg-0 pdb fsz-15 cl-primary">
+                            Temperature Evolution
+                        </h5>
+
+                        <p class="mg-0 fsz-10">
+                            Time-dependent evolution of the simulated temperature field
+                        </p>
+                    </div>
+
+                    <TemperatureAnimation @ref="Animation" TemperatureHistory="@Data.TemperatureHistory"
+                                          GridWidth="@Data.GridWidth" GridHeight="@Data.GridHeight" Width="@Data.Width" Height="@Data.Height"
+                                          TimeStep="@Data.TimeStep" FinalTime="@Data.FinalTime" OnFrameChanged="AnimationFrameChanged" />
+
+                </div>
+            }
+
+            @if (ActiveVisualization == "Animation" && Data is not null)
+            {
+                <div class="row responsive colm-3 bg-card pd bd mgb-5">
+                    <div class="miwx-15 mawx-2">
+                        <div class="row responsive colm-3">
+                            <div class="miwx-15 mawx-2">
+                                <div class="">
+                                    <button
+                                        class="mdi mdi-play fsz-15 bd bd-primary-04 bg-primary-01 cl-primary corner-1 mgr-2 mgb-2"
+                                        @onclick="PlayAnimation">
+                                    </button>
+
+                                    <button
+                                        class="mdi mdi-play-pause fsz-15 bd bd-primary-04 bg-primary-01 cl-primary corner-1 mgr-2 mgb-2"
+                                        @onclick="ToggleAnimation">
+                                    </button>
+
+                                    <button
+                                        class="mdi mdi-skip-backward fsz-15 bd bd-primary-04 bg-primary-01 cl-primary corner-1 mgr-2 mgb-2"
+                                        @onclick="PreviousAnimationFrame">
+                                    </button>
+
+                                    <button
+                                        class="mdi mdi-skip-forward fsz-15 bd bd-primary-04 bg-primary-01 cl-primary corner-1 mgr-2 mgb-2"
+                                        @onclick="NextAnimationFrame">
+                                    </button>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mgb-5 miwx-25">
+                        <div class="flex stack">
+                            <div class="hx-01 wf corner-5 bg-gray mgr-3 mgb bd-primary-01">
+                                <div class="bg-secondary hx-01 corner-3" style="width:@AnimationProgress%;">
+                                </div>
+                            </div>
+                            <h3 class="mg-0 fsz-15 cl-primary">
+                                @Animation?.CurrentTime.ToString("F3")
+                                <span class="op-5">
+                                    /@Data?.FinalTime.ToString("F3")
+                                </span>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="hx-05 wvl-5"></div>
+        }
+    </div>
+
+
+
+    @* Mobile version *@
+
+    @if (Demo && ShowDemoComplete)
+    {
+        <DemoComplete CreateAccount="GoToCreateAccount" CreateLater="HideDemoComplete" />
+    }
+
+    @if (ShowExitDemoDialog)
+    {
+        <ConfirmDialog IsVisible="@ShowExitDemoDialog" Title="Exit Demo" Message="Are you sure you want to exit the demo?"
+                       ConfirmText="Exit Demo" CancelText="Cancel" Icon="mdi-exit-to-app" OnConfirm="ConfirmExitDemo"
+                       OnCancel="CancelExitDemo" />
+    }
+</ProtectedRouteView>
+
+@code {
+    [SupplyParameterFromQuery(Name = "from")] public string? From { get; set; }
+
+    [Parameter] public Guid SimulationId { get; set; }
+
+    [SupplyParameterFromQuery(Name = "demo")]
+    public bool Demo { get; set; }
+
+    private bool ShowDemoComplete { get; set; }
+    private bool ShowExitDemoDialog { get; set; }
+
+    private SimulationResultDto? Result;
+
+    private HeatEquationResultData? Data;
+
+    private TemperatureAnimation? Animation;
+
+    private int ResultFrame { get; set; }
+
+    private int TotalResultFrames =>
+        Data?.TemperatureHistory?.Count ?? 0;
+
+    private double[][]? CurrentResultTemperature =>
+        Data?.TemperatureHistory is not null &&
+        Data.TemperatureHistory.Count > 0
+            ? Data.TemperatureHistory[
+                Math.Clamp(
+                    ResultFrame,
+                    0,
+                    Data.TemperatureHistory.Count - 1)]
+            : Data?.Temperature;
+
+    private double CurrentResultTime =>
+        TotalResultFrames <= 1 || Data is null
+            ? 0
+            : Data.FinalTime *
+              ResultFrame /
+              (TotalResultFrames - 1);
+
+    private string ActiveVisualization { get; set; } = "Temperature Map";
+
+    private string SelectedColorMapName { get; set; } = "Thermal";
+
+    private bool ShowColourbar { get; set; } = true;
+
+    private bool ShowGrid { get; set; } = false;
+
+    private bool EqualAspectRatio { get; set; } = true;
+
+    private bool IsLoading = true;
+
+    private bool HasError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Result = await HeatEquationApi.GetLatestResultAsync(SimulationId);
+
+            if (Result?.ResultData is not null)
+            {
+                Data = JsonSerializer.Deserialize<HeatEquationResultData>(
+                    Result.ResultData,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+            }
+        }
+        catch
+        {
+            HasError = true;
+        }
+        finally
+        {
+            IsLoading = false;
+
+            if (Demo && Data is not null)
+            {
+                ShowDemoComplete = true;
+            }
+        }
+    }
+
+    private void OnColorMapChanged(ChangeEventArgs e)
+    {
+        SelectedColorMapName =
+            e.Value?.ToString() ?? "Thermal";
+    }
+
+    private async Task PlayAnimation()
+    {
+        if (Animation is not null)
+        {
+            await Animation.Play();
+        }
+    }
+
+    private async Task PauseAnimation()
+    {
+        if (Animation is not null)
+        {
+            await Animation.Pause();
+        }
+    }
+
+    private async Task ToggleAnimation()
+    {
+        if (Animation is not null)
+        {
+            await Animation.TogglePlayback();
+        }
+    }
+
+    private async Task PreviousAnimationFrame()
+    {
+        if (Animation is not null)
+        {
+            await Animation.PreviousFrame();
+        }
+    }
+
+    private async Task NextAnimationFrame()
+    {
+        if (Animation is not null)
+        {
+            await Animation.NextFrame();
+        }
+    }
+
+    private async Task RestartAnimation()
+    {
+        if (Animation is not null)
+        {
+            await Animation.Restart();
+        }
+    }
+
+    private async Task AnimationFrameChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleResultFrameChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var frame))
+        {
+            ResultFrame = Math.Clamp(
+                frame,
+                0,
+                Math.Max(0, TotalResultFrames - 1));
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+
+    private double AnimationProgress =>
+        Animation is null || Animation.TotalFrames <= 1
+            ? 0
+            : (double)Animation.CurrentFrame /
+              (Animation.TotalFrames - 1) * 100;
+
+    @* private void BackToSimulationData()
+    {
+        Nav.NavigateTo($"SimulationData/{SimulationId}");
+    } *@
+
+    private void BackToSimulationData()
+    {
+        if (Demo)
+        {
+            Nav.NavigateTo(
+                $"SimulationData/{SimulationId}?demo=true&colorMap={Uri.EscapeDataString(SelectedColorMapName)}");
+            return;
+        }
+
+        if (From == "demo-history")
+        {
+            Nav.NavigateTo(
+                $"SimulationData/{SimulationId}?from=demo-history&colorMap={Uri.EscapeDataString(SelectedColorMapName)}");
+            return;
+        }
+
+        if (From == "history")
+        {
+            Nav.NavigateTo(
+                $"SimulationData/{SimulationId}?from=history&colorMap={Uri.EscapeDataString(SelectedColorMapName)}");
+            return;
+        }
+
+        Nav.NavigateTo(
+            $"SimulationData/{SimulationId}?colorMap={Uri.EscapeDataString(SelectedColorMapName)}");
+    }
+
+    private async Task BackToDashboard()
+    {
+        var currentUser = await AuthService.GetCurrentUserAsync();
+
+        if (currentUser?.Roles?.Contains(
+                "SuperAdmin",
+                StringComparer.OrdinalIgnoreCase) == true ||
+            currentUser?.Roles?.Contains(
+                "Admin",
+                StringComparer.OrdinalIgnoreCase) == true)
+        {
+            Nav.NavigateTo("/Admin/Dashboard");
+            return;
+        }
+
+        Nav.NavigateTo("/Dashboard");
+    }
+
+    private void ExitDemo()
+    {
+        ShowExitDemoDialog = true;
+    }
+
+    private void ConfirmExitDemo()
+    {
+        ShowExitDemoDialog = false;
+        Nav.NavigateTo("/");
+    }
+
+    private void CancelExitDemo()
+    {
+        ShowExitDemoDialog = false;
+    }
+
+    private void GoToCreateAccount()
+    {
+        Nav.NavigateTo("/SignUp");
+    }
+
+    private void HideDemoComplete()
+    {
+        ShowDemoComplete = false;
+    }
+}

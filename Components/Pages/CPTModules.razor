@@ -1,0 +1,182 @@
+@page "/Modules"
+@using cpt.Components.Shared
+@using cpt.Components.Layout.Desktop
+@using cpt.Models.Modules
+@using CPT.Services
+@using cpt.Models.Dashboard
+@inject DashboardApiService DashboardApi
+@inject PhysicsModuleCatalogue ModuleCatalogue
+@inject PhysicsModuleApiService PhysicsModuleApi
+@layout MainLayout
+
+<ProtectedRouteView>
+<div class="hx-1 wvl-5"></div>
+
+<div class="bg-card">
+    <div class="mgb-5 flex flex-center flow flex-spacebetween bg-primary-02 bd pd border-shadow-5">
+
+        <div>
+            <h3 class="mg-0 pdb fsz-18 cl-primary">Physics Modules</h3>
+            <p class="mg-0 fsz-10">
+                Choose a topic to start a new simulation
+            </p>
+        </div>
+
+        <div class="mgt-5">
+            <div class="mgr-3 mgb-3 flex flex-center">
+
+                <div class="wf mgr-3">
+                    <input type="text" placeholder="Search modules" class="pd bd bd-white corner-2 op-5"
+                           @bind="SearchTerm" @bind:event="oninput" />
+                </div>
+
+                <select class="pd bd bd-white corner-2 bg-card op-5" @bind="SelectedCategory">
+
+                    <option value="" class="op-5">All Categories</option>
+
+                    @foreach (var category in Categories)
+                    {
+                        <option value="@category">@category</option>
+                    }
+
+                </select>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="scroll-y" style="height: 100vh;">
+
+    @foreach (var category in Categories)
+    {
+        var categoryModules = FilteredModules
+            .Where(m => m.Category == category)
+            .ToList();
+
+        if (categoryModules.Count == 0)
+        {
+            continue;
+        }
+
+        <div class="bd pd bg-card corner-2 mgb-3">
+
+            <h3 class="fsz-15 cl-primary">
+                @category
+            </h3>
+
+            <div class="grid gap-1 colm-3">
+
+                @foreach (var module in categoryModules)
+                {
+                    var moduleStats = DashboardData?.AvailableModules
+                        .FirstOrDefault(x => x.Name == module.Name);
+
+                    @if (module.Available)
+                    {
+                        <div class="shadow-card-5">
+                            <NavLink href="@module.Route" style="text-decoration: none; color: inherit;">
+
+                                <ModuleStatCard Img="@GetModuleImage(module)" Tag="@module.Name"
+                                                Num="@(moduleStats?.SimulationCount ?? 0)" />
+
+                            </NavLink>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="pos-rel">
+                            <div class="op-5" title="This module will be available soon">
+                                <ModuleStatCard Img="@GetModuleImage(module)" Tag="@module.Name" />
+                            </div>
+
+                            <div class="bg-error cl-white pd-2 fw-bold fsz-8 shadow-border-5" style="
+                                position: absolute;
+                                top: 50%;
+                                right: 0%;
+                                ">
+                                COMING SOON
+                            </div>
+                        </div>
+                    }
+                }
+
+            </div>
+        </div>
+    }
+
+    @if (!FilteredModules.Any())
+    {
+        <div class="bd pd bg-card corner-2 text-center">
+
+            <h3 class="fsz-15 cl-primary">
+                No modules found
+            </h3>
+
+            <p class="mg-0 fsz-10">
+                Try a different search term or category.
+            </p>
+
+        </div>
+    }
+
+    <div class="hx-05 wvl-5"></div>
+
+</div>
+</ProtectedRouteView>
+
+@code {
+
+    private string SearchTerm { get; set; } = string.Empty;
+
+    private string SelectedCategory { get; set; } = string.Empty;
+
+    private DashboardDto? DashboardData;
+
+    private bool IsLoading = true;
+
+    private List<PhysicsModuleDto> ApiModules = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        DashboardData = await DashboardApi.GetDashboardAsync();
+        ApiModules = await PhysicsModuleApi.GetAllAsync();
+        IsLoading = false;
+    }
+
+    private List<string> Categories =>
+        Modules
+            .Select(m => m.Category)
+            .Distinct()
+            .ToList();
+
+    private IEnumerable<PhysicsModule> FilteredModules =>
+        Modules.Where(module =>
+            (
+                string.IsNullOrWhiteSpace(SearchTerm) ||
+                module.Name.Contains(
+                    SearchTerm,
+                    StringComparison.OrdinalIgnoreCase)
+            )
+            &&
+            (
+                string.IsNullOrWhiteSpace(SelectedCategory) ||
+                module.Category == SelectedCategory
+            )
+        );
+
+    private IReadOnlyList<PhysicsModule> Modules =>
+    ModuleCatalogue.Modules;
+
+    private string GetModuleImage(PhysicsModule module)
+    {
+        return ApiModules
+            .FirstOrDefault(x =>
+                x.Name.Equals(
+                    module.Name,
+                    StringComparison.OrdinalIgnoreCase))
+            ?.ImageUrl
+            ?? module.Icon;
+    }
+}

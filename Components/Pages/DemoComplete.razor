@@ -1,0 +1,55 @@
+@layout MobileMainLayout
+
+<div style="position: fixed; top: 0; bottom: 0; right: 0; left: 0;" class="bg-black-05">
+    <div class="flex flex-center justify-content-between" style="height: 100vh;">
+        <div class="bg-card corner-2 shadow-border-2 pd-5">
+            <div class="text-center pd">
+                <i class="mdi mdi-check round bg-success pd fsz-20"></i>
+                <h3 class="fsz-15">Demo Completed!</h3>
+                <p class="mg-0 wx-3 fsz-12 op-7">You've successfully run a demo simulation, Want to save your work, track
+                    your progress and access more features?</p>
+                </div>
+
+                <div>
+                    <button class="pd-2 corner-1 bg-primary wf fsz-10 bd-none bd bd-primary mgb-2" @onclick="OnCreateAccount">Create Free Account</button>
+                    <button class="pd-2 corner-1 wf fsz-10 bd bd-primary cl-primary bg-transparent" @onclick="OnCreateLater">Maybe Later</button>
+                </div>
+
+                <div>
+                    <h5 class="fsz-13 mgb-0 pdb-2">What you'll get</h5>
+                    <div class="flex">
+                        <i class="mdi mdi-marker cl-success mgr-3 fsz-12"></i>
+                        <p class="mg-0 fsz-10">Save your simulations</p>
+                    </div>
+                    <div class="flex">
+                        <i class="mdi mdi-marker cl-success mgr-3 fsz-12"></i>
+                        <p class="mg-0 fsz-10">Track your history</p>
+                    </div>
+                    <div class="flex">
+                        <i class="mdi mdi-marker cl-success mgr-3 fsz-12"></i>
+                        <p class="mg-0 fsz-10">Access all modules</p>
+                    </div>
+                    <div class="flex">
+                        <i class="mdi mdi-marker cl-success mgr-3 fsz-12"></i>
+                        <p class="mg-0 fsz-10">Get personalized dashboard</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @code {
+        [Parameter] public EventCallback CreateAccount { get; set; }
+        [Parameter] public EventCallback CreateLater { get; set; }
+
+        public async Task OnCreateAccount()
+        {
+            await CreateAccount.InvokeAsync();
+        }
+
+        public async Task OnCreateLater()
+        {
+            await CreateLater.InvokeAsync();
+        }
+
+    }

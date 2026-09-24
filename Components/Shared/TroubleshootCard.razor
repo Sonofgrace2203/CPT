@@ -1,0 +1,51 @@
+<div class="pd corner-1 bd bg-secondary-01">
+    <i class="mdi mdi-information-outline fsz-50 cl-primary"></i>
+
+    <h3 class="mg-0 pdt pdb fsz-15">@Title</h3>
+
+    <div class="mgb-2">
+
+        <div class="flex flex-start">
+            <i class="mdi mdi-star cl-primary mgr-3"></i>
+            <p class="mg-0 pdt-1 fsz-12">@Text</p>
+        </div>
+
+        <div class="flex flex-start">
+            <i class="mdi mdi-star cl-primary mgr-3"></i>
+            <p class="mg-0 pdt-1 fsz-12">@Text1</p>
+        </div>
+
+        <div class="flex flex-start">
+            <i class="mdi mdi-star cl-primary mgr-3"></i>
+            <p class="mg-0 pdt-1 fsz-12">@Text2</p>
+        </div>
+
+        <div class="flex flex-start">
+            <i class="mdi mdi-star cl-primary mgr-3"></i>
+            <p class="mg-0 pdt-1 fsz-12">@Text3</p>
+        </div>
+
+    </div>
+
+    <button class="fsz-10 bd-none bg-primary wf pd"
+            @onclick="HandleClick">
+        @Link
+        <i class="mdi mdi-arrow-right mgl-3"></i>
+    </button>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Text { get; set; } = "";
+    [Parameter] public string Text1 { get; set; } = "";
+    [Parameter] public string Text2 { get; set; } = "";
+    [Parameter] public string Text3 { get; set; } = "";
+    [Parameter] public string Link { get; set; } = "";
+
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    private async Task HandleClick()
+    {
+        await OnClick.InvokeAsync();
+    }
+}

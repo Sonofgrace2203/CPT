@@ -1,0 +1,712 @@
+@page "/SimulationHistory"
+@using cpt.Components.Shared
+@using cpt.Models.Simulations
+@using CPT.Services
+
+@inject NavigationManager Nav
+@inject SimulationApiService SimulationApi
+@inject UserSettingsApiService UserSettingsApi
+
+<ProtectedRouteView>
+    <div class="hx-1 wvl-5"></div>
+
+    <div class="bg-card">
+        <div class="mgb-5 flex flex-center flex-spacebetween flow bg-primary-02 bd pd border-shadow-5">
+            <div class="mgb-5">
+                <h2 class="mg-0 pdb fsz-18 cl-primary">Simulation History</h2>
+                <p class="mg-0 fsz-10">View and manage your saved simulations</p>
+            </div>
+            <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center shadow-border-2"
+                    @onclick='() => Nav.NavigateTo("Modules")'>
+                <i class="mdi mdi-plus fsz-10 mgr-5"></i>
+                New Simulation
+            </button>
+        </div>
+    </div>
+
+    @* <div class="mgb-5 flex flex-center flex-spacebetween flow">
+    <div class="mgb-5">
+        <h2 class="mg-0 pdb fsz-18">Simulation History</h2>
+        <p class="mg-0 fsz-10">View and manage your saved simulations</p>
+    </div>
+</div> *@
+
+    @* <div class="mgb-5 scroll wf">
+</div> *@
+
+    <!-- Search / Filters -->
+
+    <div class="corner-2 bg-card mgb-2 pd flex flex-spacebetween wvg-5">
+
+        <div class="wf mgr-3 mgb">
+            @* <i class="mdi mdi-magnify fsz-20"></i> *@
+
+            <input type="text" @bind="SearchTerm" @bind:event="oninput" placeholder="🔍 Search simulations"
+                   class="pd bd corner-2 miwx-3 mawx-5" />
+        </div>
+
+        <div>
+            <div class="flex">
+
+                <select @bind="ModuleFilter" class="pd bd corner-2 bg-card mgr-3">
+
+                    <option value="">All Modules</option>
+
+                    @foreach (var module in Simulations
+                        .Select(x => x.PhysicsModuleName)
+                        .Distinct()
+                        .OrderBy(x => x))
+                    {
+                        <option value="@module">@module</option>
+                    }
+
+                </select>
+
+                <select @bind="TimeFilter" class="pd bd corner-2 bg-card mgr-3">
+
+                    <option value="">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="week">Last 7 Days</option>
+                    <option value="month">Last 30 Days</option>
+
+                </select>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="corner-2 bg-card mgb-2 pd flex flex-spacebetween flow wvl-5">
+
+        <div class="wf mgr-3 mgb">
+            @* <i class="mdi mdi-magnify fsz-20"></i> *@
+
+            <input type="text" @bind="SearchTerm" @bind:event="oninput" placeholder="🔍 Search simulations"
+                   class="pd bd corner-2 miwx-3 mawx-5" />
+        </div>
+
+        <div>
+            <div class="flex">
+
+                <select @bind="ModuleFilter" class="pd bd corner-2 bg-card mgr-3">
+
+                    <option value="">All Modules</option>
+
+                    @foreach (var module in Simulations
+                        .Select(x => x.PhysicsModuleName)
+                        .Distinct()
+                        .OrderBy(x => x))
+                    {
+                        <option value="@module">@module</option>
+                    }
+
+                </select>
+
+                <select @bind="TimeFilter" class="pd bd corner-2 bg-card mgr-3">
+
+                    <option value="">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="week">Last 7 Days</option>
+                    <option value="month">Last 30 Days</option>
+
+                </select>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Selection Toolbar -->
+
+    @if (SelectedSimulationIds.Count > 0)
+    {
+        <div class="bg-primary-02 bd pd corner-2 mgb-2 flex flex-center flex-spacebetween">
+
+            <div>
+                <span class="fsz-11 fw-bold">
+                    @SelectedSimulationIds.Count simulation(s) selected
+                </span>
+            </div>
+
+            <button class="bg-transparent bd-none cl-error fsz-15" style="cursor: pointer;"
+                    title="Delete selected simulations" disabled="@IsDeleting" @onclick="DeleteSelectedSimulations">
+
+                <i class="mdi mdi-delete"></i>
+
+            </button>
+
+        </div>
+
+    }
+    <div class="scroll" style="height: 70vh;">
+        <div class="row responsive colm-3">
+
+            <div class="miwx-25 mgb-2">
+                @if (IsLoading)
+                {
+                    <div class="hf bg-card pd bd corner-2 flex flex-center justify-content-between">
+                        <LoadingIndicator Text="Loading simulations..." />
+                    </div>
+                }
+                else if (HasError)
+                {
+                    <div class="pd text-center">
+                        <p class="fsz-12 cl-error">
+                            Unable to load simulations.
+                        </p>
+                    </div>
+                }
+                else if (FilteredSimulations.Count == 0)
+                {
+                    <div class="pd text-center">
+                        <p class="fsz-12">
+                            No simulations found.
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <div class="scroll wf">
+                        <table class="wf bg-card pd corner-2 bd">
+
+                            <thead class="bg-primary-02">
+                                <tr class="mg-0">
+
+                                    <th class="pd mg-0 fsz-12 text-center">
+                                        <input type="checkbox" checked="@AreAllFilteredSelected"
+                                               @onchange="ToggleSelectAll" />
+                                    </th>
+
+                                    <th class="pd mg-0 fsz-12 text-left">
+                                        Image
+                                    </th>
+
+                                    <th class="pd mg-0 fsz-12 text-left">
+                                        Name
+                                    </th>
+
+                                    <th class="pd fsz-12 text-left">
+                                        Module
+                                    </th>
+
+                                    <th class="pd fsz-12 text-left">
+                                        Date
+                                    </th>
+
+                                    <th class="pd fsz-12 text-left">
+                                        Status
+                                    </th>
+
+                                    <th class="pd fsz-12 text-left">
+                                        Action
+                                    </th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var simulation in PagedSimulations)
+                                {
+                                    <tr>
+
+                                        <!-- Selection -->
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+
+                                            <input type="checkbox" checked="@SelectedSimulationIds.Contains(simulation.Id)"
+                                                   @onchange="(e) => ToggleSelection(simulation.Id, e)" />
+
+                                        </td>
+
+                                        <!-- Image -->
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+
+                                            <img src="@simulation.PhysicsModuleImageUrl" alt="@simulation.PhysicsModuleName"
+                                                 class="hx-03 wx-03 corner-2 mgr-3" />
+
+                                        </td>
+
+                                        <!-- Name -->
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+
+                                            <p>@simulation.Name</p>
+
+                                        </td>
+
+                                        <!-- Module -->
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+
+                                            @simulation.PhysicsModuleName
+
+                                        </td>
+
+                                        <!-- Date -->
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+                                            @simulation.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")
+                                        </td>
+
+                                        <!-- Status -->
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+
+                                            @* <Badge Text="Not started" BgColor="rgb(128, 128, 128, 0.2)" ClColor="rgb(128, 128, 128, 0.8)"
+                        /> *@
+                                            <Badge Text="@simulation.Status"
+                                                   BgColor="@GetStatusBackgroundColor(simulation.Status)"
+                                                   ClColor="@GetStatusTextColor(simulation.Status)" />
+
+                                        </td>
+
+                                        <!-- Actions -->
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+
+                                            <i class="mdi mdi-eye fsz-15 cl-primary" style="cursor: pointer;"
+                                               title="View simulation" @onclick="() => ViewSimulation(simulation.Id)">
+                                            </i>
+
+                                            <i class="mdi mdi-download fsz-15 cl-success" style="cursor: pointer;"
+                                               title="Export simulation" @onclick="() => ExportSimulation(simulation.Id)">
+                                            </i>
+
+                                            <i class="mdi @(simulation.IsFavourite
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ? "mdi-star"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         : "mdi-star-outline") fsz-15 cl-error"
+                                               style="cursor: pointer;"
+                                               title="@(simulation.IsFavourite
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ? "Remove from favourites"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            : "Add to favourites")"
+                                               @onclick="() => ToggleFavourite(simulation)">
+                                            </i>
+
+                                            <i class="mdi mdi-delete fsz-15 cl-danger" style="cursor: pointer;"
+                                               title="Delete simulation" @onclick="() => DeleteSimulation(simulation)">
+                                            </i>
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+        <!-- Pagination -->
+        <Pagination CurrentPage="@CurrentPage" TotalPages="@TotalPages" TotalItems="@FilteredSimulations.Count"
+                    PageSize="@PageSize" ItemLabel="simulation" CurrentPageChanged="@(page => CurrentPage = page)" />
+    </div>
+
+    <div class="hx-07 wvl-5"></div>
+
+    <ConfirmDialog IsVisible="@ShowDeleteDialog"
+                   Title="@(IsBulkDeleteDialog ? "Delete selected simulations" : "Delete simulation")"
+                   Message="@(IsBulkDeleteDialog ? $"Are you sure you want to permanently delete {SelectedSimulationIds.Count} selected simulation(s)? This action cannot be undone."
+                    : $"Are you sure you want to permanently delete \"{SimulationToDelete?.Name.ToUpper()}\"? This action cannot be undone.")" ConfirmText="Delete" CancelText="Cancel"
+                   Icon="mdi-delete-outline"
+                   OnConfirm="@(IsBulkDeleteDialog ? ConfirmDeleteSelectedSimulations : ConfirmDeleteSimulation)"
+                   OnCancel="CancelDelete" />
+
+</ProtectedRouteView>
+
+
+@code {
+
+    private bool ShowDeleteDialog = false;
+    private SimulationDto? SimulationToDelete;
+    private bool IsBulkDeleteDialog = false;
+
+    private List<SimulationDto> Simulations = new();
+
+    private HashSet<Guid> SelectedSimulationIds = new();
+
+    private bool IsLoading = true;
+    private bool HasError = false;
+    private bool IsDeleting = false;
+
+    private const int PageSize = 10;
+
+    private int CurrentPage = 1;
+
+    private string _searchTerm = string.Empty;
+    private string _moduleFilter = string.Empty;
+    private string _timeFilter = string.Empty;
+
+    private string SearchTerm
+    {
+        get => _searchTerm;
+        set
+        {
+            _searchTerm = value;
+            CurrentPage = 1;
+        }
+    }
+
+    private string ModuleFilter
+    {
+        get => _moduleFilter;
+        set
+        {
+            _moduleFilter = value;
+            CurrentPage = 1;
+        }
+    }
+
+    private string TimeFilter
+    {
+        get => _timeFilter;
+        set
+        {
+            _timeFilter = value;
+            CurrentPage = 1;
+        }
+    }
+
+    private List<SimulationDto> FilteredSimulations =>
+        Simulations
+            .Where(MatchesSearch)
+            .Where(MatchesModule)
+            .Where(MatchesTime)
+            .ToList();
+
+    private List<SimulationDto> PagedSimulations =>
+        FilteredSimulations
+            .Skip((CurrentPage - 1) * PageSize)
+            .Take(PageSize)
+            .ToList();
+
+    private int TotalPages =>
+        Math.Max(
+            1,
+            (int)Math.Ceiling(
+                FilteredSimulations.Count / (double)PageSize));
+
+    private int FirstItemNumber =>
+        FilteredSimulations.Count == 0
+            ? 0
+            : ((CurrentPage - 1) * PageSize) + 1;
+
+    private int LastItemNumber =>
+        Math.Min(
+            CurrentPage * PageSize,
+            FilteredSimulations.Count);
+
+    private bool AreAllFilteredSelected =>
+        FilteredSimulations.Count > 0 &&
+        FilteredSimulations.All(
+            x => SelectedSimulationIds.Contains(x.Id));
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Simulations = await SimulationApi.GetAllAsync();
+        }
+        catch
+        {
+            HasError = true;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private bool MatchesSearch(SimulationDto simulation)
+    {
+        if (string.IsNullOrWhiteSpace(SearchTerm))
+            return true;
+
+        var search = SearchTerm.Trim();
+
+        return simulation.Name.Contains(
+                   search,
+                   StringComparison.OrdinalIgnoreCase)
+               ||
+               simulation.PhysicsModuleName.Contains(
+                   search,
+                   StringComparison.OrdinalIgnoreCase);
+    }
+
+    private bool MatchesModule(SimulationDto simulation)
+    {
+        if (string.IsNullOrWhiteSpace(ModuleFilter))
+            return true;
+
+        return simulation.PhysicsModuleName
+            .Equals(
+                ModuleFilter,
+                StringComparison.OrdinalIgnoreCase);
+    }
+
+    private bool MatchesTime(SimulationDto simulation)
+    {
+        if (string.IsNullOrWhiteSpace(TimeFilter))
+            return true;
+
+        var createdDate = simulation.CreatedAt.ToLocalTime().Date;
+        var today = DateTime.Now.Date;
+
+        return TimeFilter switch
+        {
+            "today" => createdDate == today,
+
+            "week" => createdDate >= today.AddDays(-6)
+                       && createdDate <= today,
+
+            "month" => createdDate >= today.AddDays(-29)
+                        && createdDate <= today,
+
+            _ => true
+        };
+    }
+
+    private void ToggleSelection(
+        Guid simulationId,
+        ChangeEventArgs e)
+    {
+        var isChecked = e.Value is bool value && value;
+
+        if (isChecked)
+        {
+            SelectedSimulationIds.Add(simulationId);
+        }
+        else
+        {
+            SelectedSimulationIds.Remove(simulationId);
+        }
+    }
+
+    private void ToggleSelectAll(ChangeEventArgs e)
+    {
+        var isChecked = e.Value is bool value && value;
+
+        if (isChecked)
+        {
+            foreach (var simulation in FilteredSimulations)
+            {
+                SelectedSimulationIds.Add(simulation.Id);
+            }
+        }
+        else
+        {
+            foreach (var simulation in FilteredSimulations)
+            {
+                SelectedSimulationIds.Remove(simulation.Id);
+            }
+        }
+    }
+
+    private void ViewSimulation(Guid simulationId)
+    {
+        Nav.NavigateTo(
+            $"/SimulationData/{simulationId}?from=history");
+    }
+
+    private void ExportSimulation(Guid simulationId)
+    {
+        Nav.NavigateTo(
+            $"/SimulationData/{simulationId}?from=history&tab=export");
+    }
+
+    private async Task ToggleFavourite(
+        SimulationDto simulation)
+    {
+        var newValue = !simulation.IsFavourite;
+
+        var success = await SimulationApi.SetFavouriteAsync(
+            simulation.Id,
+            newValue);
+
+        if (success)
+        {
+            simulation.IsFavourite = newValue;
+        }
+    }
+
+    private async Task DeleteSimulation(
+    SimulationDto simulation)
+    {
+        var shouldConfirm =
+            await UserSettingsApi.ShouldConfirmBeforeDeleteAsync();
+
+        if (!shouldConfirm)
+        {
+            await DeleteSimulationImmediately(simulation);
+            return;
+        }
+
+        SimulationToDelete = simulation;
+        IsBulkDeleteDialog = false;
+        ShowDeleteDialog = true;
+    }
+
+    private async Task DeleteSimulationImmediately(
+    SimulationDto simulation)
+    {
+        var deleted = await SimulationApi.DeleteAsync(
+            simulation.Id);
+
+        if (!deleted)
+        {
+            HasError = true;
+            return;
+        }
+
+        Simulations.Remove(simulation);
+        SelectedSimulationIds.Remove(simulation.Id);
+
+        EnsureValidPage();
+    }
+
+    private async Task ConfirmDeleteSimulation()
+    {
+        if (SimulationToDelete is null)
+            return;
+
+        var deleted = await SimulationApi.DeleteAsync(
+            SimulationToDelete.Id);
+
+        if (!deleted)
+        {
+            HasError = true;
+            return;
+        }
+
+        Simulations.Remove(SimulationToDelete);
+        SelectedSimulationIds.Remove(SimulationToDelete.Id);
+
+        SimulationToDelete = null;
+        ShowDeleteDialog = false;
+
+        EnsureValidPage();
+    }
+
+    private async Task DeleteSelectedSimulations()
+    {
+        if (SelectedSimulationIds.Count == 0)
+            return;
+
+        var shouldConfirm =
+            await UserSettingsApi.ShouldConfirmBeforeDeleteAsync();
+
+        if (!shouldConfirm)
+        {
+            await DeleteSelectedSimulationsImmediately();
+            return;
+        }
+
+        IsBulkDeleteDialog = true;
+        SimulationToDelete = null;
+        ShowDeleteDialog = true;
+    }
+
+    private async Task DeleteSelectedSimulationsImmediately()
+    {
+        IsDeleting = true;
+        HasError = false;
+
+        try
+        {
+            var idsToDelete = SelectedSimulationIds.ToList();
+
+            var deleted = await SimulationApi.DeleteManyAsync(
+                idsToDelete);
+
+            if (!deleted)
+            {
+                HasError = true;
+                return;
+            }
+
+            Simulations.RemoveAll(
+                x => idsToDelete.Contains(x.Id));
+
+            SelectedSimulationIds.Clear();
+
+            EnsureValidPage();
+        }
+        finally
+        {
+            IsDeleting = false;
+        }
+    }
+
+    private async Task ConfirmDeleteSelectedSimulations()
+    {
+        if (SelectedSimulationIds.Count == 0)
+            return;
+
+        IsDeleting = true;
+        HasError = false;
+
+        try
+        {
+            var idsToDelete = SelectedSimulationIds.ToList();
+
+            var deleted = await SimulationApi.DeleteManyAsync(
+                idsToDelete);
+
+            if (!deleted)
+            {
+                HasError = true;
+                return;
+            }
+
+            Simulations.RemoveAll(
+                x => idsToDelete.Contains(x.Id));
+
+            SelectedSimulationIds.Clear();
+
+            ShowDeleteDialog = false;
+            IsBulkDeleteDialog = false;
+
+            EnsureValidPage();
+        }
+        finally
+        {
+            IsDeleting = false;
+        }
+    }
+
+    private void CancelDelete()
+    {
+        ShowDeleteDialog = false;
+        SimulationToDelete = null;
+        IsBulkDeleteDialog = false;
+    }
+
+    private void EnsureValidPage()
+    {
+        if (CurrentPage > TotalPages)
+        {
+            CurrentPage = TotalPages;
+        }
+
+        if (CurrentPage < 1)
+        {
+            CurrentPage = 1;
+        }
+    }
+
+    private string GetStatusBackgroundColor(string status)
+    {
+        return status switch
+        {
+            "Completed" => "rgb(34, 197, 94, 0.15)",
+            "Running" => "rgb(59, 130, 246, 0.15)",
+            _ => "rgb(128, 128, 128, 0.15)"
+        };
+    }
+
+    private string GetStatusTextColor(string status)
+    {
+        return status switch
+        {
+            "Completed" => "rgb(22, 163, 74, 0.9)",
+            "Running" => "rgb(37, 99, 235, 0.9)",
+            _ => "rgb(128, 128, 128, 0.8)"
+        };
+    }
+}

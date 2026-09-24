@@ -1,0 +1,81 @@
+<div class="pd bd corner-2 mgb-2 flex flex-spacebetween">
+
+    <div class="flex flex-start mgr-10">
+
+        <button class="mgr-5 bg-primary wx-05 hx-05 flex flex-center justify-content-between bd-none corner-1"
+                @onclick="PlayVideo">
+            <i class="mdi mdi-play cl-white fsz-30"></i>
+        </button>
+
+        <div>
+            <h5 class="mg-0 pdb-2">@Title</h5>
+
+            <p class="fsz-13 mg-0 pdb-2">
+                @Description
+            </p>
+        </div>
+
+    </div>
+
+    <div class="flex flex-center">
+
+        <h5 class="mg-0 pdr-5">
+            @Duration
+        </h5>
+
+        <button class="mdi mdi-arrow-right cl-primary bg-transparent bd-none" @onclick="PlayVideo">
+        </button>
+
+    </div>
+
+</div>
+
+@if (isPlaying)
+{
+    <div class="video-overlay" @onclick="CloseVideo">
+
+        <div class="video-player" @onclick:stopPropagation="true">
+
+            <div class="video-header flex flex-spacebetween flex-center">
+
+                <h4 class="mg-0">
+                    @Title
+                </h4>
+
+                <button class="video-close mdi mdi-close bg-transparent bd-none fsz-20" @onclick="CloseVideo">
+                </button>
+
+            </div>
+
+            <div class="video-content">
+
+                <video controls class="wf">
+                    <source src="@VideoPath" type="video/mp4" />
+                    Your browser does not support video playback.
+                </video>
+
+            </div>
+
+        </div>
+
+    </div>
+}
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Description { get; set; } = string.Empty;
+    [Parameter] public string Duration { get; set; } = string.Empty;
+    [Parameter] public string VideoPath { get; set; } = string.Empty;
+
+    private bool isPlaying = false;
+
+    private void PlayVideo()
+    {
+        isPlaying = true;
+    }
+
+    private void CloseVideo()
+    {
+        isPlaying = false;
+    }
+}

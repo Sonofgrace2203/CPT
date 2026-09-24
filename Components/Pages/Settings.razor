@@ -1,0 +1,720 @@
+@page "/Settings"
+@using cpt.Components.Shared
+@using CPT.Services
+@using CPT.Models.UserSettings
+@using System.Globalization
+@inject NavigationManager Nav
+@inject UserSettingsApiService UserSettingsApi
+
+<ProtectedRouteView>
+    <div class="hx-1 wvl-5"></div>
+
+    <div class="bg-card">
+        <div class="mgb-5 flex flex-center flex-spacebetween bg-primary-02 bd pd border-shadow-5">
+            <div>
+                <h2 class="mg-0 pdb fsz-18 cl-primary">Settings</h2>
+                <p class="mg-0 fsz-10">Customize the application to your preference.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-start flow gap-1 wvl-5 mgb-2">
+        <button class="pd bg-primary-02 bd-none cl-primary flex flex-start corner-1 mgb-1 mgr-1"
+                @onclick="General">General</button>
+        <button class="pd bg-primary-02 bd-none cl-primary flex flex-start corner-1 mgb-1 mgr-1"
+                @onclick="Simulation">Simulation
+            Defaults</button>
+            @* <button class="pd bg-primary-02 bd-none bd-primary cl-primary flex flex-start corner-1 mgb-1 mgr-1"
+                    @onclick="Storage">Data &
+                Storage</button>
+                <button class="pd bg-primary-02 bd-none bd-primary cl-primary flex flex-start corner-1 mgb-1 mgr-1"
+                        @onclick="Shortcuts">Shortcuts</button> *@
+        </div>
+
+        <div class="row responsive colm-3">
+            <div class="mgb-5 wf mawx-2 wvg-5">
+                <div>
+                    <div class="pd bd bg-card corner-2">
+                        <button class="pd bg-primary-02 bd-none bd-primary cl-primary wf flex flex-start corner-1 mgb-1"
+                                @onclick="General">General</button>
+                        <button class="pd bg-primary-02 bd-none bd-primary cl-primary wf flex flex-start corner-1 mgb-1"
+                                @onclick="Simulation">Simulation
+                            Defaults</button>
+                            @* <button class="pd bg-primary-02 bd-none bd-primary cl-primary wf flex flex-start corner-1 mgb-1"
+                                        @onclick="Storage">Data &
+                                    Storage</button>
+                                    <button class="pd bg-primary-02 bd-none bd-primary cl-primary wf flex flex-start corner-1 mgb-1"
+                                            @onclick="Shortcuts">Shortcuts</button> *@
+                        </div>
+                    </div>
+                </div>
+
+                @* <div class="row responsive colm-3 scroll" style="height: 70vh;"> *@
+                <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y wvg-5" style="display: @(general ? "block" : "none"); height: 100vh">
+
+                        <div class="mg-0 pdb fsz-15 pd bg-primary-02">
+                            <h5 class="mg-0 pdb fsz-15">General Settings</h5>
+                            <p class="mg-0 fsz-12">
+                                Application behaviour and preferences
+                            </p>
+                        </div>
+
+                        <div>
+                            <!-- Font Size -->
+                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb op-5">
+                                <div>
+                                    <h5 class="mg-0 pdb fsz-12">Font Size</h5>
+                                    <p class="mg-0 fsz-10">
+                                        Adjust the text size throughout CPT.
+                                    </p>
+                                </div>
+
+                                <select class="pd bd corner-1 bg-card miwx-25" disabled>
+                                    <option>Medium</option>
+                                </select>
+                            </div>
+
+                            <!-- Theme -->
+                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb op-5">
+                                <div>
+                                    <h5 class="mg-0 pdb fsz-12">Theme</h5>
+                                    <p class="mg-0 fsz-10">
+                                        Choose the appearance of CPT.
+                                    </p>
+                                </div>
+
+                                <select class="pd bd corner-1 bg-card miwx-25" disabled>
+                                    <option>Light</option>
+                                </select>
+                            </div>
+
+                            <!-- Number Format -->
+                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb">
+                                <div>
+                                    <h5 class="mg-0 pdb fsz-12">Number Format</h5>
+                                    <p class="mg-0 fsz-10">
+                                        Choose how numerical values are displayed.
+                                    </p>
+                                </div>
+
+                                <select @bind="NumberFormat" class="pd bd corner-1 bg-card miwx-25">
+                                    <option value="decimal">Decimal (1234.56)</option>
+                                    <option value="integer">Integer (1234)</option>
+                                </select>
+                            </div>
+
+                            <!-- Auto-save -->
+                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb">
+                                <div>
+                                    <h5 class="mg-0 pdb fsz-12">Auto-save simulation</h5>
+                                    <p class="mg-0 fsz-10">
+                                        Automatically save simulation progress when supported.
+                                    </p>
+                                </div>
+
+                                <button type="button" class="hx-02 wx-04 bd pd-1 bd-primary-02 shadow-border-3 corner-5"
+                                        style="cursor: pointer;" @onclick="ToggleAutoSave">
+                                    <div
+                                        class="hx-02 wx-02 @(AutoSaveSimulation ? "bg-primary" : "bg-white") round bd bd-primary-02">
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- Confirm before deleting -->
+                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb">
+                                <div>
+                                    <h5 class="mg-0 pdb fsz-12">Confirm before deleting</h5>
+                                    <p class="mg-0 fsz-10">
+                                        Ask for confirmation before permanently deleting data.
+                                    </p>
+                                </div>
+
+                                <button type="button" class="hx-02 wx-04 bd pd-1 bd-primary-02 shadow-border-3 corner-5"
+                                        style="cursor: pointer;" @onclick="ToggleConfirmBeforeDelete">
+                                    <div
+                                        class="hx-02 wx-02 @(ConfirmBeforeDelete ? "bg-primary" : "bg-white") round bd bd-primary-02">
+                                    </div>
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <div class="text-right pdt-10">
+                            <button class="bg-primary bd bd-primary pd corner-2" @onclick="ShowGeneralSetting">
+                                <i class="mdi mdi-content-save-check-outline fsz-15 bg-primary corner-2"></i>
+                                Save Changes
+                            </button>
+                        </div>
+
+                        <ConfirmDialog IsVisible="@showGeneralSetting" Title="Confirm General Settings"
+                                       OnConfirm="ConfirmGeneralSetting" OnCancel="CancelGeneralSetting" />
+
+                    </div>
+
+                    <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y wvl-5" style="display: @(general ? "block" : "none"); height: 70vh">
+
+                        <div class="mg-0 pdb fsz-15 pd bg-primary-02">
+                            <h5 class="mg-0 pdb fsz-15">General Settings</h5>
+                            <p class="mg-0 fsz-12">
+                                Application behaviour and preferences
+                            </p>
+                        </div>
+
+                        <div>
+                            <!-- Font Size -->
+                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb op-5">
+                                <div>
+                                    <h5 class="mg-0 pdb fsz-12">Font Size</h5>
+                                    <p class="mg-0 fsz-10">
+                                        Adjust the text size throughout CPT.
+                                    </p>
+                                </div>
+
+                                <select class="pd bd corner-1 bg-card miwx-25" disabled>
+                                    <option>Medium</option>
+                                </select>
+                            </div>
+
+                            <!-- Theme -->
+                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb op-5">
+                                <div>
+                                    <h5 class="mg-0 pdb fsz-12">Theme</h5>
+                                    <p class="mg-0 fsz-10">
+                                        Choose the appearance of CPT.
+                                    </p>
+                                </div>
+
+                                <select class="pd bd corner-1 bg-card miwx-25" disabled>
+                                    <option>Light</option>
+                                </select>
+                            </div>
+
+                            <!-- Number Format -->
+                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb">
+                                <div>
+                                    <h5 class="mg-0 pdb fsz-12">Number Format</h5>
+                                    <p class="mg-0 fsz-10">
+                                        Choose how numerical values are displayed.
+                                    </p>
+                                </div>
+
+                                <select @bind="NumberFormat" class="pd bd corner-1 bg-card miwx-25">
+                                    <option value="decimal">Decimal (1234.56)</option>
+                                    <option value="integer">Integer (1234)</option>
+                                </select>
+                            </div>
+
+                            <!-- Auto-save -->
+                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb">
+                                <div>
+                                    <h5 class="mg-0 pdb fsz-12">Auto-save simulation</h5>
+                                    <p class="mg-0 fsz-10">
+                                        Automatically save simulation progress when supported.
+                                    </p>
+                                </div>
+
+                                <button type="button" class="hx-02 wx-04 bd pd-1 bd-primary-02 shadow-border-3 corner-5"
+                                        style="cursor: pointer;" @onclick="ToggleAutoSave">
+                                    <div
+                                        class="hx-02 wx-02 @(AutoSaveSimulation ? "bg-primary" : "bg-white") round bd bd-primary-02">
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- Confirm before deleting -->
+                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb">
+                                <div>
+                                    <h5 class="mg-0 pdb fsz-12">Confirm before deleting</h5>
+                                    <p class="mg-0 fsz-10">
+                                        Ask for confirmation before permanently deleting data.
+                                    </p>
+                                </div>
+
+                                <button type="button" class="hx-02 wx-04 bd pd-1 bd-primary-02 shadow-border-3 corner-5"
+                                        style="cursor: pointer;" @onclick="ToggleConfirmBeforeDelete">
+                                    <div
+                                        class="hx-02 wx-02 @(ConfirmBeforeDelete ? "bg-primary" : "bg-white") round bd bd-primary-02">
+                                    </div>
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <div class="text-right pdt-10">
+                            <button class="bg-primary bd bd-primary pd corner-2" @onclick="ShowGeneralSetting">
+                                <i class="mdi mdi-content-save-check-outline fsz-15 bg-primary corner-2"></i>
+                                Save Changes
+                            </button>
+                        </div>
+
+                        <ConfirmDialog IsVisible="@showGeneralSetting" Title="Confirm General Settings"
+                                       OnConfirm="ConfirmGeneralSetting" OnCancel="CancelGeneralSetting" />
+
+                    </div>
+
+                    <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y wvg-5" style="display: @(simulation ? "block" : "none"); height: 100vh">
+                        <div class="mg-0 pdb fsz-15 pd bg-primary-02">
+                            <h5 class="mg-0 pdb fsz-15">Simulation Defaults</h5>
+                            <p class="mg-0 fsz-12">Default values for new simulations</p>
+                        </div>
+
+                        <div>
+                            <div class="mgt-5">
+                                <h3 class="mg-0 pdt fsz-13">Numerical Method</h3>
+                                <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                    <h5 class="mg-0 pdb fsz-12">Solver Type</h5>
+
+                                    <select @bind="SolverType" class="pd bd corner-1 bg-card miwx-25">
+                                        <option value="Finite Difference">Finite Difference</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mgt-5">
+                                <div>
+                                    <h3 class="mg-0 pdt fsz-13">Default Parameters</h3>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Grid Width</h5>
+                                        <input type="number" @bind="GridWidth" @bind:event="oninput"
+                                               class="pd bd corner-1 bg-card miwx-25">
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Grid Height</h5>
+                                        <input type="number" @bind="GridHeight" @bind:event="oninput"
+                                               class="pd bd corner-1 bg-card miwx-25">
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Time Step</h5>
+                                        <input type="number" step="any" value="@TimeStep" @oninput="OnTimeStepInput"
+                                               class="pd bd corner-1 bg-card miwx-25">
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Total Time</h5>
+                                        <input type="number" step="0.1" @bind="TotalTime" @bind:event="oninput"
+                                               class="pd bd corner-1 bg-card miwx-25">
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mgt-5">
+                                <h3 class="mg-0 pdt fsz-13">Boundary Conditions</h3>
+                                <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                    <h5 class="mg-0 pdb fsz-12">Temperature</h5>
+                                    <select @bind="BoundaryCondition" class="pd bd corner-1 bg-card miwx-25">
+                                        <option value="Fixed Temperature">Fixed Temperature</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="text-right pdt-10">
+                                <button class="bg-primary bd bd-primary pd corner-2" @onclick="ShowSimulationSetting">
+                                    <i class="mdi mdi-content-save-check-outline fsz-15 bg-primary corner-2"></i>
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+
+                        <ConfirmDialog IsVisible="@showSimulationSetting" Title="Confirm Simulation Settings"
+                                       OnConfirm="ConfirmSimulationSetting" OnCancel="CancelSimulationSetting" />
+                    </div>
+
+                    <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y wvl-5" style="display: @(simulation ? "block" : "none"); height: 70vh">
+                        <div class="mg-0 pdb fsz-15 pd bg-primary-02">
+                            <h5 class="mg-0 pdb fsz-15">Simulation Defaults</h5>
+                            <p class="mg-0 fsz-12">Default values for new simulations</p>
+                        </div>
+
+                        <div>
+                            <div class="mgt-5">
+                                <h3 class="mg-0 pdt fsz-13">Numerical Method</h3>
+                                <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                    <h5 class="mg-0 pdb fsz-12">Solver Type</h5>
+
+                                    <select @bind="SolverType" class="pd bd corner-1 bg-card miwx-25">
+                                        <option value="Finite Difference">Finite Difference</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mgt-5">
+                                <div>
+                                    <h3 class="mg-0 pdt fsz-13">Default Parameters</h3>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Grid Width</h5>
+                                        <input type="number" @bind="GridWidth" @bind:event="oninput"
+                                               class="pd bd corner-1 bg-card miwx-25">
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Grid Height</h5>
+                                        <input type="number" @bind="GridHeight" @bind:event="oninput"
+                                               class="pd bd corner-1 bg-card miwx-25">
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Time Step</h5>
+                                        <input type="number" step="any" value="@TimeStep" @oninput="OnTimeStepInput"
+                                               class="pd bd corner-1 bg-card miwx-25">
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Total Time</h5>
+                                        <input type="number" step="0.1" @bind="TotalTime" @bind:event="oninput"
+                                               class="pd bd corner-1 bg-card miwx-25">
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mgt-5">
+                                <h3 class="mg-0 pdt fsz-13">Boundary Conditions</h3>
+                                <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                    <h5 class="mg-0 pdb fsz-12">Temperature</h5>
+                                    <select @bind="BoundaryCondition" class="pd bd corner-1 bg-card miwx-25">
+                                        <option value="Fixed Temperature">Fixed Temperature</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="text-right pdt-10">
+                                <button class="bg-primary bd bd-primary pd corner-2" @onclick="ShowSimulationSetting">
+                                    <i class="mdi mdi-content-save-check-outline fsz-15 bg-primary corner-2"></i>
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+
+                        <ConfirmDialog IsVisible="@showSimulationSetting" Title="Confirm Simulation Settings"
+                                       OnConfirm="ConfirmSimulationSetting" OnCancel="CancelSimulationSetting" />
+                    </div>
+
+                @* <div class="miwx-25 mgb-10 pd bd corner-2 bg-card" style="display: @(storage ? "block" : "none");">
+                            <div class="mg-0 pdb fsz-15 pd bg-primary-02">
+                                <h5 class="mg-0 pdb fsz-15">Data & Storage</h5>
+                                <p class="mg-0 fsz-12">Data management and storage options</p>
+                            </div>
+
+                            <div>
+                                <div class="mgt-5">
+                                    <h3 class="mg-0 pdt fsz-13">Data Storage</h3>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Storage Location</h5>
+                                        <select name="" id="" class="pd bd corner-1 bg-card miwx-25">
+                                            <option value="">
+                                                <i class="mdi mdi-storage"></i>
+                                                Database (Default)
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Minimum Storage Size</h5>
+                                        <select name="" id="" class="pd bd corner-1 bg-card miwx-25">
+                                            <option value="">1 GB</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mgt-5">
+                                    <h3 class="mg-0 pdt fsz-13">Data Retention</h3>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Keep simulation data for</h5>
+                                        <select name="" id="" class="pd bd corner-1 bg-card miwx-25">
+                                            <option value="">30 days</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mgt-5">
+                                    <h3 class="mg-0 pdt fsz-13">Export Settings</h3>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pd mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Default Export Format</h5>
+                                        <select name="" id="" class="pd bd corner-1 bg-card miwx-25">
+                                            <option value="">
+                                                <i class="mdi mdi-storage"></i>
+                                                PDF
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-start">
+                                    <div class="flex flex-center">
+                                        <input type="checkbox">
+                                        Include grid data by default
+                                    </div>
+                                </div>
+
+                                <div class="text-right pdt-10">
+                                    <button class="bg-primary bd bd-primary pd corner-2" @onclick="ShowStorageSetting">
+                                        <i class="mdi mdi-content-save-check-outline fsz-15 bg-primary corner-2"></i>
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </div>
+
+                            <ConfirmDialog IsVisible="@showStorageSetting" Title="Confirm Storage Settings"
+                                           OnConfirm="ConfirmStorageSetting" OnCancel="CancelStorageSetting" />
+                        </div> *@
+
+
+
+                @* <div class="miwx-25 mgb-10 pd bd corner-2 bg-card" style="display: @(shortcuts ? "block" : "none");">
+                            <div class="mg-0 pdb fsz-15 pd bg-primary-02">
+                                <h5 class="mg-0 pdb fsz-15">Shortcuts</h5>
+                                <p class="mg-0 fsz-12">Keyboard shortcuts for better workflow</p>
+                            </div>
+
+                            <div>
+                                <div class="mgt-5">
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pdl pdr mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Run Simulation</h5>
+                                        <p class="pd bd corner-1 fsz-12 bg-card miwx-25">Ctrl + R</p>
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pdl pdr mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Stop Simulation</h5>
+                                        <p class="pd bd corner-1 fsz-12 bg-card miwx-25">Ctrl + S</p>
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pdl pdr mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Reset Simulation</h5>
+                                        <p class="pd bd corner-1 fsz-12 bg-card miwx-25">Ctrl + Shift + R</p>
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pdl pdr mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Next Time Stop</h5>
+                                        <p class="pd bd corner-1 fsz-12 bg-card miwx-25 mdi mdi-arrow-right"></p>
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pdl pdr mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Previous Time Stop</h5>
+                                        <p class="pd bd corner-1 fsz-12 bg-card miwx-25 mdi mdi-arrow-left"></p>
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pdl pdr mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Play/Pause Animation</h5>
+                                        <p class="pd bd corner-1 fsz-12 bg-card miwx-25">Space</p>
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pdl pdr mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Export Data</h5>
+                                        <p class="pd bd corner-1 fsz-12 bg-card miwx-25">Ctrl + E</p>
+                                    </div>
+                                    <div class="flex flex-spacebetween flex-center flow mgt-1 bg-primary-01 pdl pdr mgb">
+                                        <h5 class="mg-0 pdb fsz-12">Open Settings</h5>
+                                        <p class="pd bd corner-1 fsz-12 bg-card miwx-25">Ctrl + ^</p>
+                                    </div>
+                                </div>
+
+                                <div class="text-right pdt-10">
+                                    <button class="bg-card cl-primary bd bd-primary pd corner-2" @onclick="ShowShortcutsSetting">
+                                        <i class="mdi mdi-lock-reset fsz-15"></i>
+                                        Reset to Defaults
+                                    </button>
+                                    <button class="bg-primary bd bd-primary pd corner-2" @onclick="ShowShortcutsSetting">
+                                        <i class="mdi mdi-content-save-check-outline fsz-15 bg-primary corner-2"></i>
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </div>
+
+                            <ConfirmDialog IsVisible="@showShortcutsSetting" Title="Confirm Shortcut Settings"
+                                           OnConfirm="ConfirmShortcutsSetting" OnCancel="CancelShortcutsSetting" />
+                        </div> *@
+            </div>
+
+            <div class="hx-06 wvl-5"></div>
+        </ProtectedRouteView>
+
+@code {
+    private bool general = true;
+    private bool simulation = false;
+    @* private bool storage = false;
+    private bool shortcuts = false; *@
+
+    private string NumberFormat = "decimal";
+    private bool AutoSaveSimulation = true;
+    private bool ConfirmBeforeDelete = true;
+
+    private string SolverType = "Finite Difference";
+    private int GridWidth = 100;
+    private int GridHeight = 100;
+    private double TimeStep = 0.001;
+    private double TotalTime = 10.0;
+    private string BoundaryCondition = "Fixed Temperature";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var settings = await UserSettingsApi.GetAsync();
+
+        if (settings is not null)
+        {
+            NumberFormat = settings.NumberFormat;
+            AutoSaveSimulation = settings.AutoSaveSimulation;
+            ConfirmBeforeDelete = settings.ConfirmBeforeDelete;
+
+            SolverType = settings.SolverType;
+            GridWidth = settings.GridWidth;
+            GridHeight = settings.GridHeight;
+            TimeStep = settings.TimeStep;
+            TotalTime = settings.TotalTime;
+            BoundaryCondition = settings.BoundaryCondition;
+        }
+    }
+
+    private void OnTimeStepInput(ChangeEventArgs e)
+    {
+        if (double.TryParse(
+            e.Value?.ToString(),
+            NumberStyles.Float,
+            CultureInfo.InvariantCulture,
+            out var value))
+        {
+            TimeStep = value;
+        }
+    }
+
+    private void General()
+    {
+        general = true;
+        simulation = false;
+    }
+
+    private void Simulation()
+    {
+        general = false;
+        simulation = true;
+    }
+
+    @* private void Storage()
+    {
+        general = false;
+        simulation = false;
+        storage = true;
+        shortcuts = false;
+    }
+
+    private void Shortcuts()
+    {
+        general = false;
+        simulation = false;
+        storage = false;
+        shortcuts = true;
+    } *@
+
+    private bool showGeneralSetting = false;
+
+    private void ShowGeneralSetting()
+    {
+        showGeneralSetting = true;
+    }
+
+    private async Task ConfirmGeneralSetting()
+    {
+        var settings = new UserSettingsDto
+        {
+            NumberFormat = NumberFormat,
+            AutoSaveSimulation = AutoSaveSimulation,
+            ConfirmBeforeDelete = ConfirmBeforeDelete
+        };
+
+        var result = await UserSettingsApi.UpdateAsync(settings);
+
+        if (result is not null)
+        {
+            NumberFormat = result.NumberFormat;
+            AutoSaveSimulation = result.AutoSaveSimulation;
+            ConfirmBeforeDelete = result.ConfirmBeforeDelete;
+        }
+
+        showGeneralSetting = false;
+    }
+
+    private void CancelGeneralSetting()
+    {
+        showGeneralSetting = false;
+    }
+
+    private bool showSimulationSetting = false;
+
+    private void ShowSimulationSetting()
+    {
+        showSimulationSetting = true;
+    }
+
+    private async Task ConfirmSimulationSetting()
+    {
+        var settings = new UserSettingsDto
+        {
+            NumberFormat = NumberFormat,
+            AutoSaveSimulation = AutoSaveSimulation,
+            ConfirmBeforeDelete = ConfirmBeforeDelete,
+
+            SolverType = SolverType,
+            GridWidth = GridWidth,
+            GridHeight = GridHeight,
+            TimeStep = TimeStep,
+            TotalTime = TotalTime,
+            BoundaryCondition = BoundaryCondition
+        };
+
+        var result = await UserSettingsApi.UpdateAsync(settings);
+
+        if (result is not null)
+        {
+            NumberFormat = result.NumberFormat;
+            AutoSaveSimulation = result.AutoSaveSimulation;
+            ConfirmBeforeDelete = result.ConfirmBeforeDelete;
+
+            SolverType = result.SolverType;
+            GridWidth = result.GridWidth;
+            GridHeight = result.GridHeight;
+            TimeStep = result.TimeStep;
+            TotalTime = result.TotalTime;
+            BoundaryCondition = result.BoundaryCondition;
+        }
+
+        showSimulationSetting = false;
+    }
+
+    private void CancelSimulationSetting()
+    {
+        showSimulationSetting = false;
+    }
+
+    @* private bool showStorageSetting = false;
+
+    private void ShowStorageSetting()
+    {
+        showStorageSetting = true;
+    }
+
+    private void ConfirmStorageSetting()
+    {
+        showStorageSetting = false;
+    }
+
+    private void CancelStorageSetting()
+    {
+        showStorageSetting = false;
+    } *@
+
+    @* private bool showShortcutsSetting = false;
+
+    private void ShowShortcutsSetting()
+    {
+        showShortcutsSetting = true;
+    }
+
+    private void ConfirmShortcutsSetting()
+    {
+        showShortcutsSetting = false;
+    }
+
+    private void CancelShortcutsSetting()
+    {
+        showShortcutsSetting = false;
+    } *@
+
+    private void ToggleAutoSave()
+    {
+        AutoSaveSimulation = !AutoSaveSimulation;
+    }
+
+    private void ToggleConfirmBeforeDelete()
+    {
+        ConfirmBeforeDelete = !ConfirmBeforeDelete;
+    }
+}

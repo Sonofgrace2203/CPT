@@ -1,0 +1,202 @@
+﻿@using CPT.Models.Auth
+@using CPT.Services.Auth
+@using cpt.Components.Shared
+@inject AuthService AuthService
+@inject NavigationManager Nav
+
+
+<div class="bdb bdb-primary pdb-5">
+    <div class="">
+        <NavLink href="@DashboardUrl" style="text-decoration: none;">
+            <div class="top-row ps-3 navbar navbar-dark bg-primary pd">
+                <div class="flex flex-start">
+                    <div class="flex flex-center">
+                        <img src="icons/cpt/cptLogo.png" alt="" class="wx-06 hx-06 mgr-3">
+                        <div class="mgt--2">
+                            <h3 class="mg-0 pdb-1">CPT</h3>
+                            <p class="mg-0 fsz-8 wx-1">Computational Physics Toolkit</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </NavLink>
+    </div>
+</div>
+
+@* <input type="checkbox" title="Navigation menu" class="navbar-toggler" /> *@
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()" style="position: relative;">
+    <nav class="nav flex-column stack" style="position: relative;">
+        <button class="bg-transparent mg-0 pd-0 bd-none nav-item clip">
+            <NavLink class="nav-link fsz-12 bdb cl-primary bdb-secondary block wf fw-bold flex flex-start navlink"
+                     href="@DashboardUrl" Match="NavLinkMatch.All" style="text-decoration: none;">
+
+                <div class="px-3 flex flex-center mgl mgr pd mgb-0 mgt-0">
+
+                    <i class="mdi mdi-view-dashboard-outline fsz-15 mgr-3"></i>
+
+                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span>
+                    Dashboard
+
+                </div>
+
+            </NavLink>
+        </button>
+
+        <button class="bg-transparent mg-0 pd-0 bd-none nav-item clip">
+            <NavLink class="nav-link fsz-12 bdb cl-primary bdb-secondary block wf fw-bold flex flex-start navlink"
+                     href="Modules" Match="NavLinkMatch.All" style="text-decoration: none;">
+                <div class="px-3 flex flex-center mgl mgr pd mgb-0 mgt-0">
+
+                    <i class="mdi mdi-molecule fsz-15 mgr-3"></i>
+                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Modules
+                </div>
+            </NavLink>
+        </button>
+
+        <button class="bg-transparent mg-0 pd-0 bd-none nav-item clip">
+            <NavLink class="nav-link fsz-12 bdb cl-primary bdb-secondary block wf fw-bold flex flex-start navlink"
+                     href="SimulationHistory" Match="NavLinkMatch.All" style="text-decoration: none;">
+                <div class="px-3 flex flex-center mgl mgr pd mgb-0 mgt-0">
+
+                    <i class="mdi mdi-history fsz-15 mgr-3"></i>
+                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> History
+                </div>
+            </NavLink>
+        </button>
+
+        @if (IsAdminOrSuperAdmin())
+        {
+            <button class="bg-transparent mg-0 pd-0 bd-none nav-item clip">
+                <NavLink class="nav-link fsz-12 bdb cl-primary bdb-secondary block wf fw-bold flex flex-start navlink"
+                         href="Admin/DemoHistory" Match="NavLinkMatch.All" style="text-decoration: none;">
+                    <div class="px-3 flex flex-center mgl mgr pd mgb-0 mgt-0">
+
+                        <i class="mdi mdi-history fsz-15 mgr-3"></i>
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Demo
+                    </div>
+                </NavLink>
+            </button>
+        }
+
+        <button class="bg-transparent mg-0 pd-0 bd-none nav-item clip">
+            <NavLink class="nav-link fsz-12 bdb cl-primary bdb-secondary block wf fw-bold flex flex-start navlink"
+                     href="Help" Match="NavLinkMatch.All" style="text-decoration: none;">
+                <div class="px-3 flex flex-center mgl mgr pd mgb-0 mgt-0">
+
+                    <i class="mdi mdi-help fsz-15 mgr-3"></i>
+                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Help
+                </div>
+            </NavLink>
+        </button>
+
+        <button class="bg-transparent mg-0 pd-0 bd-none nav-item clip">
+            <NavLink class="nav-link fsz-12 bdb cl-primary bdb-secondary block wf fw-bold flex flex-start navlink"
+                     href="Settings" Match="NavLinkMatch.All" style="text-decoration: none;">
+                <div class="px-3 flex flex-center mgl mgr pd mgb-0 mgt-0">
+
+                    <i class="mdi mdi-application-settings-outline fsz-15 mgr-3"></i>
+                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Settings
+                </div>
+            </NavLink>
+        </button>
+
+        @if (IsAdminOrSuperAdmin())
+        {
+            <div class="">
+                <div class="px-3 pdt-3 pdb-1 flex flex-center">
+                    <span class="fsz-8 cl-muted fw-bold cl-primary text-center pd wf bg-primary-01">
+                        ADMINISTRATION
+                    </span>
+                </div>
+
+                <button class="bg-transparent mg-0 pd-0 bd-none nav-item clip wf">
+                    <NavLink class="nav-link fsz-12 bdb cl-primary bdb-secondary block wf fw-bold flex flex-start navlink"
+                             href="Admin/Users" Match="NavLinkMatch.All" style="text-decoration: none;">
+
+                        <div class="px-3 flex flex-center mgl mgr pd mgb-0 mgt-0">
+                            <i class="mdi mdi-account-group-outline fsz-15 mgr-3"></i>
+                            Users
+                        </div>
+
+                    </NavLink>
+                </button>
+            </div>
+        }
+    </nav>
+    <div class="mgt-3 pdt-3">
+        <button
+            class="nav-link fsz-12 bdb cl-danger bdb-secondary block wf fw-bold flex flex-start navlink bg-transparent bd-none wf bg-primary-01"
+            @onclick="RequestLogout">
+
+            <div class="px-3 flex flex-center mgl mgr pd mgb-0 mgt-0">
+                <i class="mdi mdi-logout fsz-15 mgr-3"></i>
+                <span class="bi bi-house-door-fill-nav-menu cl-primary" aria-hidden="true"></span>
+                Logout
+            </div>
+
+        </button>
+    </div>
+</div>
+
+<ConfirmDialog IsVisible="@showLogoutDialog" Title="Confirm Logout" Message="Are you sure you want to logout of CPT?"
+               ConfirmText="Logout" CancelText="Cancel" Icon="mdi-logout" OnConfirm="ConfirmLogoutAsync" OnCancel="CancelLogout" />
+
+@code
+{
+    private AuthUser? currentUser;
+
+    private bool showLogoutDialog;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser =
+            await AuthService.GetCurrentUserAsync();
+    }
+
+    private string DashboardUrl =>
+    IsAdminOrSuperAdmin()
+        ? "Admin/Dashboard"
+        : "Dashboard";
+
+    private bool IsAdminOrSuperAdmin()
+    {
+        if (currentUser?.Roles is null)
+            return false;
+
+        return currentUser.Roles.Contains(
+                   "Admin",
+                   StringComparer.OrdinalIgnoreCase)
+               ||
+               currentUser.Roles.Contains(
+                   "SuperAdmin",
+                   StringComparer.OrdinalIgnoreCase);
+    }
+
+    private async Task LogoutAsync()
+    {
+        await AuthService.LogoutAsync();
+
+        Nav.NavigateTo("/Login", true);
+    }
+
+    private void RequestLogout()
+    {
+        showLogoutDialog = true;
+    }
+
+    private async Task ConfirmLogoutAsync()
+    {
+        showLogoutDialog = false;
+
+        await AuthService.LogoutAsync();
+
+        Nav.NavigateTo("/Login", true);
+    }
+
+    private void CancelLogout()
+    {
+        showLogoutDialog = false;
+    }
+}
+

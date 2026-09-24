@@ -1,0 +1,592 @@
+@page "/Admin/Dashboard"
+@using cpt.Components.Shared
+@using cpt.Components.Layout.Desktop
+@using cpt.Components.Visualization
+@using CPT.Models.Admin
+@using CPT.Services
+@using cpt.Models.Modules
+@using CPT.Models.Auth
+@using CPT.Services.Auth
+@inject AuthService AuthService
+
+@inject PhysicsModuleCatalogue ModuleCatalogue
+@inject AdminDashboardApiService AdminDashboardApi
+@inject PhysicsModuleApiService PhysicsModuleApi
+@inject NavigationManager Nav
+
+@layout MainLayout
+
+<ProtectedRouteView>
+    <div class="hx-1 wvl-5"></div>
+
+    <div class="bg-card">
+        <div class="mgb-2 flex flex-center flex-spacebetween flow bg-primary-02 bd pd border-shadow-5">
+            <div class="mgb-5">
+                <div class="flex flex-center flow">
+                    <h2 class="mg-0 pdb pdr-3 fsz-18 cl-primary">
+                        Welcome back, @GetDisplayName(currentUser?.FullName)
+                    </h2>
+
+                    @if (!string.IsNullOrWhiteSpace(GetDisplayRole()))
+                    {
+                        <span
+                            class="pdl-3 pdr-3 pdt-1 pdb-1 fsz-09 bg-secondary-02 cl-secondary bd bd-secondary-05 mgt--3 corner-2 fsz-8">
+                            @GetDisplayRole()
+                        </span>
+                    }
+                </div>
+                <p class="mg-0 fsz-10">Monitor CPT usage, users and simulation activity.</p>
+            </div>
+            <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center shadow-border-2"
+                    @onclick='() => Nav.NavigateTo("/Admin/Users")'>
+                <i class="mdi mdi-plus fsz-10 mgr-5"></i>
+                Manage Users
+            </button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(authTestMessage))
+    {
+        <p class="pd-1 mg-0 fsz-10 cl-secondary text-right">
+            @authTestMessage
+        </p>
+    }
+
+    <div class="scroll-y" style="height: 100vh;">
+        <div class="bg-card pd bd border-shadow-5 corner-2 bdr mgb-2">
+            <div class="">
+                <h3 class="fsz-15 cl-primary">Statistics</h3>
+            </div>
+
+            <h4 class="fsz-12 cl-secondary mgt-5 mgb-2">System</h4>
+            <div class="grid colm-25 gap-1 mgb-5">
+                <StatCard Num="@(DashboardData?.TotalUsers ?? 0)" Tag="Total Users" BgColor="rgb(139, 0, 139, 0.2)"
+                          ClColor="rgb(139, 0, 139)" Img="icons/cpt/totalUsers.svg" />
+
+                <StatCard Num="@(DashboardData?.ActiveUsers ?? 0)" Tag="Active Users" BgColor="rgb(139, 0, 139, 0.2)"
+                          ClColor="rgb(139, 0, 139)" Img="icons/cpt/activeUsers.svg" />
+
+                <StatCard Num="@(DashboardData?.TotalSimulations ?? 0)" Tag="Total Simulations"
+                          BgColor="rgb(139, 0, 139, 0.2)" ClColor="rgb(139, 0, 139)" Img="icons/cpt/totalSimulation.png" />
+
+                <StatCard Num="@(DashboardData?.CompletedSimulations ?? 0)" Tag="Completed Simulations"
+                          BgColor="rgb(139, 0, 139, 0.2)" ClColor="rgb(139, 0, 139)" Img="icons/cpt/completedSimulation.png" />
+            </div>
+
+            <h4 class="fsz-12 cl-secondary mgt-5 mgb-2">My Activity</h4>
+            <div class="grid colm-25 gap-1">
+                <StatCard Num="@(DashboardData?.MyTotalSimulations ?? 0)" Tag="My Total Simulations"
+                          BgColor="rgb(139, 0, 139, 0.2)" ClColor="rgb(139, 0, 139)" Img="icons/cpt/simulation.svg" />
+
+                <StatCard Num="@(DashboardData?.MyModulesUsed ?? 0)" Tag="My Module(s) Used"
+                          BgColor="rgb(139, 0, 139, 0.2)" ClColor="rgb(139, 0, 139)" Img="icons/cpt/module-used.svg" />
+
+                <StatCard Num="@(DashboardData?.MyCompletedResults ?? 0)" Tag="My Completed Results"
+                          BgColor="rgb(139, 0, 139, 0.2)" ClColor="rgb(139, 0, 139)" Img="icons/cpt/com-simul.svg" />
+
+                <StatCard Num="@(DashboardData?.MyFavouriteSimulations ?? 0)" Tag="My Favourite Simulations"
+                          BgColor="rgb(139, 0, 139, 0.2)" ClColor="rgb(139, 0, 139)" Img="icons/cpt/fav-simulation.svg" />
+            </div>
+        </div>
+
+        @* <div class="mgb-5 bg-card bd pd corner-2">
+        <div class="flex flex-spacebetween flex-center">
+            <h3 class="fsz-15 cl-primary">Popular Modules</h3>
+            <button class="bg-transparent cl-secondary bd-none">View all</button>
+        </div>
+        <div class="grid colm-25 gap-1">
+            <PopularModuleCard Tag="Heat Equation" Num="20" />
+            <PopularModuleCard Tag="Wave Equation" Num="10" />
+            <PopularModuleCard Tag="Laplace Equation" Num="20" />
+            <PopularModuleCard Tag="Monte Carle Equation" Num="20" />
+            <PopularModuleCard Tag="N-Body Simulation" Num="20" />
+            <PopularModuleCard Tag="Schrodinger Eq." Num="(10)" />
+        </div>
+    </div> *@
+
+        <div class="bd pd bg-card corner-2 mgb-2">
+            <div class="flex flex-center flex-spacebetween pdb-3">
+                <div>
+                    <h3 class="mg-0 fsz-15 cl-primary">
+                        Module Usage
+                    </h3>
+
+                    <p class="mg-0 fsz-10 cl-secondary">
+                        Simulation usage across CPT modules
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid colm-3 gap-1">
+
+                @foreach (var module in (DashboardData?.ModuleUsage ?? new())
+                        .Where(x => x.SimulationCount > 0))
+                {
+                    var moduleInfo = AvailableModules
+                        .FirstOrDefault(x =>
+                            x.Name.Equals(
+                                module.ModuleName,
+                                StringComparison.OrdinalIgnoreCase));
+
+                    <PopularModuleCard Img="@GetModuleImage(moduleInfo)" Tag="@module.ModuleName"
+                                       Num="@module.SimulationCount" />
+                }
+
+            </div>
+        </div>
+
+        <div class="bd pd bg-card corner-2 mgb-2">
+            <div class="flex flex-center flex-spacebetween pdb-3">
+                <div>
+                    <h3 class="mg-0 fsz-15 cl-primary">
+                        Available Modules
+                    </h3>
+
+                    <p class="mg-0 fsz-10 cl-secondary">
+                        Start a new simulation
+                    </p>
+                </div>
+
+                <NavLink href="Modules" class="fsz-10 cl-primary" style="text-decoration: none;">
+                    View all
+                </NavLink>
+            </div>
+
+            <div class="grid colm-3 gap-1">
+
+                @foreach (var module in AvailableModules)
+                {
+                    var moduleStats =
+                        DashboardData?.MyModuleUsage
+                            .FirstOrDefault(
+                                x => x.ModuleName == module.Name);
+
+                    <NavLink href="@module.Route" style="text-decoration: none; color: inherit;">
+
+                        <PopularModuleCard Img="@GetModuleImage(module)" Tag="@module.Name"
+                                           Num="@(moduleStats?.SimulationCount ?? 0)" />
+
+                    </NavLink>
+                }
+
+            </div>
+        </div>
+
+
+        <div class="row responsive colm-3 flow bg-card pd bd corner-2 mgb-2">
+
+            <div class="pd corner-2 shadow-border-2 miwx-25 mgb">
+
+                <h3 class="fsz-15 cl-primary">
+                    My Recent Simulations
+                </h3>
+
+                @if (IsLoading)
+                {
+                    <p class="fsz-10 cl-secondary">
+                        Loading recent simulations...
+                    </p>
+                }
+                else if (DashboardData?.MyRecentSimulations.Count == 0)
+                {
+                    <p class="fsz-10 cl-secondary">
+                        No simulations yet.
+                    </p>
+                }
+                else
+                {
+                    @foreach (var simulation in DashboardData!.MyRecentSimulations)
+                    {
+                        <div class="flex flex-start bg-secondary-01 pd corner-2 mgb bd-secondary bdl bdw-3"
+                             style="cursor: pointer;" @onclick='() => Nav.NavigateTo($"SimulationData/{simulation.Id}")'>
+
+                            <div class="flex flex-start flex-center wf">
+
+                                <img src="@GetSimulationModuleImage(simulation.ModuleName)" alt="@simulation.ModuleName"
+                                     class="wx-05 hx-05 mgr-5 corner-2">
+
+                                <div class="fsz-13 flex flex-spacebetween flex-center wf">
+
+                                    <p class="mg-0 pdb-2 fsz-13">
+                                        @simulation.Name.ToUpper()
+                                    </p>
+
+                                    <div>
+                                        <p class="mg-0 fsz-13 cl-secondary fw-bold">
+                                            @simulation.Status
+                                        </p>
+
+                                        <p class="mg-0 fsz-11 cl-secondary">
+                                            @simulation.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")
+                                            @simulation.CreatedAt.ToLocalTime().ToString("h:mm tt")
+                                        </p>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    }
+                }
+
+            </div>
+
+            <div class="pd corner-2 shadow-border-2 miwx-25 mgb">
+
+                <h3 class="fsz-15 cl-primary">
+                    My Activity Overview (This Week)
+                </h3>
+
+                @if (IsLoading)
+                {
+                    <p class="fsz-10 cl-secondary">
+                        Loading activity...
+                    </p>
+                }
+                else if (DashboardData?.MyWeeklyActivity.Count == 0)
+                {
+                    <p class="fsz-10 cl-secondary">
+                        No activity this week.
+                    </p>
+                }
+                else
+                {
+                    <div>
+                        <ActivityOverviewChart AdminData="DashboardData?.MyWeeklyActivity" />
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+
+        <div class="row responsive colm-3 flow bg-card pd bd corner-2">
+
+            <div class="pd corner-2 shadow-border-2 miwx-25 mgb">
+
+                <div class="flex flex-center flex-spacebetween">
+                    <div>
+                        <h3 class="fsz-15 mg-0 pdb-2 cl-primary">
+                            Simulation Activity
+                        </h3>
+
+                        <p class="mg-0 fsz-10 cl-secondary">
+                            System-wide simulation activity over the last 7 days
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mgt-5">
+
+                    @if (IsLoading)
+                    {
+                        <p class="fsz-10 cl-secondary">
+                            Loading activity...
+                        </p>
+                    }
+                    else if (DashboardData?.WeeklyActivity.Count == 0)
+                    {
+                        <p class="fsz-10 cl-secondary">
+                            No activity this week.
+                        </p>
+                    }
+                    else
+                    {
+                        <div class="grid colm-15 gap-1">
+
+                            @foreach (var activity in DashboardData?.WeeklyActivity ?? new())
+                            {
+                                <div class="bg-secondary-01 pd corner-2 bd text-center">
+
+                                    <p class="mg-0 fsz-10 fw-bold cl-primary text-left pd bg-primary-01">
+                                        @activity.Date.ToLocalTime().ToString("ddd")
+                                    </p>
+
+                                    <div class="flex flex-center mgt-5">
+                                        <p class="mg-0 mgt-1 fsz-15 pdr-5 cl-primary fw-bold">
+                                            @activity.Count
+                                        </p>
+
+                                        <p class="mg-0 fsz-12 cl-secondary">
+                                            simulations
+                                        </p>
+                                    </div>
+
+                                </div>
+                            }
+
+                        </div>
+                    }
+
+                </div>
+            </div>
+
+
+            <div class="pd corner-2 shadow-border-2 miwx-25 mgb">
+
+                @* <h3 class="fsz-15 cl-primary">
+                    System Overview
+                </h3> *@
+
+                <div class="flex flex-center flex-spacebetween">
+                    <div>
+                        <h3 class="fsz-15 mg-0 pdb-2 cl-primary">
+                            System Overview
+                        </h3>
+
+                        <p class="mg-0 fsz-10 cl-secondary">
+                            System-wide simulation overview
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid colm-15 gap-1 mgt-5 mgb-5">
+
+                    <div class="bg-secondary-01 pd corner-2 bd">
+                        <p class="mg-0 fsz-10 text-center cl-primary bg-primary-01 pd fw-bold ">
+                            New Users This Week
+                        </p>
+
+                        <p class="mg-0 pdt-5 fsz-15 cl-primary fw-bold text-center">
+                            @(DashboardData?.NewUsersThisWeek ?? 0)
+                        </p>
+                    </div>
+
+                    <div class="bg-secondary-01 pd corner-2 bd">
+                        <p class="mg-0 fsz-10 text-center cl-primary bg-primary-01 pd fw-bold ">
+                            Active Modules
+                        </p>
+
+                        <p class="mg-0 pdt-5 fsz-15 cl-primary fw-bold text-center">
+                            @(DashboardData?.ActiveModules ?? 0)
+                        </p>
+                    </div>
+
+                    <div class="bg-secondary-01 pd corner-2 bd">
+                        <p class="mg-0 fsz-10 text-center cl-primary bg-primary-01 pd fw-bold ">
+                            Demo Simulations
+                        </p>
+
+                        <p class="mg-0 pdt-5 fsz-15 cl-primary fw-bold text-center">
+                            @(DashboardData?.DemoSimulations ?? 0)
+                        </p>
+                    </div>
+
+                    <div class="bg-secondary-01 pd corner-2 bd">
+                        <p class="mg-0 fsz-10 text-center cl-primary bg-primary-01 pd fw-bold ">
+                            Authenticated Simulations
+                        </p>
+
+                        <p class="mg-0 pdt-5 fsz-15 cl-primary fw-bold text-center">
+                            @(DashboardData?.AuthenticatedSimulations ?? 0)
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bd pd bg-card corner-2 mgb-5">
+
+                    <div class="flex flex-center flex-spacebetween pdb-3">
+
+                        <div>
+                            <h3 class="mg-0 pdb-2 fsz-12 cl-primary">
+                                Administration
+                            </h3>
+
+                            <p class="mg-0 fsz-10 cl-secondary">
+                                CPT administration overview
+                            </p>
+                        </div>
+
+                        <NavLink href="/Admin/Users" class="fsz-10 cl-primary" style="text-decoration: none;">
+                            Manage Users
+                        </NavLink>
+
+                    </div>
+
+
+                    <div class="grid colm-15 gap-1">
+
+                        <div class="bg-secondary-01 pd corner-2 bd">
+                            <p class="mg-0 fsz-10 text-center cl-primary bg-primary-01 pd fw-bold ">
+                                Total Admins
+                            </p>
+
+                            <p class="mg-0 pdt-5 fsz-15 cl-primary fw-bold text-center">
+                                @(DashboardData?.TotalAdmins ?? 0)
+                            </p>
+                        </div>
+
+                        <div class="bg-secondary-01 pd corner-2 bd">
+                            <p class="mg-0 fsz-10 text-center cl-primary bg-primary-01 pd fw-bold ">
+                                Total SuperAdmins
+                            </p>
+
+                            <p class="mg-0 pdt-5 fsz-15 cl-primary fw-bold text-center">
+                                @(DashboardData?.TotalSuperAdmins ?? 0)
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="hx-06 wvl-5"></div>
+</ProtectedRouteView>
+
+@code
+{
+    private AdminDashboardDto? DashboardData;
+
+    private bool IsLoading = true;
+
+    private bool HasError = false;
+
+    private AuthUser? currentUser;
+    private string? authTestMessage;
+
+    private List<PhysicsModuleDto> ApiModules = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthService.GetCurrentUserAsync();
+
+        if (currentUser is null)
+        {
+            authTestMessage =
+                "Authentication test failed.";
+        }
+        else
+        {
+            authTestMessage =
+                $"Authenticated as {currentUser.FullName} ({currentUser.Email})";
+        }
+
+        try
+        {
+            DashboardData = await AdminDashboardApi.GetDashboardAsync();
+            ApiModules = await PhysicsModuleApi.GetAllAsync();
+
+            if (DashboardData is null)
+            {
+                HasError = true;
+            }
+        }
+        catch
+        {
+            HasError = true;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    @* private IEnumerable<PhysicsModule> AvailableModules =>
+    ModuleCatalogue.Modules
+        .Where(m => m.Available); *@
+
+    @* private string GetModuleImage(PhysicsModule module)
+    {
+        return ApiModules
+            .FirstOrDefault(x =>
+                x.Name.Equals(
+                    module.Name,
+                    StringComparison.OrdinalIgnoreCase))
+            ?.ImageUrl
+            ?? module.Icon;
+    }
+
+    private string GetSimulationModuleImage(string moduleName)
+    {
+        return ApiModules
+            .FirstOrDefault(x =>
+                x.Name.Equals(
+                    moduleName,
+                    StringComparison.OrdinalIgnoreCase))
+            ?.ImageUrl
+            ?? "icons/hyg.svg";
+    } *@
+
+    private IEnumerable<PhysicsModule> AvailableModules =>
+    ModuleCatalogue.Modules
+        .Where(m => m.Available);
+
+    private string GetModuleImage(PhysicsModule? module)
+    {
+        if (module is null)
+            return "icons/hyg.svg";
+
+        return ApiModules
+            .FirstOrDefault(x =>
+                x.Name.Equals(
+                    module.Name,
+                    StringComparison.OrdinalIgnoreCase))
+            ?.ImageUrl
+            ?? module.Icon;
+    }
+
+    private string GetSimulationModuleImage(string moduleName)
+    {
+        return ApiModules
+            .FirstOrDefault(x =>
+                x.Name.Equals(
+                    moduleName,
+                    StringComparison.OrdinalIgnoreCase))
+            ?.ImageUrl
+            ?? "icons/hyg.svg";
+    }
+
+    private string GetDisplayName(string? fullName)
+    {
+        if (string.IsNullOrWhiteSpace(fullName))
+            return "there";
+
+        var parts = fullName
+            .Trim()
+            .Split(
+                ' ',
+                StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length == 1)
+            return parts[0];
+
+        return $"{parts[0]} {char.ToUpper(parts[1][0])}.";
+    }
+
+    private string GetDisplayRole()
+    {
+        if (currentUser?.Roles is null ||
+            currentUser.Roles.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        if (currentUser.Roles.Contains(
+                "SuperAdmin",
+                StringComparer.OrdinalIgnoreCase))
+        {
+            return "SuperAdmin";
+        }
+
+        if (currentUser.Roles.Contains(
+                "Admin",
+                StringComparer.OrdinalIgnoreCase))
+        {
+            return "Admin";
+        }
+
+        if (currentUser.Roles.Contains(
+                "User",
+                StringComparer.OrdinalIgnoreCase))
+        {
+            return "User";
+        }
+
+        return string.Empty;
+    }
+}

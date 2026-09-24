@@ -1,0 +1,185 @@
+@page "/"
+@inject NavigationManager Nav
+
+@layout MobileMainLayout
+
+<div class="pd flex flex-spacebetween flex-center homebg1 shadow-border-1"
+     style="position: fixed; top: 0; left: 0; right: 0;">
+    <div class="cl-white" @onclick='() => Nav.NavigateTo("")' style="cursor: pointer;">
+        <div class="flex flex-start">
+            <div class="flex flex-center">
+                <img src="icons/cpt/cptLogo.png" alt="" class="wx-04 hx-04 mgr-3">
+                <div class="mgt--2">
+                    <h3 class="mg-0 pdb-1">CPT</h3>
+                    <p class="mg-0 fsz-8">Computational Physics Toolkit</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-card bd cl-primary bd-primary fsz-10"
+                @onclick='() => Nav.NavigateTo("Login")'>Login</button>
+        <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-primary fsz-10"
+                @onclick='() => Nav.NavigateTo("SignUp")'>Sign Up</button>
+    </div>
+</div>
+
+<div class="homebg pd-5 mgt-10 scroll-y">
+    <div class="row responsive colm-3">
+        <div class="cl-white pdl-1 pdr-1 pdt-15 pdb-5 miwx-25 mgb-5">
+            <div class="flex flex-start">
+                <div class="flex flex-center">
+                    <img src="icons/cpt/cptLogo.png" alt="" class="wx-1 hx-1 mgr-3">
+                    <div class="mgt--4">
+                        <h1 class="fsz-50 mg-0">CPT</h1>
+                        <p class="mg-0">Computational Physics Toolkit</p>
+                    </div>
+                </div>
+            </div>
+
+            <h1>Explore, simulate and visualize physical systems computationally.</h1>
+            <p>Powerful, interactive. Built for learners, researchers and innovators</p>
+
+            <div>
+                <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-primary fsz-13"
+                        @onclick='() => Nav.NavigateTo("/HeatEquation?demo=true&from=home")'>Try Demo</button>
+                <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-white corner-5 bg-card-02 cl-white fsz-13"
+                        @onclick='() => Nav.NavigateTo("Login")'>Sign
+                    Up / Log In</button>
+                </div>
+            </div>
+
+            <div class="flex flex-spacearound flex-center justify-content-between miwx-25">
+                <img src="icons/cpt/planetory.gif" alt="" class="hx-3 wx-3 clip">
+            </div>
+        </div>
+
+        <div class="pd bg-card-06 grid gap-1 colm-25 mgb-2">
+            <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
+                <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                <div class="">
+                    <h4 class="mg-0 pdb fsz-15 cl-primary">Interactive Simulation</h4>
+                    <p class="mg-0 fsz-12">Run and simulate physical models in real time</p>
+                </div>
+            </div>
+            <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
+                <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                <div>
+                    <h4 class="mg-0 pdb fsz-15 cl-primary">Modular System</h4>
+                    <p class="mg-0 fsz-12">Start with Heat Equation, more modules coming soon.</p>
+                </div>
+            </div>
+            <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
+                <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                <div>
+                    <h4 class="mg-0 pdb fsz-15 cl-primary">Track & Save</h4>
+                    <p class="mg-0 fsz-12">Save your history, Simulation and Results.</p>
+                </div>
+            </div>
+            <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
+                <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                <div>
+                    <h4 class="mg-0 pdb fsz-15 cl-primary">Cross Platform</h4>
+                    <p class="mg-0 fsz-12">Assume on web and mobile (Coming Soon)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-card-06 pd">
+            <div class="flex flex-spacebetween flex-center flow">
+                <h3 class="fsz-15 mg-0 pdb">Available Modules</h3>
+                <p class="fsz-12 cl-primary text-center pdb">Own a real account by signing-up to use all Modules</p>
+            </div>
+
+            <div class="grid gap-1 colm-25">
+                <div class="pd corner-2 bg-card-07 shadow-border-2"
+                     @onclick='() => Nav.NavigateTo("HeatEquation?demo=true")'>
+                    <div class="flex">
+                        <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                        <div>
+                            <h4 class="mg-0 pdb fsz-15 cl-primary">Heat Transfer</h4>
+                            <p class="mg-0 fsz-12">2D Heat Equation</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <button class="cl-primary fsz-10 bg-transparent bd-none"
+                                @onclick='() => Nav.NavigateTo("HeatEquation?demo=true")'>
+                            Run Demo
+                            <i class="mdi mdi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pd corner-2 bg-card-07 shadow-border-2">
+                    <div class="flex">
+                        <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                        <div>
+                            <h4 class="mg-0 pdb fsz-15 cl-primary">Mechanics</h4>
+                            <p class="mg-0 fsz-12">Projectile</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <button class="cl-primary fsz-10 bg-transparent bd-none">Run Demo
+                            <i class="mdi mdi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pd corner-2 bg-card-07 shadow-border-2">
+                    <div class="flex">
+                        <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                        <div>
+                            <h4 class="mg-0 pdb fsz-15 cl-primary">Electromagnetism</h4>
+                            <p class="mg-0 fsz-12">Coming Soon</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <button class="cl-primary fsz-10 bg-transparent bd-none">Run Demo
+                            <i class="mdi mdi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pd corner-2 bg-card-07 shadow-border-2">
+                    <div class="flex">
+                        <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                        <div>
+                            <h4 class="mg-0 pdb fsz-15 cl-primary">Fluid Mechanics</h4>
+                            <p class="mg-0 fsz-12">Coming Soon</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <button class="cl-primary fsz-10 bg-transparent bd-none">Run Demo
+                            <i class="mdi mdi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    @if (showDemoComplete)
+    {
+        <DemoComplete CreateAccount="GoToCreateAccount" CreateLater="HideDemoComplete" />
+    }
+
+@code {
+    private bool showDemoComplete = false;
+
+    private void ShowDemoComplete()
+    {
+        showDemoComplete = true;
+    }
+
+    private void GoToCreateAccount()
+    {
+        Nav.NavigateTo("SignUp");
+    }
+
+    private void HideDemoComplete()
+    {
+        showDemoComplete = false;
+    }
+}

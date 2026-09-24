@@ -1,0 +1,673 @@
+@page "/HeatEquation"
+
+@using CPT.Models.HeatEquation
+@using System.Globalization
+@using CPT.Services
+@using CPT.Services.Physics.HeatEquation
+
+@inject NavigationManager Nav
+@inject HeatEquationApiService HeatEquationApi
+@inject HeatEquationState HeatEquationState
+@inject UserSettingsApiService UserSettingsApi
+
+<ProtectedRouteView AllowAnonymous="@Demo">
+    <div class="hx-1 wvl-5"></div>
+
+    <div class="bg-card">
+        <div class="mgb-5 flex flex-center flex-spacebetween bg-primary-02 bd pd pdl-2 pdr-2 border-shadow-5">
+            @* <div class="flex flex-center">
+
+                <button class="bg-transparent bd-none fsz-15 mgr-5" @onclick="GoBack" title="Go back">
+
+                    <i class="mdi mdi-arrow-left round bd cl-primary bg-card pd fw-bold"></i>
+
+                </button>
+
+                <div>
+                    <h3 class="mg-0 pdb fsz-18 cl-primary">
+                        
+                    </h3>
+
+                    <p class="mg-0 fsz-10">
+                        
+                    </p>
+                </div>
+
+            </div> *@
+
+            <div class="flex flex-center">
+
+                <button class="bg-transparent bd-none fsz-15 mgr-2" @onclick="GoBack" title="Go back">
+                    <i class="mdi mdi-arrow-left round bd cl-primary bg-card pd fw-bold"></i>
+                </button>
+
+                <div>
+                    <h2 class="mg-0 pdb fsz-18 cl-primary">
+                        Heat Equation (2D)
+                    </h2>
+
+                    <p class="mg-0 fsz-10">
+                        Configure parameters for the simulation.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="mgt-5">
+                <div class="mgb-3">
+                    <span class="pd bd bd-white corner-2 bg-card op-5 fsz-10">
+                        SI Units
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <EditForm EditContext="@EditContext" OnValidSubmit="@StartSimulation">
+
+        <DataAnnotationsValidator />
+
+        <div class="scroll-y" style="height: 100vh;">
+
+            <!-- Simulation Name -->
+            <div class="pd corner-2 bd bg-card mgb-2">
+
+                <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
+                    Simulation
+                </h3>
+
+                <div class="mgb-5">
+
+                    <h5 class="mg-0 pdb fsz-13">
+                        Simulation Name
+                    </h5>
+
+                    <input type="text" @bind="Configuration.SimulationName" maxlength="100"
+                           placeholder="e.g. Metal Plate Heating" class="pd bd corner-1 bg-card block miwx-3"
+                           @onblur="ValidateSimulationName" />
+
+                    <ValidationMessage For="@(() => Configuration.SimulationName)" />
+
+                </div>
+
+            </div>
+
+            <div class="grid gap-1 colm-4">
+
+                <!-- Physical Parameters -->
+                <div class="pd corner-2 bd bg-card">
+
+                    <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
+                        Physical Parameters
+                    </h3>
+
+                    <div class="mgb-5">
+                        <h5 class="mg-0 pdb fsz-13">
+                            Thermal Diffusivity (α)
+                        </h5>
+
+                        <input type="number" step="any" @bind="Configuration.ThermalDiffusivity"
+                               class="pd bd corner-1 bg-card block miwx-3" />
+
+                        <ValidationMessage For="@(() => Configuration.ThermalDiffusivity)" />
+                    </div>
+
+
+                    <div class="mgb-5">
+                        <h5 class="mg-0 pdb fsz-13">
+                            Initial Temperature
+                        </h5>
+
+                        <input type="number" step="any" @bind="Configuration.InitialTemperature"
+                               class="pd bd corner-1 bg-card block miwx-3" />
+
+                        <ValidationMessage For="@(() => Configuration.InitialTemperature)" />
+                    </div>
+
+
+                    <div class="mgb-5">
+                        <h5 class="mg-0 pdb fsz-13">
+                            Boundary Temperature
+                        </h5>
+
+                        <input type="number" step="any" @bind="Configuration.BoundaryTemperature"
+                               class="pd bd corner-1 bg-card block miwx-3" />
+
+                        <ValidationMessage For="@(() => Configuration.BoundaryTemperature)" />
+                    </div>
+
+
+                    <div class="mgb-5">
+                        <h5 class="mg-0 pdb fsz-13">
+                            Total Time (T)
+                        </h5>
+
+                        <input type="number" step="any" @bind="Configuration.TotalTime"
+                               class="pd bd corner-1 bg-card block miwx-3" />
+
+                        <ValidationMessage For="@(() => Configuration.TotalTime)" />
+                    </div>
+
+
+                    <div class="mgb-5">
+                        <h5 class="mg-0 pdb fsz-13">
+                            Time Step (Δt)
+                        </h5>
+
+                        <input type="number" step="any" @bind="Configuration.TimeStep"
+                               class="pd bd corner-1 bg-card block miwx-3" />
+
+                        <ValidationMessage For="@(() => Configuration.TimeStep)" />
+                    </div>
+
+
+                    <div class="mgb-5">
+
+                        <h5 class="mg-0 pdb fsz-13">
+                            Grid Size (Nx × Ny)
+                        </h5>
+
+                        <div class="flex flex-start">
+
+                            <div class="flex flex-center">
+
+                                <input type="number" min="3" @bind="Configuration.GridWidth"
+                                       class="mgr-3 wf pd bd corner-1 bg-card" />
+
+                                <p class="mg-0 pdr-3">
+                                    ×
+                                </p>
+
+                                <input type="number" min="3" @bind="Configuration.GridHeight"
+                                       class="wf pd bd corner-1 bg-card" />
+
+                            </div>
+
+                        </div>
+
+                        <ValidationMessage For="@(() => Configuration.GridWidth)" />
+                        <ValidationMessage For="@(() => Configuration.GridHeight)" />
+
+                    </div>
+
+
+                    <div class="mgb-5">
+
+                        <h5 class="mg-0 pdb fsz-13">
+                            Time Steps
+                        </h5>
+
+                        <p class="mg-0 fsz-12">
+                            @TimeSteps.ToString("N0", CultureInfo.InvariantCulture)
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Domain -->
+                <div class="pd corner-2 bd bg-card">
+
+                    <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
+                        Domain Range
+                    </h3>
+
+
+                    <div class="flex flow flex-start">
+
+                        <div class="mgb-5 mgr-5 wf">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                x (min)
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.XMin"
+                                   class="pd bd corner-1 bg-card miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.XMin)" />
+
+                        </div>
+
+
+                        <div class="mgb-5 mgr-5 wf">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                x (max)
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.XMax"
+                                   class="pd bd corner-1 bg-card miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.XMax)" />
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="flex flow flex-start">
+
+                        <div class="mgb-5 mgr-5 wf">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                y (min)
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.YMin"
+                                   class="pd bd corner-1 bg-card miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.YMin)" />
+
+                        </div>
+
+
+                        <div class="mgb-5 mgr-5 wf">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                y (max)
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.YMax"
+                                   class="pd bd corner-1 bg-card miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.YMax)" />
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Numerical Method -->
+                <div class="pd corner-2 bd bg-card">
+
+                    <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
+                        Numerical Method
+                    </h3>
+
+
+                    <div class="mgt-10 mgb-5">
+
+                        <h5 class="mg-0 pdb fsz-13">
+                            Method
+                        </h5>
+
+                        <p class="mg-0 fsz-12">
+                            Explicit Finite Difference
+                        </p>
+
+                    </div>
+
+
+                    <div class="mgt-10">
+
+                        <h5 class="mg-0 pdb fsz-13">
+                            Stability Condition (r)
+                        </h5>
+
+                        <input type="text"
+                               value="@StabilityCondition.ToString("0.000000", CultureInfo.InvariantCulture)" readonly
+                               class="pd bd corner-1 bg-card miwx-3" />
+
+                    </div>
+
+
+                    <div class="mgt-10 flex flex-start">
+
+                        <div class="mgr-5">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Current (Δt)
+                            </h5>
+
+                            <p class="mg-0 fsz-12">
+                                @Configuration.TimeStep.ToString(
+                                    "0.000000",
+                                    CultureInfo.InvariantCulture)
+                            </p>
+
+                        </div>
+
+
+                        @if (IsStable)
+                        {
+                            <p class="bd cl-success pd fsz-12 wx-1 mgt-1 text-center corner-1 bd-success">
+                                Stable
+                                <i class="mdi mdi-score fsz-15"></i>
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="bd cl-danger pd fsz-12 wx-1 mgt-1 text-center corner-1 bd-danger">
+                                Unstable
+                            </p>
+                        }
+
+                    </div>
+
+
+                    @if (!IsStable)
+                    {
+                        <p class="cl-danger fsz-10 mgt-10">
+                            Reduce the time step or increase the grid spacing
+                            to satisfy the explicit finite-difference stability
+                            condition.
+                        </p>
+                    }
+
+                </div>
+
+            </div>
+
+
+            <!-- Actions -->
+            <div class="flex flex-end pd-2 mgb-2 mgt-2">
+
+                @* @if (Demo)
+                {
+                    <button type="button"
+                            class="pd corner-1 bg-card bd-none bd-white fsz-12 mgr-5 cl-primary flex flex-center"
+                            @onclick='() => Nav.NavigateTo("/")'>
+
+                        <i class="mdi mdi-arrow-left fsz-15 mgr-3"></i>
+                        Go Back
+
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="pd corner-1 bg-card bd-none bd-white fsz-12 mgr-5 cl-primary"
+                            @onclick='() => Nav.NavigateTo("Modules")'>
+
+                        Go Back to Modules
+
+                        <i class="mdi mdi-arrow-left fsz-15"></i>
+
+                    </button>
+                } *@
+
+                <button type="button"
+                        class="pd corner-1 bg-card bd-none bd-white fsz-12 mgr-5 cl-primary flex flex-center"
+                        @onclick="GoBack">
+
+                    <i class="mdi mdi-arrow-left fsz-15 mgr-1"></i>
+
+                    @if (Demo)
+                    {
+                        <span>Go Back</span>
+                    }
+                    else
+                    {
+                        <span>Go Back to Modules</span>
+                    }
+
+                </button>
+
+                <button type="submit" class="pd corner-1 bg-primary bd-none fsz-12 mdi"
+                        disabled="@(!IsStable || IsRunning)">
+
+                    @if (IsRunning)
+                    {
+                        <span>
+                            Creating Simulation...
+                        </span>
+                    }
+                    else
+                    {
+                        <span>
+                            Next: Run Simulation
+                            <i class="mdi mdi-arrow-rigt fsz-15"></i>
+                        </span>
+                    }
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </EditForm>
+
+
+    <div class="hx-05 wvl-5"></div>
+</ProtectedRouteView>
+
+@code {
+    @* private EditContext EditContext = default!; *@
+    private EditContext? EditContext;
+
+    [SupplyParameterFromQuery(Name = "demo")]
+    public bool Demo { get; set; }
+    
+    [SupplyParameterFromQuery(Name = "from")]
+    public string? From { get; set; }
+
+    private HeatEquationConfiguration Configuration = new()
+    {
+        PhysicsModuleId =
+            Guid.Parse("1e1be16f-8a59-4727-9a78-878acad05b95")
+    };
+
+    protected override void OnInitialized()
+    {
+        EditContext = new EditContext(Configuration);
+    }
+
+    @* protected override async Task OnInitializedAsync()
+    {
+        if (!Demo)
+        {
+            var settings = await UserSettingsApi.GetAsync();
+
+            if (settings is not null)
+            {
+                Configuration.GridWidth = settings.GridWidth;
+                Configuration.GridHeight = settings.GridHeight;
+                Configuration.TimeStep = settings.TimeStep;
+                Configuration.TotalTime = settings.TotalTime;
+            }
+        }
+
+        EditContext = new EditContext(Configuration);
+    } *@
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Demo)
+        {
+            var settings = await UserSettingsApi.GetAsync();
+
+            if (settings is not null)
+            {
+                Configuration.GridWidth = settings.GridWidth;
+                Configuration.GridHeight = settings.GridHeight;
+                Configuration.TimeStep = settings.TimeStep;
+                Configuration.TotalTime = settings.TotalTime;
+            }
+        }
+    }
+
+    @* protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && Demo && !_demoStarted)
+        {
+            _demoStarted = true;
+
+            await StartDemoSimulation();
+        }
+    } *@
+
+    @* private async Task StartDemoSimulation()
+    {
+        Configuration.SimulationName = "CPT Heat Equation Demo";
+
+        Configuration.ThermalDiffusivity = 0.21;
+        Configuration.InitialTemperature = 100;
+        Configuration.BoundaryTemperature = 0;
+
+        Configuration.TotalTime = 0.5;
+        Configuration.TimeStep = 0.001;
+
+        Configuration.GridWidth = 20;
+        Configuration.GridHeight = 20;
+
+        Configuration.XMin = -1;
+        Configuration.XMax = 1;
+        Configuration.YMin = -1;
+        Configuration.YMax = 1;
+
+        IsRunning = true;
+
+        try
+        {
+            var simulationId =
+                await HeatEquationApi.CreateSimulationAsync(
+                    Configuration);
+
+            if (simulationId is null)
+            {
+                IsRunning = false;
+                return;
+            }
+
+            Nav.NavigateTo(
+                $"/HeatEquation/Simulate/{simulationId}?demo=true");
+        }
+        finally
+        {
+            IsRunning = false;
+        }
+    } *@
+
+    private bool IsRunning;
+
+
+    private int TimeSteps =>
+        Configuration.TimeStep > 0
+            ? (int)Math.Ceiling(
+                Configuration.TotalTime /
+                Configuration.TimeStep)
+            : 0;
+
+
+    private double StabilityCondition
+    {
+        get
+        {
+            if (Configuration.GridWidth < 3 ||
+                Configuration.GridHeight < 3 ||
+                Configuration.XMax <= Configuration.XMin ||
+                Configuration.YMax <= Configuration.YMin ||
+                Configuration.ThermalDiffusivity <= 0 ||
+                Configuration.TimeStep <= 0)
+            {
+                return 0;
+            }
+
+            var dx =
+                (Configuration.XMax - Configuration.XMin) /
+                (Configuration.GridWidth - 1);
+
+            var dy =
+                (Configuration.YMax - Configuration.YMin) /
+                (Configuration.GridHeight - 1);
+
+            return Configuration.ThermalDiffusivity *
+                   Configuration.TimeStep *
+                   (
+                       1.0 / (dx * dx) +
+                       1.0 / (dy * dy)
+                   );
+        }
+    }
+
+
+    private bool IsStable =>
+        Configuration.ThermalDiffusivity > 0 &&
+        Configuration.TimeStep > 0 &&
+        StabilityCondition <= 0.5;
+
+    private bool IsValid =>
+        Configuration.ThermalDiffusivity > 0 &&
+        Configuration.TotalTime > 0 &&
+        Configuration.TimeStep > 0 &&
+        Configuration.GridWidth >= 3 &&
+        Configuration.GridHeight >= 3 &&
+        Configuration.XMax > Configuration.XMin &&
+        Configuration.YMax > Configuration.YMin;
+
+    private async Task StartSimulation()
+    {
+        if (string.IsNullOrWhiteSpace(Configuration.SimulationName))
+        {
+            EditContext.Validate();
+            return;
+        }
+
+        if (!IsValid ||
+            !IsStable ||
+            IsRunning)
+        {
+            return;
+        }
+
+        IsRunning = true;
+
+        try
+        {
+            var simulationId = await HeatEquationApi.CreateSimulationAsync(Configuration, Demo);
+
+            if (simulationId is null)
+            {
+                return;
+            }
+
+            if (Demo)
+            {
+                Nav.NavigateTo(
+                    $"/HeatEquation/Simulate/{simulationId}?demo=true");
+            }
+            else
+            {
+                Nav.NavigateTo(
+                    $"/HeatEquation/Simulate/{simulationId}");
+            }
+        }
+        finally
+        {
+            IsRunning = false;
+        }
+    }
+
+    private void ValidateSimulationName()
+    {
+        EditContext.Validate();
+    }
+
+    private void GoBack()
+    {
+        if (!Demo)
+        {
+            Nav.NavigateTo("/Modules");
+            return;
+        }
+
+        switch (From?.ToLowerInvariant())
+        {
+            case "login":
+                Nav.NavigateTo("/Login");
+                break;
+
+            case "signup":
+                Nav.NavigateTo("/SignUp");
+                break;
+
+            case "home":
+            default:
+                Nav.NavigateTo("/");
+                break;
+        }
+    }
+}

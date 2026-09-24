@@ -1,0 +1,636 @@
+@page "/Help"
+@using cpt.Components.Shared
+@using Microsoft.JSInterop
+@using cpt.Models.Faq
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<ProtectedRouteView>
+    <div class="hx-1 wvl-5"></div>
+
+    <div class="bg-card">
+        <div class="mgb-5 flex flex-center flex-spacebetween bg-primary-02 bd pd border-shadow-5">
+            <div>
+                <h2 class="mg-0 pdb fsz-18 cl-primary">Help & Documentation</h2>
+                <p class="mg-0 fsz-10">Learn and get support.</p>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="flex flex-start flow gap-1 wvl-5 mgb-2">
+            <button class="pd bg-primary-02 bd-none cl-primary flex flex-start corner-1 mgb-1 mgr-1"
+                    @onclick="GetStarted">
+                <i class="mdi mdi-marker mgr-3"></i>
+                User Guide</button>
+                <button class="pd bg-primary-02 bd-none cl-primary flex flex-start corner-1 mgb-1 mgr-1"
+                        @onclick="Tutorials">
+                    <i class="mdi mdi-eye mgr-3"></i>
+                    Tutorials</button>
+                    <button class="pd bg-primary-02 bd-none cl-primary flex flex-start corner-1 mgb-1 mgr-1" @onclick="FAQ">
+                        <i class="mdi mdi-star-box mgr-3"></i>
+                        FAQ</button>
+                        <button class="pd bg-primary-02 bd-none cl-primary flex flex-start corner-1 mgb-1 mgr-1"
+                                @onclick="TroubleShoot">
+                            <i class="mdi mdi-dots-circle mgr-3"></i>
+                            Troubleshooting</button>
+                            <button class="pd bg-primary-02 bd-none cl-primary flex flex-start corner-1 mgb-1 mgr-1" @onclick="About">
+                                <i class="mdi mdi-check-bold mgr-3"></i>
+                                About</button>
+                            </div>
+                        </div>
+
+                        <div class="row responsive colm-3">
+                            <div class="mgb-5 wf mawx-2 wvg-5">
+                                <div>
+                                    <div class="pd bd bg-card corner-2">
+                                        <button class="pd bg-primary-02 bd-none cl-primary wf flex flex-start corner-1 mgb-2"
+                                                @onclick="GetStarted">
+                                            <i class="mdi mdi-marker mgr-3"></i>
+                                            User Guide</button>
+                                            <button class="pd bg-primary-02 bd-none cl-primary wf flex flex-start corner-1 mgb-2"
+                                                    @onclick="Tutorials">
+                                                <i class="mdi mdi-eye mgr-3"></i>
+                                                Tutorials</button>
+                                                <button class="pd bg-primary-02 bd-none cl-primary wf flex flex-start corner-1 mgb-2"
+                                                        @onclick="FAQ">
+                                                    <i class="mdi mdi-star-box mgr-3"></i>
+                                                    FAQ</button>
+                                                    <button class="pd bg-primary-02 bd-none cl-primary wf flex flex-start corner-1 mgb-2"
+                                                            @onclick="TroubleShoot">
+                                                        <i class="mdi mdi-dots-circle mgr-3"></i>
+                                                        Troubleshooting</button>
+                                                        <button class="pd bg-primary-02 bd-none cl-primary wf flex flex-start corner-1 mgb-2"
+                                                                @onclick="About">
+                                                            <i class="mdi mdi-check-bold mgr-3"></i>
+                                                            About</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="miwx-25 mgb-2 pd bd corner-2 bg-card" style="display: @(getStarted ? "block" : "none");">
+                                                    <h5 class="mg-0 pdb fsz-15 pd bg-primary-02">Getting Started</h5>
+                                                    <p class="mg-0 pdt pdb fsz-12">Computational Physics Toolkit helps you solve and simulate a wide range
+                                                        of
+                                                        physics problem s using numerical methods with powerful vitualization tools.</p>
+
+                                                        <div class="mgt-5 flex flex-start flow">
+                                                            <HelpCard Title="Quick Start Guide" Text="Learn the device in 1 minute" Link="Read Guide"
+                                                                      OnClick="OpenQuickStartGuide" />
+                                                            <HelpCard Title="Video Tutorials" Text="Step-by-step video walkthroughs" Link="Watch Videos"
+                                                                      OnClick="OpenTutorials" />
+                                                            @* <HelpCard Title="Examples Library" Text="Explore example simulations" Link="View Examples" /> *@
+                                                        </div>
+
+                                                        <div class="flex flex-spacebetween flow mgt-5">
+                                                            <div>
+                                                                <p class="fsz-12 cl-primary">Version 1.0.0</p>
+                                                                <p class="fsz-12">2026 CPT Toolkit. All rights reserved.</p>
+                                                            </div>
+
+                                                            <div class="flex flex-start flow">
+                                                                <button class="pd bg-transparent mdi mdi-facebook bd corner-1 fsz-20 mgr-3"></button>
+                                                                <button class="pd bg-transparent mdi mdi-twitter bd corner-1 fsz-20 mgr-3"></button>
+                                                                <button class="pd bg-transparent mdi mdi-email bd corner-1 fsz-20 mgr-3"></button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y" style="display: @(tutorials ? "block" : "none"); height: 80vh">
+                                                        <h5 class="mg-0 pdb fsz-15 pd bg-primary-02">Tutorials</h5>
+                                                        <p class="mg-0 pdt pdb fsz-12">Step-by-step guides to help you get started and make the most of CPT.</p>
+
+                                                        <div class="bd pd corner-2 grid gap-1 colm-2">
+
+                                                            <div class="bg-primary-02 corner-2 flex flex-center hx-1">
+                                                                <i class="mdi mdi-play-circle-outline cl-primary fsz-50"></i>
+                                                            </div>
+
+                                                            <div>
+                                                                <h5 class="mg-0 pdb-2">
+                                                                    Getting Started with CPT
+                                                                </h5>
+
+                                                                <p class="mg-0 pdb-2 fsz-13">
+                                                                    Learn the basics, create your first simulation and explore
+                                                                    CPT's visualization and result tools.
+                                                                </p>
+                                                            </div>
+
+                                                        </div>
+
+                                                        <div class="mgt-5">
+
+                                                            <h5>
+                                                                Video Tutorials
+                                                            </h5>
+
+                                                            <div class="scroll-y hx-5">
+
+                                                                <VideoCard Title="1. Getting Started with CPT"
+                                                                           Description="Learn the basics, navigate CPT, and create your first simulation." Duration="6:33"
+                                                                           VideoPath="videos/cptdem.mp4" />
+
+                                                                <VideoCard Title="2. Running Your First Simulation"
+                                                                           Description="Configure parameters and run your first physics simulation." Duration="6:33"
+                                                                           VideoPath="videos/cptdem.mp4" />
+
+                                                                <VideoCard Title="3. Understanding Simulation Results"
+                                                                           Description="Explore temperature maps, statistics, charts and animation." Duration="6:33"
+                                                                           VideoPath="videos/cptdem.mp4" />
+
+                                                                <VideoCard Title="4. Exporting Simulation Results"
+                                                                           Description="Learn how to export your simulation results in different formats." Duration="6:33"
+                                                                           VideoPath="videos/cptdem.mp4" />
+
+                                                                <VideoCard Title="5. Using the Heat Equation Module"
+                                                                           Description="Understand the Heat Equation parameters and how they affect your simulation."
+                                                                           Duration="6:33" VideoPath="videos/cptdem.mp4" />
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="miwx-25 mgb-2 pd bd corner-2 bg-card" style="display: @(faq ? "block" : "none");">
+                                                        <h5 class="mg-0 pdb fsz-15 pd bg-primary-02">FAQ</h5>
+                                                        <p class="mg-0 pdt pdb fsz-12">
+                                                            Find answers to common questions about CPT.
+                                                        </p>
+
+                                                        <div class="bd pd corner-2 mgb-2">
+
+                                                            <div class="wf mgb-3">
+                                                                <input type="text" placeholder="🔍 Search frequently asked questions..."
+                                                                       class="pd bg-white corner-2 bd wp-80" @bind="faqSearch" />
+                                                            </div>
+
+                                                            @foreach (var item in FilteredFaqs)
+                                                            {
+                                                                <div class="mgb-2">
+
+                                                                    <div class="flex flex-spacebetween flex-center bd pd bg-primary-01"
+                                                                         @onclick="() => ViewAnswer(item.Id)">
+
+                                                                        <div class="flex flex-start">
+                                                                            <div class="flex flex-center">
+                                                                                <i class="mdi mdi-key fsz-15 pd round bg-primary mgr-3"></i>
+                                                                                <p class="mg-0 fsz-13">@item.Question</p>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <i class="mdi @(openAnswer == item.Id ? "mdi-chevron-up" : "mdi-chevron-down") cl-primary"></i>
+
+                                                                    </div>
+
+                                                                    @if (openAnswer == item.Id)
+                                                                    {
+                                                                        <div class="bg-dark-01 pd bd">
+                                                                            <p class="mg-0 fsz-12">
+                                                                                @item.Answer
+                                                                            </p>
+                                                                        </div>
+                                                                    }
+
+                                                                </div>
+                                                            }
+
+                                                            @if (!FilteredFaqs.Any())
+                                                            {
+                                                                <div class="pd bg-primary-01 corner-2">
+                                                                    <p class="mg-0 fsz-12">
+                                                                        No FAQ matches your search. Try another keyword.
+                                                                    </p>
+                                                                </div>
+                                                            }
+
+                                                        </div>
+
+                                                        <div class="flex pd corner-2 bd bg-primary-01">
+                                                            <i class="mdi mdi-information-outline cl-primary fsz-30 pd"></i>
+
+                                                            <div class="pd">
+                                                                <h4 class="mg-0 pdb-2">Need more help?</h4>
+
+                                                                <p class="mg-0 pdb fsz-13">
+                                                                    More documentation and support options will be available as CPT grows.
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+
+                                                    <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y" style="display: @(troubleshoot ? "block" : "none"); height: 80vh">
+                                                        <h5 class="mg-0 pdb fsz-15 pd bg-primary-02">Troubleshooting</h5>
+                                                        <p class="mg-0 pdt pdb fsz-12">Fix common issues and get your simulation running smoothly.</p>
+
+                                                        <div class="mgt-5 grid gap-1 colm-3 mgb-3">
+
+                                                            <TroubleshootCard Title="Simulation Won't Start" Text="Check your simulation configuration"
+                                                                              Text1="Verify required parameters" Text2="Check simulation status" Text3="Review the console output"
+                                                                              Link="View Details" OnClick="() => OpenTroubleshooting(1)" />
+
+                                                            <TroubleshootCard Title="Poor Performance" Text="Reduce grid size for testing"
+                                                                              Text1="Review timestep settings" Text2="Avoid unnecessary simulation runs"
+                                                                              Text3="Allow the simulation to complete" Link="View Details"
+                                                                              OnClick="() => OpenTroubleshooting(2)" />
+
+                                                            <TroubleshootCard Title="Visualization Issues" Text="Check that simulation completed"
+                                                                              Text1="Review the selected visualization" Text2="Adjust visualization controls"
+                                                                              Text3="Refresh the result view if needed" Link="View Details"
+                                                                              OnClick="() => OpenTroubleshooting(3)" />
+
+                                                            <TroubleshootCard Title="Export Problems" Text="Complete the simulation first"
+                                                                              Text1="Check the selected export format" Text2="Allow the file to generate"
+                                                                              Text3="Check browser downloads" Link="View Details" OnClick="() => OpenTroubleshooting(4)" />
+
+                                                        </div>
+
+                                                        <div class="flex pd corner-2 bd bg-primary-01">
+                                                            <i class="mdi mdi-information-outline cl-primary fsz-30 pd"></i>
+
+                                                            <div class="pd">
+                                                                <h4 class="mg-0 pdb-2">Need more help?</h4>
+
+                                                                <p class="mg-0 pdb fsz-13">
+                                                                    Review the User Guide, Tutorials, and FAQ for additional guidance.
+                                                                    More support options will be available as CPT grows.
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y" style="display: @(about ? "block" : "none"); height: 80vh">
+                                                        <h5 class="mg-0 pdb fsz-15 pd bg-primary-02">About</h5>
+                                                        <p class="mg-0 pdt pdb fsz-12">
+                                                            Learn about CPT, its purpose, features, and the technology behind the toolkit.
+                                                        </p>
+
+                                                        <div class="flex flex-center bd pd corner-2 bg-primary-01 mgb-7">
+                                                            <div class="flex flex-center stack">
+                                                                <h1 class="mg-0 pdb fsz-50 cl-primary">CPT</h1>
+                                                                <p class="mg-0 pdb">Computational Physics Toolkit</p>
+
+                                                                <div class="flex flex-center">
+                                                                    <p class="mg-0 fsz-12">Simulate</p>
+                                                                    <i class="mdi mdi-dots-circle cl-primary mgl-5 mgr-5"></i>
+                                                                    <p class="mg-0 fsz-12">Visualize</p>
+                                                                    <i class="mdi mdi-dots-circle cl-primary mgl-5 mgr-5"></i>
+                                                                    <p class="mg-0 fsz-12">Explore</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mgb-7">
+                                                            <h4 class="mg-0 pdb">What is CPT?</h4>
+
+                                                            <p class="mg-0 fsz-13">
+                                                                CPT (Computational Physics Toolkit) is a web-based platform designed to make
+                                                                computational physics more accessible, interactive, and easier to explore.
+                                                                It provides a structured environment where users can configure physics
+                                                                problems, run numerical simulations, visualize results, and examine the
+                                                                behaviour of physical systems.
+                                                            </p>
+                                                        </div>
+
+                                                        <div class="mgb-7">
+                                                            <h4 class="mg-0 pdb">Why CPT?</h4>
+
+                                                            <p class="mg-0 fsz-13">
+                                                                Computational methods are an important part of modern physics, but working
+                                                                with numerical models often requires programming knowledge and separate
+                                                                software tools. CPT brings simulation, visualization, and result analysis
+                                                                together in one web-based workspace, helping users focus more on the
+                                                                physics and the behaviour of the model.
+                                                            </p>
+                                                        </div>
+
+                                                        <div class="mgb-7">
+                                                            <h4 class="mg-0 pdb">Who is CPT for?</h4>
+
+                                                            <div class="flex flex-start">
+                                                                <div class="flex flex-center">
+                                                                    <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                    <p class="fsz-12 mg-0">
+                                                                        Physics and science students exploring computational methods.
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="flex flex-start">
+                                                                <div class="flex flex-center">
+                                                                    <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                    <p class="fsz-12 mg-0">
+                                                                        Teachers who want interactive examples for explaining physical concepts.
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="flex flex-start">
+                                                                <div class="flex flex-center">
+                                                                    <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                    <p class="fsz-12 mg-0">
+                                                                        Lecturers introducing numerical modelling and computational physics.
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="flex flex-start">
+                                                                <div class="flex flex-center">
+                                                                    <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                    <p class="fsz-12 mg-0">
+                                                                        Learners interested in exploring physics through simulation and visualization.
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mgb-7">
+                                                            <h4 class="mg-0 pdb">What can CPT do?</h4>
+
+                                                            <div class="flex flex-start">
+                                                                <div class="flex flex-center">
+                                                                    <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                    <p class="fsz-12 mg-0">Configure simulation parameters through an interactive interface.</p>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="flex flex-start">
+                                                                <div class="flex flex-center">
+                                                                    <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                    <p class="fsz-12 mg-0">Run numerical physics simulations without writing code.</p>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="flex flex-start">
+                                                                <div class="flex flex-center">
+                                                                    <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                    <p class="fsz-12 mg-0">Visualize simulation results using maps, charts, contours, and
+                                                                        animations.</p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="flex flex-start">
+                                                                    <div class="flex flex-center">
+                                                                        <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                        <p class="fsz-12 mg-0">Inspect simulation data and statistics.</p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="flex flex-start">
+                                                                    <div class="flex flex-center">
+                                                                        <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                        <p class="fsz-12 mg-0">Export supported simulation data and visual results.</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="mgb-7">
+                                                                <h4 class="mg-0 pdb">Current Version</h4>
+
+                                                                <p class="mg-0 fsz-13">
+                                                                    CPT V1 introduces the toolkit with the
+                                                                    <strong>2D Heat Equation</strong> module. The module provides a numerical
+                                                                    environment for exploring heat diffusion across a two-dimensional domain,
+                                                                    together with tools for monitoring simulation progress and studying the
+                                                                    resulting temperature distribution.
+                                                                </p>
+                                                            </div>
+
+                                                            <div class="mgb-7">
+                                                                <h4 class="mg-0 pdb">Key Features</h4>
+
+                                                                <div class="flex flex-start">
+                                                                    <div class="flex flex-center">
+                                                                        <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                        <p class="fsz-12 mg-0">Modern web-based interface</p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="flex flex-start">
+                                                                    <div class="flex flex-center">
+                                                                        <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                        <p class="fsz-12 mg-0">Numerical simulation tools</p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="flex flex-start">
+                                                                    <div class="flex flex-center">
+                                                                        <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                        <p class="fsz-12 mg-0">Interactive visualization and animation</p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="flex flex-start">
+                                                                    <div class="flex flex-center">
+                                                                        <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                        <p class="fsz-12 mg-0">Simulation data and statistics</p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="flex flex-start">
+                                                                    <div class="flex flex-center">
+                                                                        <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                        <p class="fsz-12 mg-0">Export tools for supported formats</p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="flex flex-start">
+                                                                    <div class="flex flex-center">
+                                                                        <i class="mdi mdi-marker mgr-3 cl-primary"></i>
+                                                                        <p class="fsz-12 mg-0">Architecture designed to support additional physics modules</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="mgb-7">
+                                                                <h4 class="mg-0 pdb">The Future of CPT</h4>
+
+                                                                <p class="mg-0 fsz-13">
+                                                                    CPT is designed as a growing computational physics toolkit rather than a
+                                                                    single-purpose simulation. Future development will introduce additional
+                                                                    physics modules, improved visualization and analysis tools, and other
+                                                                    capabilities that expand the ways users can learn, experiment, and work
+                                                                    with computational models.
+                                                                </p>
+                                                            </div>
+
+                                                            <div class="flex pd corner-2 bd bg-primary-01">
+                                                                <i class="mdi mdi-information-outline cl-primary fsz-30 pd"></i>
+
+                                                                <div class="pd">
+                                                                    <div class="mgb-5">
+                                                                        <h6 class="mg-0 pdb-2">Version</h6>
+                                                                        <p class="mg-0 fsz-12">1.0.0</p>
+                                                                    </div>
+
+                                                                    <div class="mgb-5">
+                                                                        <h6 class="mg-0 pdb-2">Developer</h6>
+                                                                        <p class="mg-0 fsz-12">Mustapha O</p>
+                                                                    </div>
+
+                                                                    <div class="mgb-5">
+                                                                        <h6 class="mg-0 pdb-2">Project</h6>
+                                                                        <p class="mg-0 fsz-12">CPT - Computational Physics Toolkit</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    
+                                                    <div class="hx-06 wvl-5"></div>
+
+                                                    <QuickStartGuide IsOpen="quickStartGuide" OnClose="CloseQuickStartGuide" />
+
+                                                    <TroubleshootingDrawer IsOpen="troubleshootingDrawer" TroubleshootingId="selectedTroubleshooting"
+                                                                           OnClose="CloseTroubleshooting" />
+                                                </ProtectedRouteView>
+
+@code {
+    private bool getStarted = true;
+    private bool tutorials = false;
+    private bool faq = false;
+    private bool troubleshoot = false;
+    private bool about = false;
+
+    private bool troubleshootingDrawer = false;
+    private int selectedTroubleshooting = 0;
+
+    private bool quickStartGuide = false;
+
+    private string faqSearch = string.Empty;
+
+    private int openAnswer = 0;
+
+    private readonly List<FaqItem> Faqs = new()
+    {
+        new()
+        {
+            Id = 1,
+            Question = "What is CPT?",
+            Answer = "CPT (Computational Physics Toolkit) is a web-based platform for solving, simulating, visualizing, and exploring physics problems using numerical methods."
+        },
+
+        new()
+        {
+            Id = 2,
+            Question = "Do I need programming knowledge to use CPT?",
+            Answer = "No. CPT provides an interactive interface where users can configure and run simulations without writing code."
+        },
+
+        new()
+        {
+            Id = 3,
+            Question = "What physics modules are available?",
+            Answer = "CPT currently starts with the 2D Heat Equation module. Additional computational physics modules will be added as the toolkit expands."
+        },
+
+        new()
+        {
+            Id = 4,
+            Question = "Can I export my simulation results?",
+            Answer = "Yes. CPT provides tools for exporting simulation data and visual results in supported formats."
+        },
+
+        new()
+        {
+            Id = 5,
+            Question = "Where can I get help if I have a problem?",
+            Answer = "Start with the Troubleshooting section in Help & Documentation. You can also review the relevant tutorial or documentation for the feature you are using."
+        }
+    };
+
+    private IEnumerable<FaqItem> FilteredFaqs =>
+        string.IsNullOrWhiteSpace(faqSearch)
+            ? Faqs
+            : Faqs.Where(x =>
+                x.Question.Contains(faqSearch, StringComparison.OrdinalIgnoreCase) ||
+                x.Answer.Contains(faqSearch, StringComparison.OrdinalIgnoreCase));
+
+    private void ViewAnswer(int answerNumber)
+    {
+        if (openAnswer == answerNumber)
+        {
+            openAnswer = 0;
+        }
+        else
+        {
+            openAnswer = answerNumber;
+        }
+    }
+
+    private void GetStarted()
+    {
+        getStarted = true;
+        tutorials = false;
+        faq = false;
+        troubleshoot = false;
+        about = false;
+    }
+
+    private void Tutorials()
+    {
+        getStarted = false;
+        tutorials = true;
+        faq = false;
+        troubleshoot = false;
+        about = false;
+    }
+
+    private void FAQ()
+    {
+        getStarted = false;
+        tutorials = false;
+        faq = true;
+        troubleshoot = false;
+        about = false;
+    }
+
+    private void TroubleShoot()
+    {
+        getStarted = false;
+        tutorials = false;
+        faq = false;
+        troubleshoot = true;
+        about = false;
+    }
+
+    private void About()
+    {
+        getStarted = false;
+        tutorials = false;
+        faq = false;
+        troubleshoot = false;
+        about = true;
+    }
+
+    private void OpenQuickStartGuide()
+    {
+        quickStartGuide = true;
+    }
+
+    private void CloseQuickStartGuide()
+    {
+        quickStartGuide = false;
+    }
+
+    private void OpenTutorials()
+    {
+        Tutorials();
+    }
+    
+    private void OpenTroubleshooting(int troubleshootingId)
+    {
+        selectedTroubleshooting = troubleshootingId;
+        troubleshootingDrawer = true;
+    }
+
+    private void CloseTroubleshooting()
+    {
+        troubleshootingDrawer = false;
+        selectedTroubleshooting = 0;
+    }
+}

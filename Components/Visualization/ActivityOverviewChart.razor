@@ -1,0 +1,140 @@
+@using Plotly.Blazor
+@using Plotly.Blazor.Traces
+@using cpt.Models.Dashboard
+@using CPT.Models.Admin
+@using Microsoft.AspNetCore.Components
+
+@if ((Data is null || Data.Count == 0) && (AdminData is null || AdminData.Count == 0))
+{
+    <div class="pd text-center">
+        <p class="mg-0 fsz-10 cl-secondary">
+            No activity data available.
+        </p>
+    </div>
+}
+else
+    {
+
+        <div class="bd corner-2 pd shadow-border-2" style="
+            background:
+            radial-gradient(
+            circle at 10% 0%,
+            rgba(139, 0, 139, 0.10),
+            transparent 42%
+            ),
+            linear-gradient(
+            135deg,
+            rgba(139, 0, 139, 0.045),
+            rgba(0, 123, 255, 0.025),
+            rgba(255, 255, 255, 0.65)
+            );
+            overflow: hidden;
+            ">
+
+            <div class="flex flex-center flex-spacebetween pdb-2">
+                <div>
+                    <p class="mg-0 fsz-11 fw-bold cl-primary">
+                        Simulation Activity
+                    </p>
+
+                    <p class="mg-0 fsz-09 cl-secondary">
+                        Simulation runs over the last 7 days
+                    </p>
+                </div>
+
+                <div class="flex flex-center">
+                    <span style="
+                    display: inline-block;
+                    width: 9px;
+                    height: 9px;
+                    border-radius: 2px;
+                    background: rgb(139, 0, 139);
+                    margin-right: 6px;
+                    "></span>
+
+                    <span class="fsz-09 cl-secondary">
+                        Simulation Runs
+                    </span>
+                </div>
+            </div>
+
+            <PlotlyChart @bind-Config="config" @bind-Data="data" @bind-Layout="layout" Style="height: 320px;" />
+
+        </div>
+
+
+    }
+
+@code {
+    [Parameter] public List<WeeklyActivityDto>? Data { get; set; }
+
+    [Parameter] public List<AdminWeeklyActivityDto>? AdminData { get; set; }
+
+
+    private Config config = new()
+    {
+        Responsive = true
+    };
+
+    private Layout layout = new();
+
+    private IList<ITrace> data = new List<ITrace>();
+
+    protected override void OnParametersSet()
+    {
+        data = BuildActivityData();
+
+        layout = new Layout
+        {
+            PlotBgColor = "rgba(0,0,0,0)",
+            PaperBgColor = "rgba(0,0,0,0)"
+        };
+    }
+
+    private IList<ITrace> BuildActivityData()
+    {
+        if (Data is not null && Data.Count > 0)
+        {
+            var dates = Data
+                .Select(x => (object)x.Date.ToLocalTime().ToString("ddd"))
+                .ToList();
+
+            var counts = Data
+                .Select(x => (object)x.Count)
+                .ToList();
+
+            return new List<ITrace>
+        {
+            new Bar
+            {
+                X = dates,
+                Y = counts,
+                Name = "Simulation Runs"
+            }
+        };
+        }
+
+        if (AdminData is not null && AdminData.Count > 0)
+        {
+            var dates = AdminData
+                .Select(x => (object)x.Date.ToLocalTime().ToString("ddd"))
+                .ToList();
+
+            var counts = AdminData
+                .Select(x => (object)x.Count)
+                .ToList();
+
+            return new List<ITrace>
+        {
+            new Bar
+            {
+                X = dates,
+                Y = counts,
+                Name = "Simulation Runs"
+            }
+        };
+        }
+
+        return new List<ITrace>();
+    }
+}

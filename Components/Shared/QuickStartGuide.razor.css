@@ -1,0 +1,78 @@
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: flex-end;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.drawer {
+    width: 460px;
+    max-width: 92vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    box-shadow: -8px 0 30px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    animation: quickStartDrawerIn 0.25s ease-out;
+}
+
+.drawer-header {
+    flex-shrink: 0;
+}
+
+.drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.drawer-section {
+    margin-bottom: 24px;
+}
+
+.drawer-section h4 {
+    margin: 0;
+    padding-bottom: 6px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.drawer-section p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.drawer-close {
+    cursor: pointer;
+    border: none;
+    transition: transform 0.15s ease;
+}
+
+.drawer-close:hover {
+    transform: scale(1.08);
+}
+
+@keyframes quickStartDrawerIn {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 600px) {
+    .drawer-overlay {
+        justify-content: stretch;
+    }
+
+    .drawer {
+        width: 100%;
+        max-width: 100%;
+    }
+}

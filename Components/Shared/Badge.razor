@@ -1,0 +1,9 @@
+<div class="corner-2 wx-1" style="background: @BgColor;">
+    <p style="color: @ClColor;" class="pd-1 fsz-10">@Text</p>
+</div>
+
+@code {
+    [Parameter] public string Text { get; set; } = "";
+    [Parameter] public string BgColor { get; set; } = "";
+    [Parameter] public string ClColor { get; set; } = "";
+}

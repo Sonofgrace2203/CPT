@@ -1,0 +1,20 @@
+<div class="pd corner-1 bd wx-15 mgr-3 mgb-3 bg-secondary-01">
+    <h3 class="mg-0 pdt pdb fsz-15">@Title</h3>
+    <p class="mg-0 pdb-5 fsz-12">@Text</p>
+    <button class="fsz-12 cl-primary bd-none bg-transparent" @onclick="HandleClick">@Link
+        <i class="mdi mdi-arrow-right mgl-3"></i>
+    </button>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Text { get; set; } = "";
+    [Parameter] public string Link { get; set; } = "";
+
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    private async Task HandleClick()
+    {
+        await OnClick.InvokeAsync();
+    }
+}

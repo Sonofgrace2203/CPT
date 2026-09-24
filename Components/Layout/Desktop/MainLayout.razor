@@ -1,0 +1,60 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager Nav
+
+
+
+<div class="page">
+    @if (!IsDemo)
+    {
+        <div class="bg-primary-03 shadow-border-1 mgr-1 bdl-0 wvg-5">
+            <NavMenu />
+        </div>
+
+        <div class="mgr-1 bdl-0 wvl-5">
+            <MobileTopMenu SubMenu="ShowSubMenu" />
+        </div>
+
+        <div class="mgr-1 bdl-0 wvl-5" style="display: @(showSubMenu ? "block" : "none");">
+            <MobileTopMenuDup HideMenu="ShowSubMenu" />
+        </div>
+    }
+
+    <main class="bodybg">
+        @* <div class="top-row px-4">
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div> *@
+
+        <div class="scroll-y" style="height: 100vh;">
+            <div class="pd-2">
+                @Body
+            </div>
+        </div>
+    </main>
+
+    @if (!IsDemo)
+    {
+        <div class="mgr-1 bdl-0 wvl-5">
+            <MobileNavMenu HideMenu="ShowSubMenu" />
+        </div>
+    }
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+    private bool IsDemo =>
+        Nav.ToAbsoluteUri(Nav.Uri)
+           .Query
+           .Contains("demo=true", StringComparison.OrdinalIgnoreCase);
+
+    private bool showSubMenu = false;
+
+    private void ShowSubMenu()
+    {
+        showSubMenu = !showSubMenu;
+    }
+}

@@ -1,0 +1,129 @@
+@using CPT.Models.Auth
+@using CPT.Services.Auth
+@using cpt.Components.Shared
+@inject AuthService AuthService
+@inject NavigationManager Nav
+
+
+<div class="nav-scrollable shadow-border-5" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="bg-card bdt bdw-3 wx-15" style="position: fixed; top: 95px; right: 0; z-index: 100;">
+        <div class="flex flex-spacearound stack bg-primary-01 pd-1">
+
+            @if (IsAdminOrSuperAdmin())
+            {
+                <button class="bg-transparent mg-0 pd-0 bd-none nav-item clip" @onclick="OnClickHide">
+                    <NavLink class="nav-link fsz-12 bdb cl-primary bdb-secondary block wf fw-bold flex flex-start navlink"
+                             href="Admin/DemoHistory" Match="NavLinkMatch.All" style="text-decoration: none;">
+                        <div class="px-3 flex flex-center mgl mgr pd mgb-0 mgt-0">
+
+                            <i class="mdi mdi-history fsz-15 mgr-3"></i>
+                            <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Demo
+                        </div>
+                    </NavLink>
+                </button>
+            }
+
+            @if (IsAdminOrSuperAdmin())
+            {
+                <div class="" @onclick="OnClickHide">
+
+                    <button class="bg-transparent mg-0 pd-0 bd-none nav-item clip wf">
+                        <NavLink
+                            class="nav-link fsz-12 bdb cl-primary bdb-secondary block wf fw-bold flex flex-start navlink"
+                            href="Admin/Users" Match="NavLinkMatch.All" style="text-decoration: none;">
+
+                            <div class="px-3 flex flex-center mgl mgr pd mgb-0 mgt-0">
+                                <i class="mdi mdi-account-group-outline fsz-15 mgr-3"></i>
+                                Users
+                            </div>
+
+                        </NavLink>
+                    </button>
+                </div>
+            }
+
+            <div class=""">
+                <button
+                    class="nav-link fsz-12 bdb cl-danger bdb-secondary block wf fw-bold flex flex-start navlink bg-transparent bd-none wf bg-primary-01"
+                    @onclick="RequestLogout">
+
+                    <div class="px-3 flex flex-center mgl mgr pd mgb-0 mgt-0">
+                        <i class="mdi mdi-logout fsz-15 mgr-3"></i>
+                        <span class="bi bi-house-door-fill-nav-menu cl-primary" aria-hidden="true"></span>
+                        Logout
+                    </div>
+
+                </button>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<ConfirmDialog IsVisible="@showLogoutDialog" Title="Confirm Logout" Message="Are you sure you want to logout of CPT?"
+               ConfirmText="Logout" CancelText="Cancel" Icon="mdi-logout" OnConfirm="ConfirmLogoutAsync" OnCancel="CancelLogout" />
+
+@code
+{
+    private AuthUser? currentUser;
+
+    [Parameter] public EventCallback HideMenu { get; set; }
+
+    private bool showLogoutDialog;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser =
+            await AuthService.GetCurrentUserAsync();
+    }
+
+    public async Task OnClickHide()
+    {
+        await HideMenu.InvokeAsync();
+    }
+
+    private string DashboardUrl =>
+    IsAdminOrSuperAdmin()
+        ? "Admin/Dashboard"
+        : "Dashboard";
+
+    private bool IsAdminOrSuperAdmin()
+    {
+        if (currentUser?.Roles is null)
+            return false;
+
+        return currentUser.Roles.Contains(
+                   "Admin",
+                   StringComparer.OrdinalIgnoreCase)
+               ||
+               currentUser.Roles.Contains(
+                   "SuperAdmin",
+                   StringComparer.OrdinalIgnoreCase);
+    }
+
+    private async Task LogoutAsync()
+    {
+        await AuthService.LogoutAsync();
+
+        Nav.NavigateTo("/Login", true);
+    }
+
+    private void RequestLogout()
+    {
+        showLogoutDialog = true;
+    }
+
+    private async Task ConfirmLogoutAsync()
+    {
+        showLogoutDialog = false;
+
+        await AuthService.LogoutAsync();
+
+        Nav.NavigateTo("/Login", true);
+    }
+
+    private void CancelLogout()
+    {
+        showLogoutDialog = false;
+    }
+}
+

@@ -1,0 +1,456 @@
+@page "/Admin/Users"
+@using CPT.Models.Admin
+@using CPT.Services
+@using CPT.Services.Auth
+@using cpt.Components.Shared
+
+@inject AdminUserApiService AdminUserApi
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Users - CPT</PageTitle>
+
+<div class="hx-1 wvl-5"></div>
+
+<div class="bg-card">
+    <div class="mgb-5 flex flex-center flex-spacebetween flow bg-primary-02 bd pd border-shadow-5">
+        <div class="mgb-5">
+            <h2 class="mg-0 pdb fsz-18 cl-primary">Users</h2>
+            <p class="mg-0 fsz-10">View CPT users and their simulation activity.</p>
+        </div>
+
+        <div class="pdt-1 pdb-1 pdl-3 pdr-3 bg-primary-02 fsz-15 cl-primary corner-2">
+            @* @users.Count user@(users.Count == 1 ? "" : "s") *@
+            @FilteredUsers.Count user@(FilteredUsers.Count == 1 ? "" : "s")
+        </div>
+    </div>
+</div>
+
+<div class="page-container mgb-3">
+    <div class="flex flex-spacebetween flow gap-1">
+
+        <div class="flex flex-center bg-card bd corner-2 pd wf">
+            @* <i class="mdi mdi-magnify cl-primary fsz-18 mgr-3"></i> *@
+
+            <input type="text" class="bd-none bg-transparent fsz-12 wf"
+                   placeholder="🔍 Search users by name, email or role..." @bind="SearchText" @bind:event="oninput" />
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            <button class="pd bg-primary-02 cl-primary bd corner-2 fsz-12" @onclick="ClearSearch">
+                <i class="mdi mdi-close mgr-2"></i>
+                Clear
+            </button>
+        }
+
+    </div>
+
+</div>
+
+
+<div class="page-container">
+    @if (isLoading)
+    {
+        <div class="hf bg-card pd bd corner-2 flex flex-center justify-content-between">
+            <LoadingIndicator Text="Loading users..." />
+        </div>
+    }
+    else if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <div class="pd-2 bg-danger-02 cl-danger bd corner-2">
+            @errorMessage
+        </div>
+    }
+    else if (users.Count == 0)
+    {
+        <div class="pd-3 text-center bd corner-2">
+            <h3 class="mg-0">No users found</h3>
+            <p class="mg-0 mgt-1 cl-muted">
+                There are currently no CPT accounts to display.
+            </p>
+        </div>
+    }
+    else if (FilteredUsers.Count == 0)
+    {
+        <div class="pd-3 text-center bd corner-2">
+            <h3 class="mg-0">No matching users</h3>
+            <p class="mg-0 mgt-1 cl-muted">
+                No users match "<strong>@searchText</strong>".
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="bd corner-2 overflow-hidden">
+
+            <div class="scroll wf">
+                <table class="wf bg-card pd corner-2 bd">
+                    <thead class="bg-primary-02">
+                        <tr class="mg-0">
+                            <th class="pd mg-0 fsz-12 text-center">User</th>
+                            <th class="pd mg-0 fsz-12 text-center">Role</th>
+                            <th class="pd mg-0 fsz-12 text-center">Joined</th>
+                            <th class="pd mg-0 fsz-12 text-center">Simulations</th>
+                            <th class="pd mg-0 fsz-12 text-center">Modules</th>
+                            <th class="pd mg-0 fsz-12 text-center">Completed</th>
+                            <th class="pd mg-0 fsz-12 text-center">Favourites</th>
+                            @if (isSuperAdmin)
+                            {
+                                <th>Actions</th>
+                            }
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var user in PagedUsers)
+                        {
+                            <tr>
+                                <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+                                    <div class="flex flow">
+                                        <strong class="fsz-12">@user.FullName</strong>
+
+                                        @if (!string.IsNullOrWhiteSpace(user.Email))
+                                        {
+                                            <span class="fsz-9 cl-secondary">
+                                                @user.Email
+                                            </span>
+                                        }
+                                    </div>
+                                </td>
+
+                                <td class="pdt-1 pdb-1 pdl-3 pdr-3 fsz-12 text-center bd-none bdb bdb-primary">
+                                    <span class="@GetRoleClass(user)">
+                                        @GetRole(user)
+                                    </span>
+                                </td>
+
+                                <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+                                    @user.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")
+                                </td>
+
+                                <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+                                    <strong>@user.TotalSimulations</strong>
+                                </td>
+
+                                <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+                                    @user.ModulesUsed
+                                </td>
+
+                                <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+                                    @user.CompletedResults
+                                </td>
+
+                                <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+                                    @user.FavouriteSimulations
+                                </td>
+
+                                @if (isSuperAdmin)
+                                {
+                                    <td class="pdt-1 pdb-1 pdl-3 pdr-3 fsz-12 text-center bd-none bdb bdb-primary">
+                                        @if (IsSuperAdmin(user))
+                                        {
+                                            <button class="fsz-12 bg-black-01 bd corner-2">
+                                                Protected
+                                            </button>
+                                        }
+                                        else if (IsAdmin(user))
+                                        {
+                                            <button class="fsz-12 cl-primary bg-primary-01 bd corner-2"
+                                                    @onclick='() => RequestRoleChange(user, "User")'>
+                                                Make User
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="fsz-12 cl-secondary bg-secondary-01 bd corner-2"
+                                                    @onclick='() => RequestRoleChange(user, "Admin")'>
+                                                Make Admin
+                                            </button>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (FilteredUsers.Count > 0)
+            {
+                <Pagination CurrentPage="@currentPage" TotalPages="@TotalPages" TotalItems="@FilteredUsers.Count"
+                            PageSize="@pageSize" ItemLabel="user" CurrentPageChanged="OnPageChanged" />
+            }
+
+        </div>
+    }
+</div>
+
+<ConfirmDialog IsVisible="@showConfirmDialog" Title="@confirmTitle" Message="@confirmMessage" ConfirmText="@confirmText"
+               CancelText="Cancel" Icon="mdi-account-cog-outline" OnConfirm="ConfirmRoleChangeAsync" OnCancel="CancelRoleChange" />
+
+@code
+{
+    private List<CptUserDto> users = new();
+
+    private bool showConfirmDialog;
+
+    private CptUserDto? selectedUser;
+
+    private string selectedRole = string.Empty;
+
+    private string confirmTitle = "Confirm Role Change";
+
+    private string confirmMessage = string.Empty;
+
+    private string confirmText = "Confirm";
+
+    private bool isLoading = true;
+    private string errorMessage = string.Empty;
+
+    private bool isSuperAdmin;
+
+    private string searchText = string.Empty;
+
+    private string SearchText
+    {
+        get => searchText;
+        set
+        {
+            if (searchText == value)
+                return;
+
+            searchText = value;
+            currentPage = 1;
+        }
+    }
+
+    private int currentPage = 1;
+
+    private int pageSize = 10;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var currentUser =
+            await AuthService.GetCurrentUserAsync();
+
+        if (currentUser is null)
+        {
+            Navigation.NavigateTo("/Login");
+            return;
+        }
+
+        isSuperAdmin =
+            currentUser.Roles.Contains(
+                "SuperAdmin",
+                StringComparer.OrdinalIgnoreCase);
+
+        var isAdmin =
+            currentUser.Roles.Contains(
+                "Admin",
+                StringComparer.OrdinalIgnoreCase);
+
+        if (!isAdmin && !isSuperAdmin)
+        {
+            Navigation.NavigateTo("/Dashboard");
+            return;
+        }
+
+        try
+        {
+            users = await AdminUserApi.GetUsersAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"ADMIN USERS PAGE ERROR: {ex}");
+
+            errorMessage =
+                "Unable to load users right now.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetRole(CptUserDto user)
+    {
+        if (user.Roles.Contains(
+                "SuperAdmin",
+                StringComparer.OrdinalIgnoreCase))
+        {
+            return "SuperAdmin";
+        }
+
+        if (user.Roles.Contains(
+                "Admin",
+                StringComparer.OrdinalIgnoreCase))
+        {
+            return "Admin";
+        }
+
+        return "User";
+    }
+
+    private string GetRoleClass(CptUserDto user)
+    {
+        var role = GetRole(user);
+
+        return role switch
+        {
+            "SuperAdmin" =>
+                "pd-1 fsz-09 bg-primary-02 cl-primary bd corner-2",
+
+            "Admin" =>
+                "pd-1 fsz-09 bg-primary-02 cl-primary bd corner-2",
+
+            _ =>
+                "pd-1 fsz-09 bd corner-2"
+        };
+    }
+
+    private bool IsSuperAdmin(CptUserDto user)
+    {
+        return user.Roles.Contains(
+            "SuperAdmin",
+            StringComparer.OrdinalIgnoreCase);
+    }
+
+    private bool IsAdmin(CptUserDto user)
+    {
+        return user.Roles.Contains(
+            "Admin",
+            StringComparer.OrdinalIgnoreCase);
+    }
+
+    private async Task ChangeRoleAsync(CptUserDto user, string newRole)
+    {
+        var success =
+            await AdminUserApi.UpdateUserRoleAsync(
+                user.Id,
+                newRole);
+
+        if (!success)
+        {
+            errorMessage =
+                "Unable to update the user's role.";
+
+            return;
+        }
+
+        users =
+            await AdminUserApi.GetUsersAsync();
+
+        StateHasChanged();
+    }
+
+    private void RequestRoleChange(
+    CptUserDto user,
+    string newRole)
+    {
+        selectedUser = user;
+        selectedRole = newRole;
+
+        if (newRole == "Admin")
+        {
+            confirmTitle = "Make User Admin";
+
+            confirmMessage =
+                $"Are you sure you want to make " +
+                $"{user.FullName} an Admin?";
+
+            confirmText = "Make Admin";
+        }
+        else
+        {
+            confirmTitle = "Remove Admin Access";
+
+            confirmMessage =
+                $"Are you sure you want to remove " +
+                $"Admin access from {user.FullName}?";
+
+            confirmText = "Make User";
+        }
+
+        showConfirmDialog = true;
+    }
+
+    private async Task ConfirmRoleChangeAsync()
+    {
+        if (selectedUser is null ||
+            string.IsNullOrWhiteSpace(selectedRole))
+        {
+            return;
+        }
+
+        showConfirmDialog = false;
+
+        await ChangeRoleAsync(
+            selectedUser,
+            selectedRole);
+
+        selectedUser = null;
+        selectedRole = string.Empty;
+    }
+
+    private void CancelRoleChange()
+    {
+        showConfirmDialog = false;
+
+        selectedUser = null;
+        selectedRole = string.Empty;
+    }
+
+    private List<CptUserDto> FilteredUsers
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                return users;
+            }
+
+            var search = searchText.Trim();
+
+            return users
+                .Where(user =>
+                    user.FullName.Contains(
+                        search,
+                        StringComparison.OrdinalIgnoreCase)
+
+                    || (!string.IsNullOrWhiteSpace(user.Email)
+                        && user.Email.Contains(
+                            search,
+                            StringComparison.OrdinalIgnoreCase))
+
+                    || GetRole(user).Contains(
+                        search,
+                        StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    private int TotalPages =>
+        Math.Max(
+            1,
+            (int)Math.Ceiling(
+                FilteredUsers.Count / (double)pageSize));
+
+    private IEnumerable<CptUserDto> PagedUsers =>
+        FilteredUsers
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize);
+
+    private async Task OnPageChanged(int page)
+    {
+        currentPage = page;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void ClearSearch()
+    {
+        searchText = string.Empty;
+        currentPage = 1;
+    }
+}

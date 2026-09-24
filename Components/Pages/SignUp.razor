@@ -1,0 +1,328 @@
+@page "/SignUp"
+@inject NavigationManager Nav
+@using CPT.Models.Auth
+@using CPT.Services.Auth
+@inject AuthService AuthService
+
+@layout MobileMainLayout
+
+
+<div class="pd flex flex-spacebetween flex-center homebg1 shadow-border-1"
+     style="position: fixed; top: 0; left: 0; right: 0;">
+
+    <div class="cl-white" @onclick='() => Nav.NavigateTo("")' style="cursor: pointer;">
+        <div class="flex flex-start">
+            <div class="flex flex-center">
+                <img src="icons/cpt/cptLogo.png" alt="" class="wx-04 hx-04 mgr-3">
+                <div class="mgt--2">
+                    <h3 class="mg-0 pdb-1">CPT</h3>
+                    <p class="mg-0 fsz-8">Computational Physics Toolkit</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <button type="button" class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-primary fsz-10"
+                @onclick='() => Nav.NavigateTo("/HeatEquation?demo=true&from=signup")'>
+            Run Demo
+        </button>
+    </div>
+</div>
+
+
+<div class="homebg flex flex-center">
+
+    <div class="bg-card shadow-border-5 pd">
+
+        <div class="pd">
+
+            <div class="text-center mgb-5">
+                <h1 class="mg-0 pdt-1 pdb-1 fsz-25 cl-primary">
+                    CPT
+                </h1>
+
+                <p class="mg-0 fsz-11">
+                    Computational Physics Toolkit
+                </p>
+            </div>
+
+
+            <div class="text-center mgb-5">
+                <h3 class="mg-0 pdb-1 fsz-13">
+                    Create Your Account
+                </h3>
+
+                <p class="mg-0 fsz-10 wx-3">
+                    Join CPT to save your simulation, track your progress and access all features.
+                </p>
+            </div>
+
+            @if (isRegistered)
+            {
+                <div class="pd text-center">
+                    <i class="mdi mdi-email-check-outline cl-primary fsz-30"></i>
+
+                    <h3 class="mg-0 pdt-3 pdb-2">
+                        Check Your Email
+                    </h3>
+
+                    <p class="fsz-10 pdb-3 text-center">
+                        Your CPT account has been created successfully.
+                        We've sent a verification link to your email address.
+                    </p>
+
+                    <p class="fsz-10 pdb-3 text-center">
+                        Please check your inbox and click the
+                        <strong class="text-center">Verify Email</strong> button to activate your account.
+                    </p>
+
+                    <button type="button" class="wf pd-2 bg-primary corner-2 bd-none fsz-10"
+                            @onclick='() => Nav.NavigateTo("/Login")'>
+                        Go to Login
+                    </button>
+                </div>
+            }
+            else
+            {
+                <EditForm Model="@registerRequest" OnValidSubmit="@CreateAccount">
+
+                    <DataAnnotationsValidator />
+
+
+                    <!-- Full Name -->
+                    <div class="mgb-3">
+
+                        <div class="stack">
+
+                            <label for="fullName" class="fsz-10 mgb-1">
+                                <i class="mdi mdi-human"></i>
+                                Full Name
+                            </label>
+
+                            <InputText id="fullName" type="text" placeholder="Enter full name"
+                                       class="pd-2 corner-2 bd bd-dark-02 fsz-10" @bind-Value="registerRequest.FullName" />
+
+                            <ValidationMessage For="@(() => registerRequest.FullName)" class="auth-validation" />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Email -->
+                    <div class="mgb-3">
+
+                        <div class="stack">
+
+                            <label for="email" class="fsz-10 mgb-1">
+                                <i class="mdi mdi-email-outline"></i>
+                                Email Address
+                            </label>
+
+                            <InputText id="email" type="email" placeholder="Enter email"
+                                       class="pd-2 corner-2 bd bd-dark-02 fsz-10" @bind-Value="registerRequest.Email" />
+
+                            <ValidationMessage For="@(() => registerRequest.Email)" class="auth-validation" />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Password -->
+                    <div class="mgb-3">
+
+                        <div class="stack">
+
+                            <label for="password" class="fsz-10 mgb-1">
+                                <i class="mdi mdi-lock-outline"></i>
+                                Password
+                            </label>
+                            <div class="flex flex-center pos-rel">
+                                <InputText id="Password" type="@(showPassword ? "text" : "password")"
+                                           placeholder="Enter password" class="corner-2 pd-2 bd wf fsz-10"
+                                           @bind-Value="registerRequest.Password" />
+
+                                <button type="button" class="bd-none bg-transparent pos-abs r-0 mgr-2"
+                                        @onclick="TogglePassword">
+                                    <i class="mdi @(showPassword ? "mdi-eye-off" : "mdi-eye") fsz-12"></i>
+                                </button>
+                            </div>
+                            <ValidationMessage For="@(() => registerRequest.Password)" class="auth-validation" />
+                        </div>
+
+                    </div>
+
+
+                    <!-- Confirm Password -->
+                    <div class="mgb-3">
+
+                        <div class="stack">
+
+                            <label for="confirmPassword" class="fsz-10 mgb-1">
+                                <i class="mdi mdi-lock-outline"></i>
+                                Confirm Password
+                            </label>
+                            <div class="flex flex-center pos-rel">
+                                <InputText id="confirmPassword" type="@(showConfirmPassword ? "text" : "password")"
+                                           placeholder="Enter password" class="corner-2 pd-2 bd wf fsz-10"
+                                           @bind-Value="registerRequest.ConfirmPassword" />
+
+                                <button type="button" class="bd-none bg-transparent pos-abs r-0 mgr-2"
+                                        @onclick="ToggleConfirmPassword">
+                                    <i class="mdi @(showConfirmPassword ? "mdi-eye-off" : "mdi-eye") fsz-12"></i>
+                                </button>
+                            </div>
+                            <ValidationMessage For="@(() => registerRequest.ConfirmPassword)" class="auth-validation" />
+                        </div>
+
+                    </div>
+
+
+                    <!-- Error -->
+                    @if (!string.IsNullOrWhiteSpace(errorMessage))
+                    {
+                        <div class="cl-error mgb-3 fsz-12 pd wx-3 text-center">
+                            @errorMessage
+                        </div>
+                    }
+
+
+                    <!-- Create Account -->
+                    <div class="mgb-3">
+
+                        <button type="submit" class="wf pd-2 bg-primary corner-2 bd-none fsz-10" disabled="@isLoading">
+
+                            @if (isLoading)
+                            {
+                                <span>Creating Account...</span>
+                            }
+                            else
+                            {
+                                <span>Create Account</span>
+                            }
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- Social Login -->
+                    @* <div class="mgb-3">
+
+                    <p class="text-center wf fsz-10 op-5">
+                        Or Continue with
+                    </p>
+
+                </div>
+
+
+                <div class="flex flex-center mgb-3">
+
+                    <button type="button"
+                            class="flex flex-center pdl-5 pdr-5 corner-2 bd bg-card mgr-2">
+
+                        <i class="mdi mdi-google fsz-15 mgr-2"></i>
+
+                        <p class="mg-0 fsz-10">
+                            Google
+                        </p>
+
+                    </button>
+
+
+                    <button type="button"
+                            class="flex flex-center pdl-5 pdr-5 corner-2 bd bg-card">
+
+                        <i class="mdi mdi-github fsz-15 mgr-2"></i>
+
+                        <p class="mg-0 fsz-10">
+                            Github
+                        </p>
+
+                    </button>
+
+                </div> *@
+
+
+                    <!-- Login -->
+                    <div class="mgb-3">
+
+                        <p class="text-center wf fsz-10 op-5">
+
+                            Already have an account?
+
+                            <button type="button" class="bd-none bg-transparent cl-primary fsz-10 op-10"
+                                    @onclick='() => Nav.NavigateTo("Login")'>
+
+                                Log In
+
+                            </button>
+
+                        </p>
+
+                    </div>
+
+                </EditForm>
+            }
+        </div>
+
+    </div>
+
+</div>
+
+
+@code {
+
+    private RegisterRequest registerRequest = new();
+
+    private string? errorMessage;
+
+    private bool isLoading = false;
+    private bool isRegistered = false;
+    private bool showPassword = false;
+    private bool showConfirmPassword = false;
+
+    private void TogglePassword()
+    {
+        showPassword = !showPassword;
+    }
+
+
+    private void ToggleConfirmPassword()
+    {
+        showConfirmPassword = !showConfirmPassword;
+    }
+
+
+    private async Task CreateAccount()
+    {
+        errorMessage = null;
+        isLoading = true;
+
+        try
+        {
+            var success =
+                await AuthService.RegisterAsync(registerRequest);
+
+            if (success)
+            {
+                isRegistered = true;
+                return;
+            }
+
+            errorMessage =
+                "Unable to create your account. Please check your details and try again.";
+        }
+        catch
+        {
+            errorMessage =
+                "Unable to connect to CPT. Please try again.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

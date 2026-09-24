@@ -1,0 +1,286 @@
+@if (IsOpen)
+{
+    <div class="drawer-overlay" @onclick="OnClose">
+        <div class="drawer" @onclick:stopPropagation="true">
+
+            <!-- Header -->
+            <div class="drawer-header flex flex-spacebetween flex-center pd bd bg-primary-02">
+
+                <div>
+                    <h3 class="mg-0 pdb fsz-18 cl-primary">
+                        @DrawerTitle
+                    </h3>
+
+                    <p class="mg-0 fsz-11">
+                        Get help with this common CPT issue.
+                    </p>
+                </div>
+
+                <button class="drawer-close pd bg-transparent bd-none fsz-20" @onclick="OnClose"
+                        aria-label="Close troubleshooting">
+                    <i class="mdi mdi-close"></i>
+                </button>
+
+            </div>
+
+            <!-- Content -->
+            <div class="troubleshoot-drawer-content pd scroll-y">
+
+                @switch (TroubleshootingId)
+                {
+                    case 1:
+                        <div class="troubleshoot-section">
+                            <div class="troubleshoot-icon">
+                                <i class="mdi mdi-play-circle-outline fsz-25 cl-primary"></i>
+                            </div>
+
+                            <h4>Check your simulation configuration</h4>
+                            <p>
+                                Before starting a simulation, make sure the required configuration
+                                values have been entered correctly. Invalid or incomplete settings
+                                can prevent a simulation from starting.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Verify the required parameters</h4>
+                            <p>
+                                Review the values you entered for the selected physics module.
+                                Make sure the values are within the expected range and that no
+                                required field has been left incomplete.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Check the simulation status</h4>
+                            <p>
+                                After starting a simulation, check the progress and status shown
+                                by CPT. A simulation may still be preparing or running rather
+                                than having failed to start.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Review the console output</h4>
+                            <p>
+                                If the simulation does not behave as expected, review the Console
+                                Output section on the simulation page. It can provide useful
+                                information about what CPT is currently doing.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-tip">
+                            <i class="mdi mdi-lightbulb-outline cl-primary fsz-22"></i>
+                            <div>
+                                <strong>Quick Tip</strong>
+                                <p>
+                                    If you are testing a new configuration, start with simple
+                                    values first and gradually adjust the settings.
+                                </p>
+                            </div>
+                        </div>
+                        break;
+
+                    case 2:
+                        <div class="troubleshoot-section">
+                            <div class="troubleshoot-icon">
+                                <i class="mdi mdi-speedometer fsz-25 cl-primary"></i>
+                            </div>
+
+                            <h4>Start with a smaller grid</h4>
+                            <p>
+                                Larger simulation grids require more calculations. When testing
+                                a configuration, use a smaller grid first so you can verify the
+                                setup before running a larger simulation.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Review your timestep settings</h4>
+                            <p>
+                                A very small timestep can require many more calculation steps.
+                                Review the timestep value when a simulation takes longer than
+                                expected.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Avoid unnecessary simulation runs</h4>
+                            <p>
+                                If you are experimenting with several parameters, make changes
+                                deliberately and run the simulation again only when necessary.
+                                This can reduce unnecessary computation.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Allow the simulation to complete</h4>
+                            <p>
+                                Depending on the configuration, a simulation may take some time
+                                to finish. Monitor the progress indicator and console output
+                                before assuming that the simulation has stopped responding.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-tip">
+                            <i class="mdi mdi-lightbulb-outline cl-primary fsz-22"></i>
+                            <div>
+                                <strong>Quick Tip</strong>
+                                <p>
+                                    Test with a smaller configuration first, then increase the
+                                    simulation size once the setup is working correctly.
+                                </p>
+                            </div>
+                        </div>
+                        break;
+
+                    case 3:
+                        <div class="troubleshoot-section">
+                            <div class="troubleshoot-icon">
+                                <i class="mdi mdi-chart-box-outline fsz-25 cl-primary"></i>
+                            </div>
+
+                            <h4>Make sure the simulation is complete</h4>
+                            <p>
+                                Visualization results are generated from the completed simulation.
+                                Check the simulation status before troubleshooting the result
+                                display.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Check the visualization you selected</h4>
+                            <p>
+                                CPT provides different ways to explore simulation results,
+                                including Temperature Map, Surface, Contour, Line, and Animation
+                                views. Switch between the available views to inspect the result
+                                from another perspective.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Adjust visualization controls</h4>
+                            <p>
+                                Depending on the visualization, try changing the colour scheme,
+                                grid visibility, aspect settings, or time-step position to
+                                inspect the result more clearly.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Refresh the result view</h4>
+                            <p>
+                                If a visualization does not appear correctly, reopen or refresh
+                                the result view and allow the simulation data to load again.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-tip">
+                            <i class="mdi mdi-lightbulb-outline cl-primary fsz-22"></i>
+                            <div>
+                                <strong>Quick Tip</strong>
+                                <p>
+                                    Try another visualization tab first. This can help determine
+                                    whether the issue is with the simulation data or a particular
+                                    visualization.
+                                </p>
+                            </div>
+                        </div>
+                        break;
+
+                    case 4:
+                        <div class="troubleshoot-section">
+                            <div class="troubleshoot-icon">
+                                <i class="mdi mdi-download-outline fsz-25 cl-primary"></i>
+                            </div>
+
+                            <h4>Complete the simulation first</h4>
+                            <p>
+                                Make sure the simulation has completed successfully before
+                                attempting to export its results.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Check the export format</h4>
+                            <p>
+                                CPT supports exporting simulation information and visual results
+                                in supported formats such as CSV, PDF, and PNG. Select the format
+                                that matches what you need.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Allow the export to finish</h4>
+                            <p>
+                                Some exports require a short processing period before the file is
+                                generated. Give the export a moment before trying the action again.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Check your browser downloads</h4>
+                            <p>
+                                If the export appears to work but you cannot find the file, check
+                                your browser's download area and make sure downloads are not being
+                                blocked.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-tip">
+                            <i class="mdi mdi-lightbulb-outline cl-primary fsz-22"></i>
+                            <div>
+                                <strong>Quick Tip</strong>
+                                <p>
+                                    If one export format does not work as expected, try another
+                                    supported format to determine whether the problem is specific
+                                    to that export.
+                                </p>
+                            </div>
+                        </div>
+                        break;
+
+                    default:
+                        <div class="troubleshoot-section">
+                            <h4>Troubleshooting</h4>
+                            <p>
+                                Select a troubleshooting topic from the Help section to view
+                                detailed guidance.
+                            </p>
+                        </div>
+                        break;
+                }
+
+            </div>
+
+            <div class="troubleshoot-drawer-footer pd bd-top">
+                <button class="wf pd bd-none bg-primary corner-1 fsz-11" @onclick="CloseDrawer">
+                    Done
+                </button>
+            </div>
+
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+
+    [Parameter] public int TroubleshootingId { get; set; }
+
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private string DrawerTitle => TroubleshootingId switch
+    {
+        1 => "Simulation Won't Start",
+        2 => "Poor Performance",
+        3 => "Visualization Issues",
+        4 => "Export Problems",
+        _ => "Troubleshooting"
+    };
+
+    private async Task CloseDrawer()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

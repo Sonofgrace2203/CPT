@@ -1,0 +1,622 @@
+@page "/HeatEquation/Simulate/{SimulationId:guid}"
+
+@using CPT.Services
+@using CPT.Models.HeatEquation
+@using cpt.Components.Visualization
+
+@inject HeatEquationApiService HeatEquationApi
+@inject NavigationManager Nav
+
+<ProtectedRouteView AllowAnonymous="@Demo">
+    <div class="hx-1 wvl-5"></div>
+
+    <div class="bg-card">
+        <div class="mgb-5 flex flex-center flex-spacebetween bg-primary-02 bd pd border-shadow-5">
+            <div>
+                <h2 class="mg-0 pdb fsz-18 cl-primary">Heat Equation (2D)</h2>
+                <p class="mg-0 fsz-10">
+                    @switch (Progress?.Status)
+                    {
+                        case "Queued":
+                            <span>Queued</span>
+                            break;
+
+                        case "Running":
+                            <span>Running...</span>
+                            break;
+
+                        case "Completed":
+                            <span>Completed</span>
+                            break;
+
+                        case "Failed":
+                            <span>Failed</span>
+                            break;
+
+                        default:
+                            <span>Preparing...</span>
+                            break;
+                    }
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="scroll-y" style="height: 100vh;">
+        <div class="scroll-y" style="height: 100vh;">
+            <div class="row responsive colm-3">
+                <div class="corner-2 bd pd bg-card miwx-25 mgb-3">
+                    <h3 class="fsz-15 cl-primary bdb bd-primary mgb-10 pdb">Progress</h3>
+
+                    <div class="mgb-5 wf">
+                        <h5 class="mg-0 pdb fsz-13">Time Progress</h5>
+
+                        <div class="flex flex-center">
+                            <div class="hx-01 wf corner-5 bg-gray mgr-3">
+                                <div class="bg-secondary hx-01 corner-3" style="@($"width: {DisplayedPercent}%")">
+                                </div>
+                            </div>
+
+                            <h3 class="mg-0 fsz-15">
+                                @($"{DisplayedPercent:F0}%")
+                            </h3>
+                        </div>
+
+                        <div class="mgt-5">
+                            <div class="flex flex-spacebetween mgb-1">
+                                <h3 class="mg-0 fsz-15">Current Time</h3>
+                                <div class="flex">
+                                    <h3 class="mg-0 fsz-15">@(Progress is null
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ? "0.000 / 0.000"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    : $"{Progress.CurrentTime:F3} / {Progress.TotalTime:F3}")
+                                        @* <h3 class="mg-0 fsz-15 op-5">/1.000</h3>) *@
+                                    </h3>
+
+                                </div>
+                            </div>
+                            <div class="flex flex-spacebetween mgb-1">
+                                <h3 class="mg-0 fsz-15">Time Steps</h3>
+                                <div class="flex">
+                                    <h3 class="mg-0 fsz-15">@(Progress is null
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ? "0 / 0"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        : $"{Progress.CurrentStep} / {Progress.TotalSteps}")
+                                        @* <h3 class="mg-0 fsz-15 op-5">/2000</h3> *@
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="flex flex-spacebetween mgb-1">
+                                <h3 class="mg-0 fsz-15">Elaspsed Time</h3>
+                                <h3 class="mg-0 fsz-15 op-5">@FormatTime(Progress?.ElapsedTimeMs ?? 0)</h3>
+                            </div>
+                        </div>
+                        <div class="flex flex-spacebetween mgb-1">
+                            <h3 class="mg-0 fsz-15">Estimated Time Left</h3>
+                            <h3 class="mg-0 fsz-15 op-5">@FormatTime(Progress?.EstimatedTimeRemainingMs ?? 0)</h3>
+                        </div>
+                    </div>
+
+                    <div class="row responsive colm-3 bd pd corner-2">
+                        <div class="mgt-10 miwx-25 mgr-2">
+                            <h5 class="mg-0 pdb fsz-13 fw-bold cl-primary">Live Preview (Temperature)</h5>
+                            @if (Progress?.Temperature is not null)
+                            {
+                                <Heatmap Temperature="Progress.Temperature"
+                                         GridWidth="Progress.Temperature.FirstOrDefault()?.Length ?? 0"
+                                         GridHeight="Progress.Temperature.Length" />
+                            }
+                            else if (IsRunning)
+                            {
+                                <p class="fsz-12">Waiting for simulation data...</p>
+                            }
+                            @* <img src="icons/dodorice.jpeg" alt="" class="wf hx-2"> *@
+                        </div>
+
+
+                        <div class="corner-2 bd pd bg-card miwx-25 mgb-1 wvg-5">
+                            <div class="flex flex-start wf">
+                                <div class="corner-1 mgr-3 mgb-3 wf">
+                                    <h3 class="fsz-15 cl-primary bdb bd-primary mgb-10 pdb">Console Output</h3>
+
+                                    <div class="flow">
+
+                                        @if (Progress is null)
+                                        {
+                                            <p class="fsz-12">Initializing simulation...</p>
+                                        }
+                                        else
+                                        {
+                                            <p class="fsz-12">
+                                                [CPT] Simulation @Progress.SimulationId
+                                            </p>
+
+                                            @if (Progress.Status == "Queued")
+                                            {
+                                                <p class="fsz-12">
+                                                    [CPT] Simulation queued for execution...
+                                                </p>
+                                            }
+
+                                            @if (Progress.Status == "Running")
+                                            {
+                                                <p class="fsz-12">
+                                                    [CPT] Heat equation solver running...
+                                                </p>
+
+                                                <p class="fsz-12">
+                                                    [CPT] Time step:
+                                                    @Progress.CurrentStep / @Progress.TotalSteps
+                                                </p>
+
+                                                <p class="fsz-12">
+                                                    [CPT] Simulation time:
+                                                    @Progress.CurrentTime:F3 /
+                                                    @Progress.TotalTime:F3
+                                                </p>
+
+                                                <p class="fsz-12">
+                                                    [CPT] Progress:
+                                                    @Progress.Percent:F0%
+                                                </p>
+                                            }
+
+                                            @if (Progress.Status == "Completed")
+                                            {
+                                                <p class="fsz-12">
+                                                    [CPT] Simulation completed successfully.
+                                                </p>
+
+                                                <p class="fsz-12">
+                                                    [CPT] Final time:
+                                                    @Progress.CurrentTime:F3
+                                                </p>
+
+                                                <p class="fsz-12">
+                                                    [CPT] Total execution time:
+                                                    @FormatTime(Progress.ElapsedTimeMs)
+                                                </p>
+                                            }
+
+                                            @if (Progress.Status == "Failed")
+                                            {
+                                                <p class="fsz-12">
+                                                    [CPT] Simulation failed.
+                                                </p>
+
+                                                @if (!string.IsNullOrWhiteSpace(Progress.ErrorMessage))
+                                                {
+                                                    <p class="fsz-12">
+                                                        [CPT] Error:
+                                                        @Progress.ErrorMessage
+                                                    </p>
+                                                }
+                                            }
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="corner-2 bd pd bg-card miwx-25 mgb-1 wvl-5">
+                <div class="flex flex-start wf">
+                    <div class="corner-1 mgr-3 mgb-3 wf">
+                        <h3 class="fsz-15 cl-primary bdb bd-primary mgb-10 pdb">Console Output</h3>
+
+                        @* <div>
+                        <div class="flex flex-start mgb-0 mgt-0">
+                            <div class="flex flex-center">
+                                <i class="mdi mdi-star cl-secondary fsz-15 mgr-5"></i>
+                                <p class="fsz-12 mg-0">
+                                    Initializing simulation
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-start mgb-0 mgt-0">
+                            <div class="flex flex-center">
+                                <i class="mdi mdi-star cl-secondary fsz-15 mgr-5"></i>
+                                <p class="fsz-12 mg-0">
+                                    Loading simulation configuration
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-start mgb-0 mgt-0">
+                            <div class="flex flex-center">
+                                <i class="mdi mdi-star cl-secondary fsz-15 mgr-5"></i>
+                                <p class="fsz-12 mg-0">
+                                    Starting heat equation solver
+                                </p>
+                            </div>
+                        </div>
+
+                        @if (IsRunning)
+                        {
+                            <div class="flex flex-start mgb-0 mgt-0">
+                                <div class="flex flex-center">
+                                    <i class="mdi mdi-star cl-secondary fsz-15 mgr-5"></i>
+                                    <p class="fsz-12 mg-0">
+                                        Running numerical integration...
+                                    </p>
+                                </div>
+                            </div>
+                        }
+
+                        @if (IsCompleted)
+                        {
+                            <div class="flex flex-start mgb-0 mgt-0">
+                                <div class="flex flex-center">
+                                    <i class="mdi mdi-star cl-secondary fsz-15 mgr-5"></i>
+
+                                    <p class="fsz-12 mg-0">
+                                        Simulation completed
+                                    </p>
+
+                                    <p class="fsz-12 cl-success mg-0 pdl-3">
+                                        ... Done
+                                    </p>
+                                </div>
+                            </div>
+                        }
+
+                        @if (HasError)
+                        {
+                            <div class="flex flex-start mgb-0 mgt-0">
+                                <div class="flex flex-center">
+                                    <i class="mdi mdi-star cl-error fsz-15 mgr-5"></i>
+
+                                    <p class="fsz-12 cl-error mg-0">
+                                        Simulation failed
+                                    </p>
+                                </div>
+                            </div>
+                        }
+                    </div> *@
+
+                        <div class="flow">
+
+                            @if (Progress is null)
+                            {
+                                <p class="fsz-12">Initializing simulation...</p>
+                            }
+                            else
+                            {
+                                <p class="fsz-12">
+                                    [CPT] Simulation @Progress.SimulationId
+                                </p>
+
+                                @if (Progress.Status == "Queued")
+                                {
+                                    <p class="fsz-12">
+                                        [CPT] Simulation queued for execution...
+                                    </p>
+                                }
+
+                                @if (Progress.Status == "Running")
+                                {
+                                    <p class="fsz-12">
+                                        [CPT] Heat equation solver running...
+                                    </p>
+
+                                    <p class="fsz-12">
+                                        [CPT] Time step:
+                                        @Progress.CurrentStep / @Progress.TotalSteps
+                                    </p>
+
+                                    <p class="fsz-12">
+                                        [CPT] Simulation time:
+                                        @Progress.CurrentTime:F3 /
+                                        @Progress.TotalTime:F3
+                                    </p>
+
+                                    <p class="fsz-12">
+                                        [CPT] Progress:
+                                        @Progress.Percent:F0%
+                                    </p>
+                                }
+
+                                @if (Progress.Status == "Completed")
+                                {
+                                    <p class="fsz-12">
+                                        [CPT] Simulation completed successfully.
+                                    </p>
+
+                                    <p class="fsz-12">
+                                        [CPT] Final time:
+                                        @Progress.CurrentTime:F3
+                                    </p>
+
+                                    <p class="fsz-12">
+                                        [CPT] Total execution time:
+                                        @FormatTime(Progress.ElapsedTimeMs)
+                                    </p>
+                                }
+
+                                @if (Progress.Status == "Failed")
+                                {
+                                    <p class="fsz-12">
+                                        [CPT] Simulation failed.
+                                    </p>
+
+                                    @if (!string.IsNullOrWhiteSpace(Progress.ErrorMessage))
+                                    {
+                                        <p class="fsz-12">
+                                            [CPT] Error:
+                                            @Progress.ErrorMessage
+                                        </p>
+                                    }
+                                }
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-end pd">
+
+                @if (IsCompleted)
+                {
+                    <button class="pd corner-1 bg-secondary bd-none fsz-12 mgr-5" @onclick="ViewResults">
+                        View Results
+                        <i class="mdi mdi-arrow-rigt fsz-15"></i>
+                    </button>
+                }
+
+                <button class="pd corner-1 bg-card cl-error bd-none bd bd-error fsz-12" @onclick="StopSimulation">
+                    Stop
+                    <i class="mdi mdi-arrow-rigt fsz-15"></i>
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="hx-06 wvl-5"></div>
+</ProtectedRouteView>
+    
+@code {
+    [Parameter] public Guid SimulationId { get; set; }
+
+    [SupplyParameterFromQuery(Name = "demo")]
+    public bool Demo { get; set; }
+
+    private bool IsRunning;
+    private bool IsCompleted;
+    private bool HasError;
+
+    private HeatEquationProgress? Progress;
+
+    private double DisplayedPercent;
+    private System.Threading.Timer? _progressAnimationTimer;
+
+    private CancellationTokenSource? _progressCancellation;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RunSimulation();
+    }
+
+    private async Task RunSimulation()
+    {
+        IsRunning = true;
+        IsCompleted = false;
+        HasError = false;
+
+        DisplayedPercent = 0;
+
+        Progress = new HeatEquationProgress
+        {
+            SimulationId = SimulationId,
+            Status = "Queued",
+            CurrentStep = 0,
+            TotalSteps = 0,
+            CurrentTime = 0,
+            TotalTime = 0,
+            Percent = 0
+        };
+
+        StartProgressAnimation();
+
+        _progressCancellation =
+            new CancellationTokenSource();
+
+        try
+        {
+            // Start/queue the simulation first.
+            var runSucceeded =
+                await HeatEquationApi.RunSimulationAsync(
+                    SimulationId);
+
+            if (!runSucceeded)
+            {
+                HasError = true;
+                return;
+            }
+
+            // The simulation is now accepted by the API.
+            // Poll until it reaches Completed or Failed.
+            await PollProgressAsync();
+        }
+        catch (OperationCanceledException)
+        {
+            // Expected when the user stops the simulation.
+        }
+        catch
+        {
+            HasError = true;
+        }
+        finally
+        {
+            IsRunning = false;
+
+            if (Progress?.Status == "Completed")
+            {
+                DisplayedPercent = 100;
+                IsCompleted = true;
+            }
+
+            StopProgressAnimation();
+
+            _progressCancellation?.Cancel();
+            _progressCancellation?.Dispose();
+            _progressCancellation = null;
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private string FormatTime(double milliseconds)
+    {
+        if (milliseconds <= 0)
+            return "00:00:00.000";
+
+        var time = TimeSpan.FromMilliseconds(milliseconds);
+
+        if (time.TotalSeconds < 1)
+        {
+            return $"{milliseconds:F0} ms";
+        }
+
+        return time.ToString(@"hh\:mm\:ss\.fff");
+    }
+
+    private async Task PollProgressAsync()
+    {
+        while (!_progressCancellation.Token.IsCancellationRequested)
+        {
+            var progress =
+                await HeatEquationApi.GetProgressAsync(
+                    SimulationId);
+
+            if (progress is not null)
+            {
+                var existingTemperature = Progress?.Temperature;
+
+                Progress = progress;
+
+                if (Progress.Temperature is null &&
+                    existingTemperature is not null)
+                {
+                    Progress.Temperature =
+                        existingTemperature;
+                }
+
+                await InvokeAsync(StateHasChanged);
+
+                if (progress.Status == "Completed")
+                {
+                    IsCompleted = true;
+                    DisplayedPercent = 100;
+
+                    await InvokeAsync(StateHasChanged);
+
+                    return;
+                }
+
+                if (progress.Status == "Failed")
+                {
+                    HasError = true;
+
+                    await InvokeAsync(StateHasChanged);
+
+                    return;
+                }
+            }
+            else
+            {
+                // Progress may no longer be available.
+                // Check the database result before continuing to poll.
+                var result =
+                    await HeatEquationApi.GetLatestResultAsync(
+                        SimulationId);
+
+                if (result?.Status == "Completed")
+                {
+                    IsCompleted = true;
+                    DisplayedPercent = 100;
+
+                    Progress ??= new HeatEquationProgress();
+
+                    Progress.SimulationId = SimulationId;
+                    Progress.Status = "Completed";
+                    Progress.Percent = 100;
+
+                    await InvokeAsync(StateHasChanged);
+
+                    return;
+                }
+            }
+
+            await Task.Delay(
+                250,
+                _progressCancellation.Token);
+        }
+    }
+
+    private void ViewResults()
+    {
+        if (Demo)
+        {
+            Nav.NavigateTo(
+                $"/SimulationData/{SimulationId}?demo=true");
+            return;
+        }
+
+        Nav.NavigateTo(
+            $"/SimulationData/{SimulationId}");
+    }
+
+    private async Task StopSimulation()
+    {
+        _progressCancellation?.Cancel();
+
+        await HeatEquationApi.CancelSimulationAsync(
+            SimulationId);
+
+        Nav.NavigateTo("/Modules");
+    }
+
+    private void StartProgressAnimation()
+    {
+        _progressAnimationTimer?.Dispose();
+
+        _progressAnimationTimer =
+            new System.Threading.Timer(
+                _ =>
+                {
+                    if (Progress is null)
+                        return;
+
+                    var target =
+                        Progress.Percent;
+
+                    if (DisplayedPercent < target)
+                    {
+                        var difference =
+                            target - DisplayedPercent;
+
+                        DisplayedPercent +=
+                            Math.Max(0.1, difference * 0.15);
+
+                        if (DisplayedPercent > target)
+                            DisplayedPercent = target;
+
+                        InvokeAsync(StateHasChanged);
+                    }
+                },
+                null,
+                TimeSpan.Zero,
+                TimeSpan.FromMilliseconds(50));
+    }
+
+    private void StopProgressAnimation()
+    {
+        _progressAnimationTimer?.Dispose();
+        _progressAnimationTimer = null;
+    }
+}

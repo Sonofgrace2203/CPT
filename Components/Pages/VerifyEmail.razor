@@ -1,0 +1,125 @@
+@page "/VerifyEmail"
+
+@using CPT.Services.Auth
+
+@inject AuthService AuthService
+@inject NavigationManager Nav
+
+@layout MobileMainLayout
+
+<div class="homebg flex flex-center">
+    <div class="bg-card shadow-border-5 pd">
+        <div class="pd text-center">
+
+            @if (isVerifying)
+            {
+                <div>
+                    <i class="mdi mdi-email-check-outline cl-primary fsz-30"></i>
+
+                    <h3 class="mg-0 pdt-3 pdb-2">
+                        Verifying Your Email
+                    </h3>
+
+                    <p class="fsz-10">
+                        Please wait while we verify your email address.
+                    </p>
+                </div>
+            }
+            else if (isVerified)
+            {
+                <div>
+                    <i class="mdi mdi-check-circle-outline cl-primary fsz-30"></i>
+
+                    <h3 class="mg-0 pdt-3 pdb-2">
+                        Email Verified
+                    </h3>
+
+                    <p class="fsz-10 pdb-3">
+                        Your email address has been successfully verified.
+                        You can now log in to your CPT account.
+                    </p>
+
+                    <button type="button" class="wf pd-2 bg-primary corner-2 bd-none fsz-10"
+                            @onclick='() => Nav.NavigateTo("/Login")'>
+                        Go to Login
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div>
+                    <i class="mdi mdi-alert-circle-outline cl-primary fsz-30"></i>
+
+                    <h3 class="mg-0 pdt-3 pdb-2">
+                        Verification Failed
+                    </h3>
+
+                    <p class="fsz-10">
+                        @errorMessage
+                    </p>
+
+                    <button type="button" class="wf pd-2 bg-primary corner-2 bd-none fsz-10"
+                            @onclick='() => Nav.NavigateTo("/Login")'>
+                        Go to Login
+                    </button>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isVerifying = true;
+    private bool isVerified = false;
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var uri = Nav.ToAbsoluteUri(Nav.Uri);
+
+            var query =
+                System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+            var userId =
+                query["userId"];
+
+            var token =
+                query["token"];
+
+            if (string.IsNullOrWhiteSpace(userId) ||
+                string.IsNullOrWhiteSpace(token))
+            {
+                isVerifying = false;
+
+                errorMessage =
+                    "This verification link is incomplete or invalid.";
+
+                return;
+            }
+
+            var success =
+                await AuthService.VerifyEmailAsync(
+                    userId,
+                    token);
+
+            isVerifying = false;
+            isVerified = success;
+
+            if (!success)
+            {
+                errorMessage =
+                    "This verification link is invalid or has expired.";
+            }
+        }
+        catch
+        {
+            isVerifying = false;
+
+            errorMessage =
+                "Unable to verify your email. Please try again later.";
+        }
+    }
+}
