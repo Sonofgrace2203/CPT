@@ -14,6 +14,33 @@
     <link rel="icon" type="image/png" href="icons/cpt/cptLogo.png" />
     <link href="cpt.styles.css" rel="stylesheet" />
     <script type="importmap"></script>
+    <script>
+    (function () {
+        var redirect = sessionStorage.redirect;
+
+        delete sessionStorage.redirect;
+
+        if (redirect && redirect !== location.href) {
+            history.replaceState(null, null, redirect);
+        }
+
+        var query = new URLSearchParams(location.search);
+        var path = query.get("p");
+
+        if (path) {
+            var search = new URLSearchParams(location.search);
+            search.delete("p");
+
+            var newUrl =
+                location.pathname.replace(/\/$/, "") +
+                path +
+                (search.toString() ? "?" + search.toString() : "") +
+                location.hash;
+
+            history.replaceState(null, null, newUrl);
+        }
+    })();
+</script>
 </head>
 
 <body>
