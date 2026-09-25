@@ -308,10 +308,33 @@ public class HeatEquationApiService
     public async Task<SimulationResultDto?> GetLatestResultAsync(Guid simulationId)
     {
         var results = await _httpClient.GetFromJsonAsync<
-            List<SimulationResultDto>>(
-                $"api/SimulationResults/simulation/{simulationId}");
+            List<SimulationResultMetadataDto>>(
+            $"api/SimulationResults/simulation/{simulationId}");
 
-        return results?.FirstOrDefault();
+        var latest = results?.FirstOrDefault();
+
+        if (latest is null)
+            return null;
+
+        return await GetResultAsync(latest.Id);
+    }
+
+    public async Task<SimulationResultDto?> GetResultAsync(Guid resultId)
+    {
+        try
+        {
+            var resultData = await _httpClient.GetStringAsync(
+                $"api/SimulationResults/{resultId}");
+
+            return new SimulationResultDto
+            {
+                ResultData = resultData
+            };
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public async Task<SimulationDto?> GetSimulationAsync(Guid simulationId)
