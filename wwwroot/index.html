@@ -100,19 +100,34 @@
     <script src="js/cpt.js"></script>
     <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
     <script src="js/authSession.js"></script>
+    <script src="js/mobilePullToRefresh.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         (function () {
             const startupLoader = document.getElementById("cpt-startup-loader");
             const refreshLoader = document.getElementById("cpt-refresh-loader");
+            const app = document.getElementById("app");
 
-            if (!startupLoader || !refreshLoader) return;
+            if (!startupLoader || !refreshLoader || !app) return;
 
-            const hasStarted = sessionStorage.getItem("cpt-startup-shown") === "true";
+            const hasStarted =
+                sessionStorage.getItem("cpt-startup-shown") === "true";
 
             if (hasStarted) {
                 startupLoader.style.display = "none";
                 refreshLoader.style.display = "flex";
+
+                const observer = new MutationObserver(function () {
+                    if (!app.contains(startupLoader)) {
+                        refreshLoader.style.display = "none";
+                        observer.disconnect();
+                    }
+                });
+
+                observer.observe(app, {
+                    childList: true,
+                    subtree: true
+                });
             } else {
                 sessionStorage.setItem("cpt-startup-shown", "true");
                 refreshLoader.style.display = "none";
