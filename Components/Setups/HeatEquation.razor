@@ -9,9 +9,10 @@
 @inject HeatEquationApiService HeatEquationApi
 @inject HeatEquationState HeatEquationState
 @inject UserSettingsApiService UserSettingsApi
+@inject PhysicsModuleApiService PhysicsModuleApi
 
 <ProtectedRouteView AllowAnonymous="@Demo">
-    <div class="hx-1 wvl-5"></div>
+    <div class="hx-08 wvl-5"></div>
 
     <div class="bg-card">
         <div class="mgb-5 flex flex-center flex-spacebetween bg-primary-02 bd pd pdl-2 pdr-2 border-shadow-5">
@@ -63,309 +64,328 @@
         </div>
     </div>
 
-    <EditForm EditContext="@EditContext" OnValidSubmit="@StartSimulation">
+    @if (IsModuleLoading)
+    {
+        <div class="pd corner-2 bd bg-card mgb-2">
+            <p class="fsz-12 mg-0">
+                Loading simulation module...
+            </p>
+        </div>
+    }
+    else if (ModuleLoadFailed)
+    {
+        <div class="pd corner-2 bd bg-card mgb-2">
+            <p class="fsz-12 cl-danger mg-0">
+                Unable to load the Heat Equation module.
+                Please refresh the page and try again.
+            </p>
+        </div>
+    }
+    else if (EditContext is not null)
+    {
+        <EditForm EditContext="@EditContext" OnValidSubmit="@StartSimulation">
 
-        <DataAnnotationsValidator />
+            <DataAnnotationsValidator />
 
-        <div class="scroll-y" style="height: 100vh;">
+            <div class="scroll-y" style="height: 100vh;">
 
-            <!-- Simulation Name -->
-            <div class="pd corner-2 bd bg-card mgb-2">
-
-                <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
-                    Simulation
-                </h3>
-
-                <div class="mgb-5">
-
-                    <h5 class="mg-0 pdb fsz-13">
-                        Simulation Name
-                    </h5>
-
-                    <input type="text" @bind="Configuration.SimulationName" maxlength="100"
-                           placeholder="e.g. Metal Plate Heating" class="pd bd corner-1 bg-card block miwx-3"
-                           @onblur="ValidateSimulationName" />
-
-                    <ValidationMessage For="@(() => Configuration.SimulationName)" />
-
-                </div>
-
-            </div>
-
-            <div class="grid gap-1 colm-4">
-
-                <!-- Physical Parameters -->
-                <div class="pd corner-2 bd bg-card">
+                <!-- Simulation Name -->
+                <div class="pd corner-2 bd bg-card mgb-2">
 
                     <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
-                        Physical Parameters
+                        Simulation
                     </h3>
 
                     <div class="mgb-5">
+
                         <h5 class="mg-0 pdb fsz-13">
-                            Thermal Diffusivity (α)
+                            Simulation Name
                         </h5>
 
-                        <input type="number" step="any" @bind="Configuration.ThermalDiffusivity"
-                               class="pd bd corner-1 bg-card block miwx-3" />
+                        <input type="text" @bind="Configuration.SimulationName" maxlength="100"
+                               placeholder="e.g. Metal Plate Heating" class="pd bd corner-1 bg-card block miwx-3"
+                               @onblur="ValidateSimulationName" />
 
-                        <ValidationMessage For="@(() => Configuration.ThermalDiffusivity)" />
+                        <ValidationMessage For="@(() => Configuration.SimulationName)" />
+
+                    </div>
+
+                </div>
+
+                <div class="grid gap-1 colm-4">
+
+                    <!-- Physical Parameters -->
+                    <div class="pd corner-2 bd bg-card">
+
+                        <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
+                            Physical Parameters
+                        </h3>
+
+                        <div class="mgb-5">
+                            <h5 class="mg-0 pdb fsz-13">
+                                Thermal Diffusivity (α)
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.ThermalDiffusivity"
+                                   class="pd bd corner-1 bg-card block miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.ThermalDiffusivity)" />
+                        </div>
+
+
+                        <div class="mgb-5">
+                            <h5 class="mg-0 pdb fsz-13">
+                                Initial Temperature
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.InitialTemperature"
+                                   class="pd bd corner-1 bg-card block miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.InitialTemperature)" />
+                        </div>
+
+
+                        <div class="mgb-5">
+                            <h5 class="mg-0 pdb fsz-13">
+                                Boundary Temperature
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.BoundaryTemperature"
+                                   class="pd bd corner-1 bg-card block miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.BoundaryTemperature)" />
+                        </div>
+
+
+                        <div class="mgb-5">
+                            <h5 class="mg-0 pdb fsz-13">
+                                Total Time (T)
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.TotalTime"
+                                   class="pd bd corner-1 bg-card block miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.TotalTime)" />
+                        </div>
+
+
+                        <div class="mgb-5">
+                            <h5 class="mg-0 pdb fsz-13">
+                                Time Step (Δt)
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.TimeStep"
+                                   class="pd bd corner-1 bg-card block miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.TimeStep)" />
+                        </div>
+
+
+                        <div class="mgb-5">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Grid Size (Nx × Ny)
+                            </h5>
+
+                            <div class="flex flex-start">
+
+                                <div class="flex flex-center">
+
+                                    <input type="number" min="3" @bind="Configuration.GridWidth"
+                                           class="mgr-3 wf pd bd corner-1 bg-card" />
+
+                                    <p class="mg-0 pdr-3">
+                                        ×
+                                    </p>
+
+                                    <input type="number" min="3" @bind="Configuration.GridHeight"
+                                           class="wf pd bd corner-1 bg-card" />
+
+                                </div>
+
+                            </div>
+
+                            <ValidationMessage For="@(() => Configuration.GridWidth)" />
+                            <ValidationMessage For="@(() => Configuration.GridHeight)" />
+
+                        </div>
+
+
+                        <div class="mgb-5">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Time Steps
+                            </h5>
+
+                            <p class="mg-0 fsz-12">
+                                @TimeSteps.ToString("N0", CultureInfo.InvariantCulture)
+                            </p>
+
+                        </div>
+
                     </div>
 
 
-                    <div class="mgb-5">
-                        <h5 class="mg-0 pdb fsz-13">
-                            Initial Temperature
-                        </h5>
+                    <!-- Domain -->
+                    <div class="pd corner-2 bd bg-card">
 
-                        <input type="number" step="any" @bind="Configuration.InitialTemperature"
-                               class="pd bd corner-1 bg-card block miwx-3" />
-
-                        <ValidationMessage For="@(() => Configuration.InitialTemperature)" />
-                    </div>
+                        <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
+                            Domain Range
+                        </h3>
 
 
-                    <div class="mgb-5">
-                        <h5 class="mg-0 pdb fsz-13">
-                            Boundary Temperature
-                        </h5>
+                        <div class="flex flow flex-start">
 
-                        <input type="number" step="any" @bind="Configuration.BoundaryTemperature"
-                               class="pd bd corner-1 bg-card block miwx-3" />
+                            <div class="mgb-5 mgr-5 wf">
 
-                        <ValidationMessage For="@(() => Configuration.BoundaryTemperature)" />
-                    </div>
+                                <h5 class="mg-0 pdb fsz-13">
+                                    x (min)
+                                </h5>
 
+                                <input type="number" step="any" @bind="Configuration.XMin"
+                                       class="pd bd corner-1 bg-card miwx-3" />
 
-                    <div class="mgb-5">
-                        <h5 class="mg-0 pdb fsz-13">
-                            Total Time (T)
-                        </h5>
+                                <ValidationMessage For="@(() => Configuration.XMin)" />
 
-                        <input type="number" step="any" @bind="Configuration.TotalTime"
-                               class="pd bd corner-1 bg-card block miwx-3" />
-
-                        <ValidationMessage For="@(() => Configuration.TotalTime)" />
-                    </div>
+                            </div>
 
 
-                    <div class="mgb-5">
-                        <h5 class="mg-0 pdb fsz-13">
-                            Time Step (Δt)
-                        </h5>
+                            <div class="mgb-5 mgr-5 wf">
 
-                        <input type="number" step="any" @bind="Configuration.TimeStep"
-                               class="pd bd corner-1 bg-card block miwx-3" />
+                                <h5 class="mg-0 pdb fsz-13">
+                                    x (max)
+                                </h5>
 
-                        <ValidationMessage For="@(() => Configuration.TimeStep)" />
-                    </div>
+                                <input type="number" step="any" @bind="Configuration.XMax"
+                                       class="pd bd corner-1 bg-card miwx-3" />
 
-
-                    <div class="mgb-5">
-
-                        <h5 class="mg-0 pdb fsz-13">
-                            Grid Size (Nx × Ny)
-                        </h5>
-
-                        <div class="flex flex-start">
-
-                            <div class="flex flex-center">
-
-                                <input type="number" min="3" @bind="Configuration.GridWidth"
-                                       class="mgr-3 wf pd bd corner-1 bg-card" />
-
-                                <p class="mg-0 pdr-3">
-                                    ×
-                                </p>
-
-                                <input type="number" min="3" @bind="Configuration.GridHeight"
-                                       class="wf pd bd corner-1 bg-card" />
+                                <ValidationMessage For="@(() => Configuration.XMax)" />
 
                             </div>
 
                         </div>
 
-                        <ValidationMessage For="@(() => Configuration.GridWidth)" />
-                        <ValidationMessage For="@(() => Configuration.GridHeight)" />
 
-                    </div>
+                        <div class="flex flow flex-start">
 
+                            <div class="mgb-5 mgr-5 wf">
 
-                    <div class="mgb-5">
+                                <h5 class="mg-0 pdb fsz-13">
+                                    y (min)
+                                </h5>
 
-                        <h5 class="mg-0 pdb fsz-13">
-                            Time Steps
-                        </h5>
+                                <input type="number" step="any" @bind="Configuration.YMin"
+                                       class="pd bd corner-1 bg-card miwx-3" />
 
-                        <p class="mg-0 fsz-12">
-                            @TimeSteps.ToString("N0", CultureInfo.InvariantCulture)
-                        </p>
+                                <ValidationMessage For="@(() => Configuration.YMin)" />
 
-                    </div>
-
-                </div>
+                            </div>
 
 
-                <!-- Domain -->
-                <div class="pd corner-2 bd bg-card">
+                            <div class="mgb-5 mgr-5 wf">
 
-                    <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
-                        Domain Range
-                    </h3>
+                                <h5 class="mg-0 pdb fsz-13">
+                                    y (max)
+                                </h5>
 
+                                <input type="number" step="any" @bind="Configuration.YMax"
+                                       class="pd bd corner-1 bg-card miwx-3" />
 
-                    <div class="flex flow flex-start">
+                                <ValidationMessage For="@(() => Configuration.YMax)" />
 
-                        <div class="mgb-5 mgr-5 wf">
-
-                            <h5 class="mg-0 pdb fsz-13">
-                                x (min)
-                            </h5>
-
-                            <input type="number" step="any" @bind="Configuration.XMin"
-                                   class="pd bd corner-1 bg-card miwx-3" />
-
-                            <ValidationMessage For="@(() => Configuration.XMin)" />
-
-                        </div>
-
-
-                        <div class="mgb-5 mgr-5 wf">
-
-                            <h5 class="mg-0 pdb fsz-13">
-                                x (max)
-                            </h5>
-
-                            <input type="number" step="any" @bind="Configuration.XMax"
-                                   class="pd bd corner-1 bg-card miwx-3" />
-
-                            <ValidationMessage For="@(() => Configuration.XMax)" />
+                            </div>
 
                         </div>
 
                     </div>
 
 
-                    <div class="flex flow flex-start">
+                    <!-- Numerical Method -->
+                    <div class="pd corner-2 bd bg-card">
 
-                        <div class="mgb-5 mgr-5 wf">
-
-                            <h5 class="mg-0 pdb fsz-13">
-                                y (min)
-                            </h5>
-
-                            <input type="number" step="any" @bind="Configuration.YMin"
-                                   class="pd bd corner-1 bg-card miwx-3" />
-
-                            <ValidationMessage For="@(() => Configuration.YMin)" />
-
-                        </div>
+                        <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
+                            Numerical Method
+                        </h3>
 
 
-                        <div class="mgb-5 mgr-5 wf">
+                        <div class="mgt-10 mgb-5">
 
                             <h5 class="mg-0 pdb fsz-13">
-                                y (max)
-                            </h5>
-
-                            <input type="number" step="any" @bind="Configuration.YMax"
-                                   class="pd bd corner-1 bg-card miwx-3" />
-
-                            <ValidationMessage For="@(() => Configuration.YMax)" />
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Numerical Method -->
-                <div class="pd corner-2 bd bg-card">
-
-                    <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
-                        Numerical Method
-                    </h3>
-
-
-                    <div class="mgt-10 mgb-5">
-
-                        <h5 class="mg-0 pdb fsz-13">
-                            Method
-                        </h5>
-
-                        <p class="mg-0 fsz-12">
-                            Explicit Finite Difference
-                        </p>
-
-                    </div>
-
-
-                    <div class="mgt-10">
-
-                        <h5 class="mg-0 pdb fsz-13">
-                            Stability Condition (r)
-                        </h5>
-
-                        <input type="text"
-                               value="@StabilityCondition.ToString("0.000000", CultureInfo.InvariantCulture)" readonly
-                               class="pd bd corner-1 bg-card miwx-3" />
-
-                    </div>
-
-
-                    <div class="mgt-10 flex flex-start">
-
-                        <div class="mgr-5">
-
-                            <h5 class="mg-0 pdb fsz-13">
-                                Current (Δt)
+                                Method
                             </h5>
 
                             <p class="mg-0 fsz-12">
-                                @Configuration.TimeStep.ToString(
-                                    "0.000000",
-                                    CultureInfo.InvariantCulture)
+                                Explicit Finite Difference
                             </p>
 
                         </div>
 
 
-                        @if (IsStable)
+                        <div class="mgt-10">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Stability Condition (r)
+                            </h5>
+
+                            <input type="text"
+                                   value="@StabilityCondition.ToString("0.000000", CultureInfo.InvariantCulture)" readonly
+                                   class="pd bd corner-1 bg-card miwx-3" />
+
+                        </div>
+
+
+                        <div class="mgt-10 flex flex-start">
+
+                            <div class="mgr-5">
+
+                                <h5 class="mg-0 pdb fsz-13">
+                                    Current (Δt)
+                                </h5>
+
+                                <p class="mg-0 fsz-12">
+                                    @Configuration.TimeStep.ToString(
+                                        "0.000000",
+                                        CultureInfo.InvariantCulture)
+                                </p>
+
+                            </div>
+
+
+                            @if (IsStable)
+                            {
+                                <p class="bd cl-success pd fsz-12 wx-1 mgt-1 text-center corner-1 bd-success">
+                                    Stable
+                                    <i class="mdi mdi-score fsz-15"></i>
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="bd cl-danger pd fsz-12 wx-1 mgt-1 text-center corner-1 bd-danger">
+                                    Unstable
+                                </p>
+                            }
+
+                        </div>
+
+
+                        @if (!IsStable)
                         {
-                            <p class="bd cl-success pd fsz-12 wx-1 mgt-1 text-center corner-1 bd-success">
-                                Stable
-                                <i class="mdi mdi-score fsz-15"></i>
-                            </p>
-                        }
-                        else
-                        {
-                            <p class="bd cl-danger pd fsz-12 wx-1 mgt-1 text-center corner-1 bd-danger">
-                                Unstable
+                            <p class="cl-danger fsz-10 mgt-10">
+                                Reduce the time step or increase the grid spacing
+                                to satisfy the explicit finite-difference stability
+                                condition.
                             </p>
                         }
 
                     </div>
 
-
-                    @if (!IsStable)
-                    {
-                        <p class="cl-danger fsz-10 mgt-10">
-                            Reduce the time step or increase the grid spacing
-                            to satisfy the explicit finite-difference stability
-                            condition.
-                        </p>
-                    }
-
                 </div>
 
-            </div>
 
+                <!-- Actions -->
+                <div class="flex flex-end pd-2 mgb-2 mgt-2">
 
-            <!-- Actions -->
-            <div class="flex flex-end pd-2 mgb-2 mgt-2">
-
-                @* @if (Demo)
+                    @* @if (Demo)
                 {
                     <button type="button"
                             class="pd corner-1 bg-card bd-none bd-white fsz-12 mgr-5 cl-primary flex flex-center"
@@ -388,54 +408,56 @@
                     </button>
                 } *@
 
-                <button type="button"
-                        class="pd corner-1 bg-card bd-none bd-white fsz-12 mgr-5 cl-primary flex flex-center"
-                        @onclick="GoBack">
+                    <button type="button"
+                            class="pd corner-1 bg-card bd-none bd-white fsz-12 mgr-5 cl-primary flex flex-center"
+                            @onclick="GoBack">
 
-                    <i class="mdi mdi-arrow-left fsz-15 mgr-1"></i>
+                        <i class="mdi mdi-arrow-left fsz-15 mgr-1"></i>
 
-                    @if (Demo)
-                    {
-                        <span>Go Back</span>
-                    }
-                    else
-                    {
-                        <span>Go Back to Modules</span>
-                    }
+                        @if (Demo)
+                        {
+                            <span>Go Back</span>
+                        }
+                        else
+                        {
+                            <span>Go Back to Modules</span>
+                        }
 
-                </button>
+                    </button>
 
-                <button type="submit" class="pd corner-1 bg-primary bd-none fsz-12 mdi"
-                        disabled="@(!IsStable || IsRunning)">
+                    <button type="submit" class="pd corner-1 bg-primary bd-none fsz-12 mdi"
+                            disabled="@(!IsStable || IsRunning)">
 
-                    @if (IsRunning)
-                    {
-                        <span>
-                            Creating Simulation...
-                        </span>
-                    }
-                    else
-                    {
-                        <span>
-                            Next: Run Simulation
-                            <i class="mdi mdi-arrow-rigt fsz-15"></i>
-                        </span>
-                    }
+                        @if (IsRunning)
+                        {
+                            <span>
+                                Creating Simulation...
+                            </span>
+                        }
+                        else
+                        {
+                            <span>
+                                Next: Run Simulation
+                                <i class="mdi mdi-arrow-rigt fsz-15"></i>
+                            </span>
+                        }
 
-                </button>
+                    </button>
+
+                </div>
 
             </div>
 
-        </div>
-
-    </EditForm>
-
+        </EditForm>
+    }
 
     <div class="hx-05 wvl-5"></div>
 </ProtectedRouteView>
 
 @code {
-    @* private EditContext EditContext = default!; *@
+    private bool IsModuleLoading = true;
+    private bool ModuleLoadFailed;
+
     private EditContext? EditContext;
 
     [SupplyParameterFromQuery(Name = "demo")]
@@ -444,16 +466,13 @@
     [SupplyParameterFromQuery(Name = "from")]
     public string? From { get; set; }
 
-    private HeatEquationConfiguration Configuration = new()
+    @* private HeatEquationConfiguration Configuration = new()
     {
         PhysicsModuleId =
             Guid.Parse("1e1be16f-8a59-4727-9a78-878acad05b95")
-    };
+    }; *@
 
-    protected override void OnInitialized()
-    {
-        EditContext = new EditContext(Configuration);
-    }
+    private HeatEquationConfiguration Configuration = new();
 
     @* protected override async Task OnInitializedAsync()
     {
@@ -475,17 +494,48 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (!Demo)
-        {
-            var settings = await UserSettingsApi.GetAsync();
+        IsModuleLoading = true;
+        ModuleLoadFailed = false;
 
-            if (settings is not null)
+        try
+        {
+            var modules = await PhysicsModuleApi.GetAllAsync();
+
+            var heatEquationModule = modules.FirstOrDefault(
+                x => x.Slug.Equals(
+                    "heat-equation-2d",
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (heatEquationModule is null)
             {
-                Configuration.GridWidth = settings.GridWidth;
-                Configuration.GridHeight = settings.GridHeight;
-                Configuration.TimeStep = settings.TimeStep;
-                Configuration.TotalTime = settings.TotalTime;
+                ModuleLoadFailed = true;
+                return;
             }
+
+            Configuration.PhysicsModuleId = heatEquationModule.Id;
+
+            if (!Demo)
+            {
+                var settings = await UserSettingsApi.GetAsync();
+
+                if (settings is not null)
+                {
+                    Configuration.GridWidth = settings.GridWidth;
+                    Configuration.GridHeight = settings.GridHeight;
+                    Configuration.TimeStep = settings.TimeStep;
+                    Configuration.TotalTime = settings.TotalTime;
+                }
+            }
+
+            EditContext = new EditContext(Configuration);
+        }
+        catch
+        {
+            ModuleLoadFailed = true;
+        }
+        finally
+        {
+            IsModuleLoading = false;
         }
     }
 

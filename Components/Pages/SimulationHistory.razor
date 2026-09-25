@@ -8,7 +8,7 @@
 @inject UserSettingsApiService UserSettingsApi
 
 <ProtectedRouteView>
-    <div class="hx-1 wvl-5"></div>
+    <div class="hx-08 wvl-5"></div>
 
     <div class="bg-card">
         <div class="mgb-5 flex flex-center flex-spacebetween flow bg-primary-02 bd pd border-shadow-5">
@@ -177,27 +177,27 @@
                                                @onchange="ToggleSelectAll" />
                                     </th>
 
-                                    <th class="pd mg-0 fsz-12 text-left">
+                                    <th class="pd mg-0 fsz-12 text-center">
                                         Image
                                     </th>
 
-                                    <th class="pd mg-0 fsz-12 text-left">
+                                    <th class="pd mg-0 fsz-12 text-center">
                                         Name
                                     </th>
 
-                                    <th class="pd fsz-12 text-left">
+                                    <th class="pd fsz-12 text-center">
                                         Module
                                     </th>
 
-                                    <th class="pd fsz-12 text-left">
+                                    <th class="pd fsz-12 text-center">
                                         Date
                                     </th>
 
-                                    <th class="pd fsz-12 text-left">
+                                    <th class="pd fsz-12 text-center">
                                         Status
                                     </th>
 
-                                    <th class="pd fsz-12 text-left">
+                                    <th class="pd fsz-12 text-center">
                                         Action
                                     </th>
 
@@ -227,22 +227,27 @@
                                         </td>
 
                                         <!-- Name -->
-                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
-
-                                            <p>@simulation.Name</p>
-
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary wvg-5">
+                                            <p class="">@simulation.Name</p>
+                                        </td>
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary wvl-5">
+                                            <p class="wx-1">@simulation.Name</p>
                                         </td>
 
                                         <!-- Module -->
-                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
-
-                                            @simulation.PhysicsModuleName
-
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary wvg-5">
+                                            <p class="">@simulation.PhysicsModuleName</p>
+                                        </td>
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary wvl-5">
+                                            <p class="wx-1">@simulation.PhysicsModuleName</p>
                                         </td>
 
                                         <!-- Date -->
-                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
-                                            @simulation.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary wvg-5">
+                                            <p class="">@simulation.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</p>
+                                        </td>
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary wvl-5">
+                                            <p class="wx-1">@simulation.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</p>
                                         </td>
 
                                         <!-- Status -->
@@ -257,32 +262,56 @@
                                         </td>
 
                                         <!-- Actions -->
-                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary wvg-5">
+                                            <p class="">
+                                                <i class="mdi mdi-eye fsz-15 cl-primary" style="cursor: pointer;"
+                                                   title="View simulation" @onclick="() => ViewSimulation(simulation.Id)">
+                                                </i>
 
-                                            <i class="mdi mdi-eye fsz-15 cl-primary" style="cursor: pointer;"
-                                               title="View simulation" @onclick="() => ViewSimulation(simulation.Id)">
-                                            </i>
+                                                <i class="mdi mdi-download fsz-15 cl-success" style="cursor: pointer;"
+                                                   title="Export simulation" @onclick="() => ExportSimulation(simulation.Id)">
+                                                </i>
 
-                                            <i class="mdi mdi-download fsz-15 cl-success" style="cursor: pointer;"
-                                               title="Export simulation" @onclick="() => ExportSimulation(simulation.Id)">
-                                            </i>
+                                                <i class="mdi @(simulation.IsFavourite
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ? "mdi-star"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             : "mdi-star-outline") fsz-15 cl-error"
+                                                   style="cursor: pointer;"
+                                                   title="@(simulation.IsFavourite
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ? "Remove from favourites"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                : "Add to favourites")"
+                                                   @onclick="() => ToggleFavourite(simulation)">
+                                                </i>
 
-                                            <i class="mdi @(simulation.IsFavourite
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ? "mdi-star"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         : "mdi-star-outline") fsz-15 cl-error"
-                                               style="cursor: pointer;"
-                                               title="@(simulation.IsFavourite
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ? "Remove from favourites"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            : "Add to favourites")"
-                                               @onclick="() => ToggleFavourite(simulation)">
-                                            </i>
-
-                                            <i class="mdi mdi-delete fsz-15 cl-danger" style="cursor: pointer;"
-                                               title="Delete simulation" @onclick="() => DeleteSimulation(simulation)">
-                                            </i>
-
+                                                <i class="mdi mdi-delete fsz-15 cl-danger" style="cursor: pointer;"
+                                                   title="Delete simulation" @onclick="() => DeleteSimulation(simulation)">
+                                                </i>
+                                            </p>
                                         </td>
+                                        <td class="pd fsz-12 text-center bd-none bdb bdb-primary wvl-5">
+                                            <p class="wx-1">
+                                                <i class="mdi mdi-eye fsz-15 cl-primary" style="cursor: pointer;"
+                                                   title="View simulation" @onclick="() => ViewSimulation(simulation.Id)">
+                                                </i>
 
+                                                <i class="mdi mdi-download fsz-15 cl-success" style="cursor: pointer;"
+                                                   title="Export simulation" @onclick="() => ExportSimulation(simulation.Id)">
+                                                </i>
+
+                                                <i class="mdi @(simulation.IsFavourite
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ? "mdi-star"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             : "mdi-star-outline") fsz-15 cl-error"
+                                                   style="cursor: pointer;"
+                                                   title="@(simulation.IsFavourite
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ? "Remove from favourites"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                : "Add to favourites")"
+                                                   @onclick="() => ToggleFavourite(simulation)">
+                                                </i>
+
+                                                <i class="mdi mdi-delete fsz-15 cl-danger" style="cursor: pointer;"
+                                                   title="Delete simulation" @onclick="() => DeleteSimulation(simulation)">
+                                                </i>
+                                            </p>
+                                        </td>
                                     </tr>
                                 }
 
@@ -293,10 +322,10 @@
                 }
             </div>
         </div>
-        <!-- Pagination -->
+    </div>
+    <!-- Pagination -->
         <Pagination CurrentPage="@CurrentPage" TotalPages="@TotalPages" TotalItems="@FilteredSimulations.Count"
                     PageSize="@PageSize" ItemLabel="simulation" CurrentPageChanged="@(page => CurrentPage = page)" />
-    </div>
 
     <div class="hx-07 wvl-5"></div>
 

@@ -55,46 +55,52 @@
             </div>
         </div>
 
-        <div class="pd bg-card-06 grid gap-1 colm-25 mgb-2">
-            <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
-                <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
-                <div class="">
-                    <h4 class="mg-0 pdb fsz-15 cl-primary">Interactive Simulation</h4>
-                    <p class="mg-0 fsz-12">Run and simulate physical models in real time</p>
-                </div>
+        <div class="pd bg-card-06 mgb-2">
+            <div class="stack mgb-5">
+                <h3 class="fsz-15 mg-0 pdb-2">CPT Features</h3>
+                <p class="fsz-12 cl-primary mg-0 pdb-2">Enjoy ultimate features around CPT.</p>
             </div>
-            <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
-                <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
-                <div>
-                    <h4 class="mg-0 pdb fsz-15 cl-primary">Modular System</h4>
-                    <p class="mg-0 fsz-12">Start with Heat Equation, more modules coming soon.</p>
+            <div class="grid gap-1 colm-25">
+                <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
+                    <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                    <div class="">
+                        <h4 class="mg-0 pdb fsz-15 cl-primary">Interactive Simulation</h4>
+                        <p class="mg-0 fsz-12">Run and simulate physical models in real time</p>
+                    </div>
                 </div>
-            </div>
-            <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
-                <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
-                <div>
-                    <h4 class="mg-0 pdb fsz-15 cl-primary">Track & Save</h4>
-                    <p class="mg-0 fsz-12">Save your history, Simulation and Results.</p>
+                <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
+                    <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                    <div>
+                        <h4 class="mg-0 pdb fsz-15 cl-primary">Modular System</h4>
+                        <p class="mg-0 fsz-12">Start with Heat Equation, more modules coming soon.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
-                <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
-                <div>
-                    <h4 class="mg-0 pdb fsz-15 cl-primary">Cross Platform</h4>
-                    <p class="mg-0 fsz-12">Assume on web and mobile (Coming Soon)</p>
+                <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
+                    <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                    <div>
+                        <h4 class="mg-0 pdb fsz-15 cl-primary">Track & Save</h4>
+                        <p class="mg-0 fsz-12">Save your history, Simulation and Results.</p>
+                    </div>
+                </div>
+                <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
+                    <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                    <div>
+                        <h4 class="mg-0 pdb fsz-15 cl-primary">Cross Platform</h4>
+                        <p class="mg-0 fsz-12">Assume on web and mobile (Coming Soon)</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="bg-card-06 pd">
-            <div class="flex flex-spacebetween flex-center flow">
-                <h3 class="fsz-15 mg-0 pdb">Available Modules</h3>
-                <p class="fsz-12 cl-primary text-center pdb">Own a real account by signing-up to use all Modules</p>
+            <div class="stack mgb-5">
+                <h3 class="fsz-15 mg-0 pdb-2">Available Modules</h3>
+                <p class="fsz-12 cl-primary mg-0 pdb-2">Own a real account by signing-up to use all Modules</p>
             </div>
 
             <div class="grid gap-1 colm-25">
                 <div class="pd corner-2 bg-card-07 shadow-border-2"
-                     @onclick='() => Nav.NavigateTo("HeatEquation?demo=true")'>
+                     @onclick='() => Nav.NavigateTo("HeatEquation?demo=true")' style="cursor: pointer;">
                     <div class="flex">
                         <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
                         <div>
@@ -103,7 +109,7 @@
                         </div>
                     </div>
                     <div class="text-right">
-                        <button class="cl-primary fsz-10 bg-transparent bd-none"
+                        <button class="cl-primary fsz-10 bg-transparent bd-none" style="cursor: pointer;"
                                 @onclick='() => Nav.NavigateTo("HeatEquation?demo=true")'>
                             Run Demo
                             <i class="mdi mdi-arrow-right"></i>
@@ -111,12 +117,12 @@
                     </div>
                 </div>
 
-                <div class="pd corner-2 bg-card-07 shadow-border-2">
+                <div class="pd corner-2 bg-card-07 shadow-border-2 op-5">
                     <div class="flex">
                         <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
                         <div>
                             <h4 class="mg-0 pdb fsz-15 cl-primary">Mechanics</h4>
-                            <p class="mg-0 fsz-12">Projectile</p>
+                            <p class="mg-0 fsz-12">Coming Soon</p>
                         </div>
                     </div>
                     <div class="text-right">
@@ -126,7 +132,7 @@
                     </div>
                 </div>
 
-                <div class="pd corner-2 bg-card-07 shadow-border-2">
+                <div class="pd corner-2 bg-card-07 shadow-border-2 op-5">
                     <div class="flex">
                         <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
                         <div>
@@ -141,7 +147,7 @@
                     </div>
                 </div>
 
-                <div class="pd corner-2 bg-card-07 shadow-border-2">
+                <div class="pd corner-2 bg-card-07 shadow-border-2 op-5">
                     <div class="flex">
                         <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
                         <div>

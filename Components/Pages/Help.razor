@@ -6,7 +6,7 @@
 @inject IJSRuntime JS
 
 <ProtectedRouteView>
-    <div class="hx-1 wvl-5"></div>
+    <div class="hx-08 wvl-5"></div>
 
     <div class="bg-card">
         <div class="mgb-5 flex flex-center flex-spacebetween bg-primary-02 bd pd border-shadow-5">
@@ -97,7 +97,8 @@
                                                     </div>
 
 
-                                                    <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y" style="display: @(tutorials ? "block" : "none"); height: 80vh">
+                                                    <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y"
+                                                         style="display: @(tutorials ? "block" : "none"); height: 80vh">
                                                         <h5 class="mg-0 pdb fsz-15 pd bg-primary-02">Tutorials</h5>
                                                         <p class="mg-0 pdt pdb fsz-12">Step-by-step guides to help you get started and make the most of CPT.</p>
 
@@ -222,7 +223,8 @@
                                                     </div>
 
 
-                                                    <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y" style="display: @(troubleshoot ? "block" : "none"); height: 80vh">
+                                                    <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y"
+                                                         style="display: @(troubleshoot ? "block" : "none"); height: 80vh">
                                                         <h5 class="mg-0 pdb fsz-15 pd bg-primary-02">Troubleshooting</h5>
                                                         <p class="mg-0 pdt pdb fsz-12">Fix common issues and get your simulation running smoothly.</p>
 
@@ -262,7 +264,8 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y" style="display: @(about ? "block" : "none"); height: 80vh">
+                                                    <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y"
+                                                         style="display: @(about ? "block" : "none"); height: 80vh">
                                                         <h5 class="mg-0 pdb fsz-15 pd bg-primary-02">About</h5>
                                                         <p class="mg-0 pdt pdb fsz-12">
                                                             Learn about CPT, its purpose, features, and the technology behind the toolkit.
@@ -270,8 +273,15 @@
 
                                                         <div class="flex flex-center bd pd corner-2 bg-primary-01 mgb-7">
                                                             <div class="flex flex-center stack">
-                                                                <h1 class="mg-0 pdb fsz-50 cl-primary">CPT</h1>
-                                                                <p class="mg-0 pdb">Computational Physics Toolkit</p>
+                                                                <div class="flex flex-start">
+                                                                    <div class="flex flex-center mgb-2">
+                                                                        <img src="icons/cpt/cptLogo.png" alt="" class="wx-06 hx-06 mgr-3">
+                                                                        <div class="mgt-1">
+                                                                            <h1 class="fsz-30 mg-0 cl-primary">CPT</h1>
+                                                                            <p class="mg-0 pdb fsz-12">Computational Physics Toolkit</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
 
                                                                 <div class="flex flex-center">
                                                                     <p class="mg-0 fsz-12">Simulate</p>

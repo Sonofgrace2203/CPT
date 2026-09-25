@@ -7,7 +7,7 @@
 @inject UserSettingsApiService UserSettingsApi
 
 <ProtectedRouteView>
-    <div class="hx-1 wvl-5"></div>
+    <div class="hx-08 wvl-5"></div>
 
     <div class="bg-card">
         <div class="mgb-5 flex flex-center flex-spacebetween bg-primary-02 bd pd border-shadow-5">
@@ -162,7 +162,7 @@
 
                         <div>
                             <!-- Font Size -->
-                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb op-5">
+                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb op-5 wvg-5">
                                 <div>
                                     <h5 class="mg-0 pdb fsz-12">Font Size</h5>
                                     <p class="mg-0 fsz-10">
@@ -175,8 +175,21 @@
                                 </select>
                             </div>
 
+                            <div class="stack mgt-5 bg-primary-01 pd mgb op-5 wvl-5">
+                                <div class="mgb-4">
+                                    <h5 class="mg-0 pdb-2 fsz-12">Font Size</h5>
+                                    <p class="mg-0 fsz-10">
+                                        Adjust the text size throughout CPT.
+                                    </p>
+                                </div>
+
+                                <select class="pd bd corner-1 bg-card miwx-25" disabled>
+                                    <option>Medium</option>
+                                </select>
+                            </div>
+
                             <!-- Theme -->
-                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb op-5">
+                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb op-5 wvg-5">
                                 <div>
                                     <h5 class="mg-0 pdb fsz-12">Theme</h5>
                                     <p class="mg-0 fsz-10">
@@ -189,10 +202,37 @@
                                 </select>
                             </div>
 
+                            <div class="stack mgt-5 bg-primary-01 pd mgb op-5 wvl-5">
+                                <div class="mgb-4">
+                                    <h5 class="mg-0 pdb-2 fsz-12">Theme</h5>
+                                    <p class="mg-0 fsz-10">
+                                        Choose the appearance of CPT.
+                                    </p>
+                                </div>
+
+                                <select class="pd bd corner-1 bg-card miwx-25" disabled>
+                                    <option>Light</option>
+                                </select>
+                            </div>
+
                             <!-- Number Format -->
-                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb">
+                            <div class="flex flex-spacebetween flex-center flow mgt-5 bg-primary-01 pd mgb wvg-5">
                                 <div>
                                     <h5 class="mg-0 pdb fsz-12">Number Format</h5>
+                                    <p class="mg-0 fsz-10">
+                                        Choose how numerical values are displayed.
+                                    </p>
+                                </div>
+
+                                <select @bind="NumberFormat" class="pd bd corner-1 bg-card miwx-25">
+                                    <option value="decimal">Decimal (1234.56)</option>
+                                    <option value="integer">Integer (1234)</option>
+                                </select>
+                            </div>
+
+                            <div class="stack mgt-5 bg-primary-01 pd mgb wvl-5">
+                                <div class="mgb-4">
+                                    <h5 class="mg-0 pdb-2 fsz-12">Number Format</h5>
                                     <p class="mg-0 fsz-10">
                                         Choose how numerical values are displayed.
                                     </p>

@@ -5,7 +5,7 @@
 @inject NavigationManager Nav
 
 <div class="pdb-5" style="position: fixed; top: 0; left: 0; right: 0; z-index: 10;">
-    <div class="pd-1 bg-primary-01">
+    <div class="pd-0 bg-primary-01">
         <div class="bg-primary pd flex flex-spacebetween pd shadow-border-5">
             <NavLink href="@DashboardUrl" style="text-decoration: none;" class="cl-white">
                 <div class="flex flex-start">
@@ -19,7 +19,7 @@
                 </div>
             </NavLink>
             <div class="flex flex-center">
-                <i class="mdi @(menuIcons ? "mdi-cancel" : "mdi-menu") fsz-25" @onclick="OnViewSubMenu"></i>
+                <i class="mdi @(IsMenuOpen ? "mdi-close" : "mdi-menu") fsz-25" @onclick="OnViewSubMenu"></i>
             </div>
         </div>
     </div>
@@ -30,8 +30,8 @@
 
 @code
 {
-    private bool menuIcons = false;
     [Parameter] public EventCallback SubMenu { get; set; }
+    [Parameter] public bool IsMenuOpen { get; set; }
 
     private AuthUser? currentUser;
 
@@ -63,6 +63,5 @@
     public async Task OnViewSubMenu()
     {
         await SubMenu.InvokeAsync();
-        menuIcons = !menuIcons;
     }
 }

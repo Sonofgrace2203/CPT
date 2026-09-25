@@ -4,9 +4,8 @@
 @inject AuthService AuthService
 @inject NavigationManager Nav
 
-
-<div class="nav-scrollable shadow-border-5" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="bg-card bdt bdw-3 wx-15" style="position: fixed; top: 95px; right: 0; z-index: 100;">
+<div class="nav-scrollable shadow-border-5">
+    <nav class="bg-card bdt bdw-3 wx-15 mobile-top-menu" style="position: fixed; top: 80px; right: 0; z-index: 100;">
         <div class="flex flex-spacearound stack bg-primary-01 pd-1">
 
             @if (IsAdminOrSuperAdmin())
@@ -25,9 +24,8 @@
 
             @if (IsAdminOrSuperAdmin())
             {
-                <div class="" @onclick="OnClickHide">
-
-                    <button class="bg-transparent mg-0 pd-0 bd-none nav-item clip wf">
+                <div class="">
+                    <button class="bg-transparent mg-0 pd-0 bd-none nav-item clip wf" @onclick="OnClickHide">
                         <NavLink
                             class="nav-link fsz-12 bdb cl-primary bdb-secondary block wf fw-bold flex flex-start navlink"
                             href="Admin/Users" Match="NavLinkMatch.All" style="text-decoration: none;">
@@ -44,8 +42,8 @@
 
             <div class=""">
                 <button
-                    class="nav-link fsz-12 bdb cl-danger bdb-secondary block wf fw-bold flex flex-start navlink bg-transparent bd-none wf bg-primary-01"
-                    @onclick="RequestLogout">
+                    class=" nav-link fsz-12 bdb cl-danger bdb-secondary block wf fw-bold flex flex-start navlink
+                    bg-transparent bd-none wf bg-primary-01" @onclick="RequestLogout">
 
                     <div class="px-3 flex flex-center mgl mgr pd mgb-0 mgt-0">
                         <i class="mdi mdi-logout fsz-15 mgr-3"></i>

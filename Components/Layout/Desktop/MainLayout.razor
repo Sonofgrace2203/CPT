@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
 @inject NavigationManager Nav
-
 
 
 <div class="page">
@@ -11,7 +11,7 @@
         </div>
 
         <div class="mgr-1 bdl-0 wvl-5">
-            <MobileTopMenu SubMenu="ShowSubMenu" />
+            <MobileTopMenu SubMenu="ShowSubMenu" IsMenuOpen="@showSubMenu" />
         </div>
 
         <div class="mgr-1 bdl-0 wvl-5" style="display: @(showSubMenu ? "block" : "none");">
@@ -56,5 +56,32 @@
     private void ShowSubMenu()
     {
         showSubMenu = !showSubMenu;
+    }
+
+    private void CloseSubMenu()
+    {
+        if (!showSubMenu)
+            return;
+
+        showSubMenu = false;
+    }
+
+    protected override void OnInitialized()
+    {
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(
+        object? sender,
+        LocationChangedEventArgs e)
+    {
+        CloseSubMenu();
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= OnLocationChanged;
     }
 }
