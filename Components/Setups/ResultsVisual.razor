@@ -22,10 +22,20 @@
                 Simulation Data
             </button>
 
-            <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center" @onclick="BackToDashboard">
-                <i class="mdi mdi-view-dashboard mgr-3"></i>
-                Dashboard
-            </button>
+            @if (Demo)
+            {
+                <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center" @onclick="ExitDemo">
+                    <i class="mdi mdi-exit-to-app mgr-3"></i>
+                    Exit Demo
+                </button>
+            }
+            else
+            {
+                <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center" @onclick="BackToDashboard">
+                    <i class="mdi mdi-view-dashboard mgr-3"></i>
+                    Dashboard
+                </button>
+            }
         </div>
     </div>
 

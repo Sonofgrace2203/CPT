@@ -31,6 +31,30 @@
     </button>
 </div> *@
 
+
+    <div class="flex flex-end wf wvl-5 mgb-2">
+        @if (Demo)
+        {
+            <div class="mgr-3">
+                <button class="bg-card pd fsz-10 corner-2 bd wx-15 flex flex-center shadow-border-2" @onclick="ExitDemo">
+
+                    <i class="mdi mdi-exit-to-app bg-card fsz-10 mgr-5"></i>
+                    Exit Demo
+
+                </button>
+            </div>
+        }
+        <div>
+            <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center shadow-border-2"
+                    @onclick="ViewResults">
+
+                <i class="mdi mdi-plus fsz-10 mgr-5"></i>
+                View Results
+
+            </button>
+        </div>
+    </div>
+
     <div class="bg-card">
         <div class="mgb-5 flex flex-center flex-spacebetween flow bg-primary-02 bd pd border-shadow-5">
 
@@ -54,23 +78,31 @@
                 </div>
             </div>
 
-            @if (Demo)
-            {
-                <button class="bg-transparent pd fsz-10 corner-2 bd wx-15 flex flex-center shadow-border-2 mgr-3"
-                        @onclick="ExitDemo">
+            <div>
+                <div class="flex wvg-5">
+                    @if (Demo)
+                    {
+                        <div class="mgr-3">
+                            <button class="bg-card pd fsz-10 corner-2 bd wx-15 flex flex-center shadow-border-2"
+                                    @onclick="ExitDemo">
 
-                    <i class="mdi mdi-exit-to-app fsz-10 mgr-5"></i>
-                    Exit Demo
+                                <i class="mdi mdi-exit-to-app bg-card fsz-10 mgr-5"></i>
+                                Exit Demo
 
-                </button>
-            }
-            <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center shadow-border-2"
-                    @onclick="ViewResults">
+                            </button>
+                        </div>
+                    }
+                    <div>
+                        <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center shadow-border-2"
+                                @onclick="ViewResults">
 
-                <i class="mdi mdi-plus fsz-10 mgr-5"></i>
-                View Results
+                            <i class="mdi mdi-plus fsz-10 mgr-5"></i>
+                            View Results
 
-            </button>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>

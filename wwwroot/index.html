@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/app.css" />
     <link rel="stylesheet" href="cpt.css" />
     <link rel="stylesheet" href="LivingThing.Core.Frameworks.Client.css" />
-    <link rel="stylesheet" href="mdi//css/materialdesignicons.min.css" />
+    <link rel="stylesheet" href="mdi/css/materialdesignicons.min.css" />
     <link rel="icon" type="image/png" href="icons/cpt/cptLogo.png" />
     <link href="cpt.styles.css" rel="stylesheet" />
     <script type="importmap"></script>
@@ -105,14 +105,28 @@
         (function () {
             const startupLoader = document.getElementById("cpt-startup-loader");
             const refreshLoader = document.getElementById("cpt-refresh-loader");
+            const app = document.getElementById("app");
 
-            if (!startupLoader || !refreshLoader) return;
+            if (!startupLoader || !refreshLoader || !app) return;
 
-            const hasStarted = sessionStorage.getItem("cpt-startup-shown") === "true";
+            const hasStarted =
+                sessionStorage.getItem("cpt-startup-shown") === "true";
 
             if (hasStarted) {
                 startupLoader.style.display = "none";
                 refreshLoader.style.display = "flex";
+
+                const observer = new MutationObserver(function () {
+                    if (!app.contains(startupLoader)) {
+                        refreshLoader.style.display = "none";
+                        observer.disconnect();
+                    }
+                });
+
+                observer.observe(app, {
+                    childList: true,
+                    subtree: true
+                });
             } else {
                 sessionStorage.setItem("cpt-startup-shown", "true");
                 refreshLoader.style.display = "none";
