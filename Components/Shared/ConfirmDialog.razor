@@ -1,0 +1,61 @@
+@if (IsVisible)
+{
+    <div class="bg-dark-04" style="position: fixed; top: 0; bottom: 0; left: 0; right: 0; z-index: 5;">
+        <div class="flex flex-center justify-content-cebter" style="height: 100vh">
+            <div class="corner-2 shadow0border-3">
+                <div class="pd-5 bg-card bd corner-1 shadow-border-1">
+                    <div class="flex flex-center cl-error mgb-5">
+                        <span class="mdi @Icon fsz-20"></span>
+                        <h3 class="mg-0">@Title</h3>
+                    </div>
+
+                    <p class="mgt-3 wx-3 fsz-15 text-center">@Message</p>
+
+                    <div class="flex align-center flow mgt-10">
+                        <button class="pd bg-danger cl-white bd-none corner-1 mgl-5 bg-primary bd bd-primary fw-bold"
+                                @onclick="Confirm">@ConfirmText</button>
+                        <button class="pd bg-transparent bd corner-1 bd bd-primary cl-primary fw-bold"
+                                @onclick="Cancel">@CancelText</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "Confirm Action";
+
+    [Parameter]
+    public string Message { get; set; } = "Are you sure you want to continue?";
+
+    [Parameter]
+    public string ConfirmText { get; set; } = "Confirm";
+
+    [Parameter]
+    public string CancelText { get; set; } = "Cancel";
+
+    [Parameter]
+    public string Icon { get; set; } = "mdi-alert-circle-outline";
+
+    [Parameter]
+    public EventCallback OnConfirm { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    private async Task Confirm()
+    {
+        await OnConfirm.InvokeAsync();
+    }
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+    }
+}

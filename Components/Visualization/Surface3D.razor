@@ -1,0 +1,55 @@
+@using Plotly.Blazor
+@using Plotly.Blazor.Traces
+@using Microsoft.AspNetCore.Components
+
+<PlotlyChart @bind-Config="config" @bind-Data="data" @bind-Layout="layout" Style="height: 600px;" />
+
+@code {
+    [Parameter]
+    public double[][]? Temperature { get; set; }
+
+    private Config config = new()
+    {
+        Responsive = true
+    };
+
+    private Layout layout = new();
+
+    private IList<ITrace> data = new List<ITrace>();
+
+    protected override void OnParametersSet()
+    {
+        data = BuildSurfaceData();
+    }
+
+    private IList<ITrace> BuildSurfaceData()
+    {
+        if (Temperature is null || Temperature.Length == 0)
+            return new List<ITrace>();
+
+        var rows = Temperature.Length;
+        var columns = Temperature[0].Length;
+
+        var x = Enumerable.Range(0, columns)
+            .Select(i => (object)i)
+            .ToList();
+
+        var y = Enumerable.Range(0, rows)
+            .Select(i => (object)i)
+            .ToList();
+
+        var z = Temperature
+            .Select(row => (object)row.ToList())
+            .ToList();
+
+        return new List<ITrace>
+        {
+            new Surface
+            {
+                X = x,
+                Y = y,
+                Z = z
+            }
+        };
+    }
+}

@@ -1,0 +1,251 @@
+@using System.Globalization
+@inject IJSRuntime JS
+
+<div class="heatmap-panel">
+
+    <div class="heatmap-header">
+
+        <div>
+            <h3 class="heatmap-title">
+                Temperature Field
+            </h3>
+
+            <p class="heatmap-subtitle">
+                Thermal distribution across the simulation domain
+            </p>
+        </div>
+
+        <div class="heatmap-badge">
+            @ColorMap.ToUpperInvariant()
+        </div>
+
+    </div>
+
+    @if (Temperature is null || Temperature.Length == 0)
+    {
+        <div class="heatmap-empty">
+            <p class="fsz-12">
+                No visualization data available.
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="heatmap-visual">
+
+            @* <canvas @ref="_canvas" class="heatmap-canvas" title="Heat equation temperature field">
+            </canvas> *@
+
+            <canvas @ref="_canvas" class="heatmap-canvas" style="@GetCanvasStyle()" title="Heat equation temperature field">
+            </canvas>
+
+        </div>
+    }
+
+    @if (ShowColourbar)
+    {
+        <div class="heatmap-scale">
+
+            <div class="heatmap-scale-header">
+
+                <span class="heatmap-scale-title">
+                    Temperature
+                </span>
+
+                <span class="heatmap-scale-unit">
+                    Kelvin (K)
+                </span>
+
+            </div>
+
+            <div class="heatmap-gradient" style="@GetGradientStyle()">
+            </div>
+
+            <div class="heatmap-scale-values">
+
+                <span>
+                    @MinimumTemperature.ToString("F2") K
+                </span>
+
+                <span>
+                    @MaximumTemperature.ToString("F2") K
+                </span>
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+@code {
+
+    [Parameter] public string ColorMap { get; set; } = "Thermal";
+
+    [Parameter] public bool ShowColourbar { get; set; } = true;
+
+    [Parameter] public bool ShowGrid { get; set; } = false;
+
+    [Parameter] public bool EqualAspectRatio { get; set; } = true;
+
+    [Parameter] public double[][]? Temperature { get; set; }
+
+    [Parameter] public int GridWidth { get; set; }
+
+    [Parameter] public int GridHeight { get; set; }
+
+    [Parameter] public double XMin { get; set; } = -1.0;
+
+    [Parameter] public double XMax { get; set; } = 1.0;
+
+    [Parameter] public double YMin { get; set; } = -1.0;
+
+    [Parameter] public double YMax { get; set; } = 1.0;
+
+    private ElementReference _canvas;
+
+    private double[][]? _lastTemperature;
+
+    private int _lastGridWidth;
+    private int _lastGridHeight;
+
+    private bool _needsRedraw;
+
+    private string _lastColorMap = string.Empty;
+
+    private bool _lastShowGrid;
+    private bool _lastEqualAspectRatio;
+
+    private double MinimumTemperature { get; set; }
+
+    private double MaximumTemperature { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        var temperatureChanged =
+            !ReferenceEquals(
+                Temperature,
+                _lastTemperature);
+
+        var gridChanged =
+            GridWidth != _lastGridWidth ||
+            GridHeight != _lastGridHeight;
+
+        var colorMapChanged =
+            !string.Equals(
+                ColorMap,
+                _lastColorMap,
+                StringComparison.Ordinal);
+
+        var displayChanged =
+            ShowGrid != _lastShowGrid ||
+            EqualAspectRatio != _lastEqualAspectRatio;
+
+        if (temperatureChanged || gridChanged || colorMapChanged || displayChanged)
+        {
+            CalculateTemperatureRange();
+
+            _needsRedraw = true;
+
+            _lastTemperature = Temperature;
+            _lastGridWidth = GridWidth;
+            _lastGridHeight = GridHeight;
+            _lastColorMap = ColorMap;
+            _lastShowGrid = ShowGrid;
+            _lastEqualAspectRatio = EqualAspectRatio;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(
+        bool firstRender)
+    {
+        if (!_needsRedraw)
+            return;
+
+        if (Temperature is null ||
+            Temperature.Length == 0)
+        {
+            return;
+        }
+
+        _needsRedraw = false;
+
+        await JS.InvokeVoidAsync(
+            "cptDrawHeatmap",
+            _canvas,
+            Temperature,
+            GridWidth,
+            GridHeight,
+            MinimumTemperature,
+            MaximumTemperature,
+            ColorMap,
+            ShowGrid,
+            EqualAspectRatio);
+    }
+
+    private void CalculateTemperatureRange()
+    {
+        if (Temperature is null)
+            return;
+
+        double minimum =
+            double.MaxValue;
+
+        double maximum =
+            double.MinValue;
+
+        bool hasValues = false;
+
+        foreach (var row in Temperature)
+        {
+            if (row is null)
+                continue;
+
+            foreach (var value in row)
+            {
+                if (value < minimum)
+                    minimum = value;
+
+                if (value > maximum)
+                    maximum = value;
+
+                hasValues = true;
+            }
+        }
+
+        if (!hasValues)
+            return;
+
+        MinimumTemperature = minimum;
+        MaximumTemperature = maximum;
+    }
+
+    private string GetGradientStyle()
+    {
+        return ColorMap switch
+        {
+            "Viridis" =>
+                "background: linear-gradient(to right, rgb(68, 1, 84), rgb(59, 82, 139), rgb(33, 145, 140), rgb(94, 201, 98), rgb(253, 231, 37));",
+
+            "Grayscale" =>
+                "background: linear-gradient(to right, rgb(0, 0, 0), rgb(255, 255, 255));",
+
+            _ =>
+                "background: linear-gradient(to right, rgb(0, 80, 150), rgb(0, 180, 255), rgb(0, 255, 175), rgb(255, 255, 0), rgb(255, 0, 0));"
+        };
+    }
+
+    private string GetCanvasStyle()
+    {
+        if (GridWidth <= 0 || GridHeight <= 0)
+        {
+            return "display:block; width:100%; height:auto;";
+        }
+
+        return
+            $"display:block; " +
+            $"width:100%; " +
+            $"height:auto; " +
+            $"aspect-ratio:{GridWidth}/{GridHeight};";
+    }
+}

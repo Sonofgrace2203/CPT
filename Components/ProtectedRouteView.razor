@@ -1,0 +1,47 @@
+@using CPT.Services.Auth
+@using CPT.Models.Auth
+@using cpt.Components.Shared
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+@if (isChecking)
+{
+    <div class="flex flex-center" style="min-height: 50vh;">
+        @* <p class="cl-muted fsz-10 bg-secondary-02 cl-secondary pd">Checking session...</p> *@
+        <LoadingIndicator />
+    </div>
+}
+else if (AllowAnonymous || currentUser is not null)
+{
+    @ChildContent
+}
+
+@code
+{
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public bool AllowAnonymous { get; set; }
+
+    private AuthUser? currentUser;
+    private bool isChecking = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser =
+            await AuthService.GetCurrentUserAsync();
+
+        // Only redirect when this page requires authentication.
+        if (!AllowAnonymous && currentUser is null)
+        {
+            Navigation.NavigateTo(
+                "/Login",
+                true);
+
+            return;
+        }
+
+        isChecking = false;
+    }
+}

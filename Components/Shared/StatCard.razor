@@ -1,0 +1,21 @@
+<div class="shadow-border-2 bdl bd-secondary bg-secondary-01 bdw-3 corner-2 pd">
+    <div class="flex flex-start">
+        <div class="flex flex-center">
+            <div class="mgr-5 corner-2 wx-05 hx-05" >
+                <img src="@Img" alt="" class="wf hf corner-2" style="color: @ClColor;">
+            </div>
+            <div>
+                <h4 class="mg-0 fsz-17 cl-secondary pdb-2">@Num</h4>
+                <p class="mg-0 fsz-13">@Tag</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int Num { get; set; }
+    [Parameter] public string Tag { get; set; } = "";
+    [Parameter] public string BgColor { get; set; } = "";
+    [Parameter] public string ClColor { get; set; } = "";
+    [Parameter] public string Img { get; set; } = "";
+}

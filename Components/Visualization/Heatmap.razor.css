@@ -1,0 +1,240 @@
+.heatmap-panel {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+
+/* Header */
+
+.heatmap-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin-bottom: 18px;
+}
+
+.heatmap-title {
+    margin: 0;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    color: #1f2937;
+}
+
+.heatmap-subtitle {
+    margin: 4px 0 0;
+
+    font-size: 11px;
+
+    color: #6b7280;
+}
+
+.heatmap-badge {
+    flex-shrink: 0;
+
+    padding: 5px 9px;
+
+    border-radius: 6px;
+
+    background: #f3f4f6;
+
+    border: 1px solid #e5e7eb;
+
+    font-size: 9px;
+    font-weight: 700;
+
+    letter-spacing: 0.7px;
+
+    color: #4b5563;
+}
+
+
+/* Visualization */
+
+/* .heatmap-visual {
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 10px;
+
+    box-sizing: border-box;
+
+    background: #111827;
+
+    border: 1px solid #1f2937;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+} */
+
+/* .heatmap-visual {
+    width: 100%;
+    min-width: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 10px;
+
+    box-sizing: border-box;
+
+    background: #111827;
+
+    border: 1px solid #1f2937;
+    border-radius: 10px;
+
+    overflow: hidden;
+} */
+
+.heatmap-visual {
+    width: 100%;
+    box-sizing: border-box;
+
+    display: block;
+
+    padding: 10px;
+
+    background: #111827;
+
+    border: 1px solid #1f2937;
+    border-radius: 10px;
+
+    overflow: hidden;
+}
+
+/* .heatmap-canvas {
+    display: block;
+
+    width: min(100%, 620px);
+
+    height: auto;
+
+    max-width: 100%;
+
+    border-radius: 5px;
+} */
+
+/* .heatmap-canvas {
+    display: block;
+
+    width: min(100%, 620px);
+
+    max-width: 100%;
+    min-width: 0;
+
+    height: auto;
+
+    flex-shrink: 1;
+
+    border-radius: 5px;
+} */
+
+.heatmap-canvas {
+    display: block;
+
+    width: 100%;
+    max-width: 100%;
+
+    height: auto;
+
+    margin: 0 auto;
+
+    border-radius: 5px;
+}
+
+/* Empty state */
+
+.heatmap-empty {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 300px;
+
+    background: #f9fafb;
+
+    border: 1px dashed #d1d5db;
+
+    border-radius: 10px;
+
+    color: #6b7280;
+}
+
+
+/* Temperature scale */
+
+.heatmap-scale {
+    width: 100%;
+
+    margin-top: 18px;
+}
+
+.heatmap-scale-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 8px;
+}
+
+.heatmap-scale-title {
+    font-size: 11px;
+    font-weight: 600;
+
+    color: #374151;
+}
+
+.heatmap-scale-unit {
+    font-size: 10px;
+
+    color: #9ca3af;
+}
+
+.heatmap-gradient {
+    width: 100%;
+
+    height: 10px;
+
+    border-radius: 5px;
+
+    background: linear-gradient(to right,
+            rgb(0, 80, 150),
+            rgb(0, 180, 255),
+            rgb(0, 255, 175),
+            rgb(255, 255, 0),
+            rgb(255, 165, 0),
+            rgb(255, 0, 0));
+}
+
+.heatmap-scale-values {
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-top: 6px;
+
+    font-size: 9px;
+
+    color: #6b7280;
+}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cpt</title>
+    <base href="/" />
+    <link rel="preload" id="webassembly" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="stylesheet" href="cpt.css" />
+    <link rel="stylesheet" href="LivingThing.Core.Frameworks.Client.css" />
+    <link rel="stylesheet" href="mdi/css/materialdesignicons.min.css" />
+    <link rel="icon" type="image/png" href="icons/cpt/cptLogo.png" />
+    <link href="cpt.styles.css" rel="stylesheet" />
+    <script type="importmap"></script>
+    <script>
+        (function () {
+            var redirect = sessionStorage.redirect;
+
+            delete sessionStorage.redirect;
+
+            if (redirect && redirect !== location.href) {
+                history.replaceState(null, null, redirect);
+            }
+
+            var query = new URLSearchParams(location.search);
+            var path = query.get("p");
+
+            if (path) {
+                var search = new URLSearchParams(location.search);
+                search.delete("p");
+
+                var newUrl =
+                    location.pathname.replace(/\/$/, "") +
+                    path +
+                    (search.toString() ? "?" + search.toString() : "") +
+                    location.hash;
+
+                history.replaceState(null, null, newUrl);
+            }
+        })();
+    </script>
+</head>
+
+<body>
+    <div id="app">
+        <div id="cpt-startup-loader" class="cpt-startup-loader">
+            <div class="cpt-loader-logo-wrap">
+
+                <div class="cpt-orbit cpt-orbit-1">
+                    <span class="cpt-orbit-dot"></span>
+                </div>
+
+                <div class="cpt-orbit cpt-orbit-2">
+                    <span class="cpt-orbit-dot"></span>
+                </div>
+
+                <div class="cpt-orbit cpt-orbit-3">
+                    <span class="cpt-orbit-dot"></span>
+                </div>
+
+                <img src="icons/cpt/cptLogo.png" alt="CPT" class="cpt-loader-logo" />
+
+            </div>
+
+
+            <div class="cpt-loader-title">
+                CPT
+            </div>
+
+            <div class="cpt-loader-subtitle">
+                Computational Physics Toolkit
+            </div>
+
+
+            <div class="cpt-loader-status">
+                <span>Initializing simulation environment</span>
+
+                <div class="cpt-loader-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cpt-refresh-loader" class="cpt-refresh-loader">
+        <div class="cpt-refresh-spinner"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="." class="reload">Reload</a>
+        <span class="dismiss">🗙</span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="js/cpt.js"></script>
+    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
+    <script src="js/authSession.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        (function () {
+            const startupLoader = document.getElementById("cpt-startup-loader");
+            const refreshLoader = document.getElementById("cpt-refresh-loader");
+            const app = document.getElementById("app");
+
+            if (!startupLoader || !refreshLoader || !app) return;
+
+            const hasStarted =
+                sessionStorage.getItem("cpt-startup-shown") === "true";
+
+            if (hasStarted) {
+                startupLoader.style.display = "none";
+                refreshLoader.style.display = "flex";
+
+                const observer = new MutationObserver(function () {
+                    if (!app.contains(startupLoader)) {
+                        refreshLoader.style.display = "none";
+                        observer.disconnect();
+                    }
+                });
+
+                observer.observe(app, {
+                    childList: true,
+                    subtree: true
+                });
+            } else {
+                sessionStorage.setItem("cpt-startup-shown", "true");
+                refreshLoader.style.display = "none";
+            }
+        })();
+    </script>
+</body>
+
+</html>

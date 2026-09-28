@@ -1,0 +1,282 @@
+@using Microsoft.AspNetCore.Components
+@implements IAsyncDisposable
+
+<div class="wf">
+
+    @if (TemperatureHistory is null || TemperatureHistory.Count == 0)
+    {
+        <p class="fsz-12">
+            No simulation history is available.
+        </p>
+    }
+    else
+    {
+        @* <Heatmap Temperature="@CurrentTemperature" GridWidth="@GridWidth" GridHeight="@GridHeight" XMin="0" XMax="@Width"
+                 YMin="0" YMax="@Height" /> *@
+
+        <Heatmap Temperature="@CurrentTemperature" GridWidth="@GridWidth" GridHeight="@GridHeight" XMin="0" XMax="@Width"
+                 YMin="0" YMax="@Height" ColorMap="Thermal" />
+
+        <div class="mgt-10">
+
+            <div class="flex flex-center flex-spacebetween mgb-5">
+
+                <span class="fsz-10">
+                    Simulation Time
+                </span>
+
+                <span class="fsz-10">
+                    @CurrentTime.ToString("F3")
+                </span>
+
+            </div>
+
+            <input type="range" min="0" max="@(TemperatureHistory.Count - 1)" step="1" value="@SelectedFrame"
+                   @oninput="HandleFrameChanged" class="wf" />
+
+        </div>
+    }
+
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback OnFrameChanged { get; set; }
+
+    [Parameter]
+    public List<double[][]>? TemperatureHistory { get; set; }
+
+    [Parameter]
+    public int GridWidth { get; set; }
+
+    [Parameter]
+    public int GridHeight { get; set; }
+
+    [Parameter]
+    public double Width { get; set; }
+
+    [Parameter]
+    public double Height { get; set; }
+
+    [Parameter]
+    public double TimeStep { get; set; }
+
+    [Parameter]
+    public double FinalTime { get; set; }
+
+    private int SelectedFrame { get; set; }
+
+    private bool IsPlaying { get; set; }
+
+    private PeriodicTimer? PlaybackTimer;
+
+    private CancellationTokenSource? PlaybackCancellation;
+
+    private double[][]? CurrentTemperature =>
+        TemperatureHistory is not null &&
+        TemperatureHistory.Count > 0
+            ? TemperatureHistory[
+                Math.Clamp(
+                    SelectedFrame,
+                    0,
+                    TemperatureHistory.Count - 1)]
+            : null;
+
+    public double CurrentTime
+    {
+        get
+        {
+            if (TemperatureHistory is null ||
+                TemperatureHistory.Count <= 1)
+            {
+                return 0;
+            }
+
+            return FinalTime *
+                   SelectedFrame /
+                   (TemperatureHistory.Count - 1);
+        }
+    }
+
+    public int CurrentFrame => SelectedFrame;
+
+    public int TotalFrames =>
+        TemperatureHistory?.Count ?? 0;
+
+    protected override void OnParametersSet()
+    {
+        if (TemperatureHistory is null ||
+            TemperatureHistory.Count == 0)
+        {
+            SelectedFrame = 0;
+            return;
+        }
+
+        if (SelectedFrame >= TemperatureHistory.Count)
+        {
+            SelectedFrame = TemperatureHistory.Count - 1;
+        }
+    }
+
+    private async Task HandleFrameChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var frame))
+        {
+            await SetFrame(frame);
+        }
+    }
+
+    public async Task SetFrame(int frame)
+    {
+        if (TemperatureHistory is null ||
+            TemperatureHistory.Count == 0)
+        {
+            return;
+        }
+
+        SelectedFrame = Math.Clamp(
+            frame,
+            0,
+            TemperatureHistory.Count - 1);
+
+        await InvokeAsync(StateHasChanged);
+        await OnFrameChanged.InvokeAsync();
+    }
+
+    public async Task Play()
+    {
+        if (TemperatureHistory is null ||
+            TemperatureHistory.Count <= 1)
+        {
+            return;
+        }
+
+        if (IsPlaying)
+        {
+            return;
+        }
+
+        if (SelectedFrame >= TemperatureHistory.Count - 1)
+        {
+            SelectedFrame = 0;
+        }
+
+        IsPlaying = true;
+
+        PlaybackCancellation =
+            new CancellationTokenSource();
+
+        PlaybackTimer =
+            new PeriodicTimer(
+                TimeSpan.FromMilliseconds(150));
+
+        try
+        {
+            while (
+                IsPlaying &&
+                PlaybackTimer is not null &&
+                await PlaybackTimer.WaitForNextTickAsync(
+                    PlaybackCancellation.Token))
+            {
+                if (SelectedFrame >= TemperatureHistory.Count - 1)
+                {
+                    IsPlaying = false;
+                    await InvokeAsync(StateHasChanged);
+                    await OnFrameChanged.InvokeAsync();
+                    break;
+                }
+
+                SelectedFrame++;
+
+                await InvokeAsync(StateHasChanged);
+                await OnFrameChanged.InvokeAsync();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    public async Task Pause()
+    {
+        IsPlaying = false;
+
+        PlaybackCancellation?.Cancel();
+
+        PlaybackTimer?.Dispose();
+
+        PlaybackTimer = null;
+
+        PlaybackCancellation?.Dispose();
+
+        PlaybackCancellation = null;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task TogglePlayback()
+    {
+        if (IsPlaying)
+        {
+            await Pause();
+        }
+        else
+        {
+            await Play();
+        }
+    }
+
+    public async Task PreviousFrame()
+    {
+        if (TemperatureHistory is null ||
+            TemperatureHistory.Count == 0)
+        {
+            return;
+        }
+
+        if (SelectedFrame > 0)
+        {
+            SelectedFrame--;
+        }
+
+        await InvokeAsync(StateHasChanged);
+        await OnFrameChanged.InvokeAsync();
+    }
+
+    public async Task NextFrame()
+    {
+        if (TemperatureHistory is null ||
+            TemperatureHistory.Count == 0)
+        {
+            return;
+        }
+
+        if (SelectedFrame < TemperatureHistory.Count - 1)
+        {
+            SelectedFrame++;
+        }
+
+        await InvokeAsync(StateHasChanged);
+        await OnFrameChanged.InvokeAsync();
+    }
+
+    public async Task Restart()
+    {
+        await Pause();
+
+        SelectedFrame = 0;
+
+        await InvokeAsync(StateHasChanged);
+        await OnFrameChanged.InvokeAsync();
+    }
+
+    public bool GetIsPlaying()
+    {
+        return IsPlaying;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await Pause();
+    }
+}

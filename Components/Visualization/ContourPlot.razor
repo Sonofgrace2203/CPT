@@ -1,0 +1,162 @@
+@using Plotly.Blazor
+@using Plotly.Blazor.Traces
+
+<div class="wf">
+
+    @if (Temperature is null ||
+         Temperature.Length == 0 ||
+         GridWidth < 2 ||
+         GridHeight < 2)
+    {
+        <p class="fsz-12">
+            No contour data available.
+        </p>
+    }
+    else
+    {
+        <PlotlyChart @bind-Config="config" @bind-Data="data" @bind-Layout="layout" @ref="chart" Style="height: 500px;" />
+    }
+
+</div>
+
+@code {
+
+    [Parameter]
+    public double[][]? Temperature { get; set; }
+
+    [Parameter]
+    public int GridWidth { get; set; }
+
+    [Parameter]
+    public int GridHeight { get; set; }
+
+    [Parameter]
+    public double XMin { get; set; } = 0;
+
+    [Parameter]
+    public double XMax { get; set; } = 1;
+
+    [Parameter]
+    public double YMin { get; set; } = 0;
+
+    [Parameter]
+    public double YMax { get; set; } = 1;
+
+    private Config config = new()
+    {
+        Responsive = true
+    };
+
+    private Layout layout = new();
+
+    private IList<ITrace> data = new List<ITrace>();
+
+    private PlotlyChart? chart;
+
+    protected override void OnParametersSet()
+    {
+        data = BuildContourData();
+        layout = BuildLayout();
+    }
+
+    private IList<ITrace> BuildContourData()
+    {
+        if (Temperature is null ||
+            Temperature.Length == 0 ||
+            GridWidth < 2 ||
+            GridHeight < 2)
+        {
+            return new List<ITrace>();
+        }
+
+        var xValues = new List<object>();
+
+        for (int x = 0; x < GridWidth; x++)
+        {
+            double coordinate =
+                XMin +
+                (XMax - XMin) *
+                x / (GridWidth - 1);
+
+            xValues.Add(coordinate);
+        }
+
+        var yValues = new List<object>();
+
+        for (int y = 0; y < GridHeight; y++)
+        {
+            double coordinate =
+                YMin +
+                (YMax - YMin) *
+                y / (GridHeight - 1);
+
+            yValues.Add(coordinate);
+        }
+
+        var zValues = new List<object>();
+
+        for (int y = 0; y < GridHeight; y++)
+        {
+            var row = new List<object>();
+
+            for (int x = 0; x < GridWidth; x++)
+            {
+                if (y < Temperature.Length &&
+                    Temperature[y] is not null &&
+                    x < Temperature[y].Length)
+                {
+                    row.Add(Temperature[y][x]);
+                }
+                else
+                {
+                    row.Add(null!);
+                }
+            }
+
+            zValues.Add(row);
+        }
+
+        return new List<ITrace>
+        {
+            new Contour
+            {
+                X = xValues,
+                Y = yValues,
+                Z = zValues
+            }
+        };
+    }
+
+    private Layout BuildLayout()
+    {
+        return new Layout
+        {
+            Title = new Plotly.Blazor.LayoutLib.Title
+            {
+                Text = "Temperature Contour Map"
+            },
+
+            XAxis = new List<Plotly.Blazor.LayoutLib.XAxis>
+            {
+                new Plotly.Blazor.LayoutLib.XAxis
+                {
+                    Title = new Plotly.Blazor.LayoutLib.XAxisLib.Title
+                    {
+                        Text = "X"
+                    }
+                }
+            },
+
+            YAxis = new List<Plotly.Blazor.LayoutLib.YAxis>
+            {
+                new Plotly.Blazor.LayoutLib.YAxis
+                {
+                    Title = new Plotly.Blazor.LayoutLib.YAxisLib.Title
+                    {
+                        Text = "Y"
+                    }
+                }
+            }
+        };
+    }
+}

@@ -1,0 +1,73 @@
+/* CPT Loading Indicator */
+
+.reenie-beanie-regular {
+  font-family: "Reenie Beanie", cursive !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  font-size: 2rem !important;
+
+  color: rgb(0, 159, 19);
+}
+
+html:not(.dark-theme):root {
+    --primary-background-color: 159, 42, 0!important;
+}
+
+.cpt-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.cpt-loader {
+    width: 42px;
+    height: 42px;
+    position: relative;
+    animation: cpt-loader-rotate 1.2s linear infinite;
+}
+
+.cpt-loader span {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgb(var(--primary-background-color));
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    transform-origin: 50% 21px;
+    opacity: 0.25;
+}
+
+.cpt-loader span:nth-child(1) {
+    transform: translateX(-50%) rotate(0deg);
+    opacity: 1;
+}
+
+.cpt-loader span:nth-child(2) {
+    transform: translateX(-50%) rotate(120deg);
+    opacity: 0.6;
+}
+
+.cpt-loader span:nth-child(3) {
+    transform: translateX(-50%) rotate(240deg);
+    opacity: 0.3;
+}
+
+.cpt-loading-text {
+    margin: 0;
+    font-size: 10px;
+    color: inherit;
+}
+
+@keyframes cpt-loader-rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

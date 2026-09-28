@@ -1,0 +1,21 @@
+<div class="cpt-loading">
+
+    <div class="cpt-loader">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Text))
+    {
+        <p class="cpt-loading-text">@Text</p>
+    }
+
+</div>
+
+@code {
+
+    [Parameter]
+    public string? Text { get; set; }
+
+}
