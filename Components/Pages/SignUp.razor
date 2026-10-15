@@ -22,7 +22,7 @@
 
     <div>
         <button type="button" class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-primary fsz-10"
-                @onclick='() => Nav.NavigateTo("HeatEquation?demo=true&from=signup")'>
+                style="cursor: pointer;" @onclick='() => Nav.NavigateTo("Demos")'>
             Run Demo
         </button>
     </div>
@@ -59,7 +59,7 @@
                 </p>
             </div>
 
-            @if (isRegistered)
+            @* @if (isRegistered)
             {
                 <div class="pd text-center">
                     <i class="mdi mdi-email-check-outline cl-primary fsz-30"></i>
@@ -76,6 +76,34 @@
                     <p class="fsz-10 pdb-3 text-center">
                         Please check your inbox and click the
                         <strong class="text-center">Verify Email</strong> button to activate your account.
+                    </p>
+
+                    <button type="button" class="wf pd-2 bg-primary corner-2 bd-none fsz-10"
+                            @onclick='() => Nav.NavigateTo("Login")'>
+                        Go to Login
+                    </button>
+                </div>
+            } *@
+
+
+            @if (isRegistered)
+            {
+                <div class="pd text-center">
+                    <i class="mdi mdi-account-check-outline cl-primary fsz-30"></i>
+
+                    <h3 class="mg-0 pdt-3 pdb-2">
+                        Registration Successful!
+                    </h3>
+
+                    <p class="fsz-10 pdb-3 text-center">
+                        Your CPT account has been created successfully.
+                        You can now log in and start using Computational Physics Toolkit.
+                    </p>
+
+                    <p class="fsz-10 pdb-3 text-center cl-primary fw-bold">
+                        Email verification is temporarily unavailable.
+                        Please ensure you use an email address you own
+                        so you can recover your account when email services are restored.
                     </p>
 
                     <button type="button" class="wf pd-2 bg-primary corner-2 bd-none fsz-10"
@@ -146,7 +174,7 @@
                                            @bind-Value="registerRequest.Password" />
 
                                 <button type="button" class="bd-none bg-transparent pos-abs r-0 mgr-2"
-                                        @onclick="TogglePassword">
+                                        style="cursor: pointer;" @onclick="TogglePassword">
                                     <i class="mdi @(showPassword ? "mdi-eye-off" : "mdi-eye") fsz-12"></i>
                                 </button>
                             </div>
@@ -171,7 +199,7 @@
                                            @bind-Value="registerRequest.ConfirmPassword" />
 
                                 <button type="button" class="bd-none bg-transparent pos-abs r-0 mgr-2"
-                                        @onclick="ToggleConfirmPassword">
+                                        style="cursor: pointer;" @onclick="ToggleConfirmPassword">
                                     <i class="mdi @(showConfirmPassword ? "mdi-eye-off" : "mdi-eye") fsz-12"></i>
                                 </button>
                             </div>
@@ -193,7 +221,8 @@
                     <!-- Create Account -->
                     <div class="mgb-3">
 
-                        <button type="submit" class="wf pd-2 bg-primary corner-2 bd-none fsz-10" disabled="@isLoading">
+                        <button type="submit" class="wf pd-2 bg-primary corner-2 bd-none fsz-10" disabled="@isLoading"
+                                style="cursor: pointer;">
 
                             @if (isLoading)
                             {
@@ -255,7 +284,7 @@
                             Already have an account?
 
                             <button type="button" class="bd-none bg-transparent cl-primary fsz-10 op-10"
-                                    @onclick='() => Nav.NavigateTo("Login")'>
+                                    style="cursor: pointer;" @onclick='() => Nav.NavigateTo("Login")'>
 
                                 Log In
 

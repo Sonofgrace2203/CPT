@@ -18,9 +18,9 @@
     </div>
 
     <div>
-        <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-card bd cl-primary bd-primary fsz-10"
+        <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-card bd cl-primary bd-primary fsz-10" style="cursor: pointer;"
                 @onclick='() => Nav.NavigateTo("Login")'>Login</button>
-        <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-primary fsz-10"
+        <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-primary fsz-10" style="cursor: pointer;"
                 @onclick='() => Nav.NavigateTo("SignUp")'>Sign Up</button>
     </div>
 </div>
@@ -42,9 +42,9 @@
             <p>Powerful, interactive. Built for learners, researchers and innovators</p>
 
             <div>
-                <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-primary fsz-13"
-                        @onclick='() => Nav.NavigateTo("HeatEquation?demo=true&from=home")'>Try Demo</button>
-                <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-white corner-5 bg-card-02 cl-white fsz-13"
+                <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-primary fsz-13" style="cursor: pointer;"
+                        @onclick='() => Nav.NavigateTo("Demos")'>Try Demo</button>
+                <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-white corner-5 bg-card-02 cl-white fsz-13" style="cursor: pointer;"
                         @onclick='() => Nav.NavigateTo("Login")'>Sign
                     Up / Log In</button>
                 </div>
@@ -62,28 +62,28 @@
             </div>
             <div class="grid gap-1 colm-25">
                 <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
-                    <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                    <i class="mdi mdi-integrated-circuit-chip fsz-25 mgr-3 cl-primary"></i>
                     <div class="">
                         <h4 class="mg-0 pdb fsz-15 cl-primary">Interactive Simulation</h4>
                         <p class="mg-0 fsz-12">Run and simulate physical models in real time</p>
                     </div>
                 </div>
                 <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
-                    <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                    <i class="mdi mdi-molecule fsz-25 mgr-3 cl-primary"></i>
                     <div>
                         <h4 class="mg-0 pdb fsz-15 cl-primary">Modular System</h4>
-                        <p class="mg-0 fsz-12">Start with Heat Equation, more modules coming soon.</p>
+                        <p class="mg-0 fsz-12">Explore Heat Transfer and Wave Equation simulations.</p>
                     </div>
                 </div>
                 <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
-                    <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                    <i class="mdi mdi-track-light fsz-25 mgr-3 cl-primary"></i>
                     <div>
                         <h4 class="mg-0 pdb fsz-15 cl-primary">Track & Save</h4>
                         <p class="mg-0 fsz-12">Save your history, Simulation and Results.</p>
                     </div>
                 </div>
                 <div class="pd corner-2 bg-card-07 shadow-border-2 corner-2 flex">
-                    <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                    <i class="mdi mdi-crosshairs fsz-25 mgr-3 cl-primary"></i>
                     <div>
                         <h4 class="mg-0 pdb fsz-15 cl-primary">Cross Platform</h4>
                         <p class="mg-0 fsz-12">Assume on web and mobile (Coming Soon)</p>
@@ -102,7 +102,7 @@
                 <div class="pd corner-2 bg-card-07 shadow-border-2"
                      @onclick='() => Nav.NavigateTo("HeatEquation?demo=true")' style="cursor: pointer;">
                     <div class="flex">
-                        <i class="mdi mdi-note fsz-25 mgr-3 cl-primary"></i>
+                        <i class="mdi mdi-thermometer fsz-25 mgr-3 cl-primary"></i>
                         <div>
                             <h4 class="mg-0 pdb fsz-15 cl-primary">Heat Transfer</h4>
                             <p class="mg-0 fsz-12">2D Heat Equation</p>
@@ -111,6 +111,24 @@
                     <div class="text-right">
                         <button class="cl-primary fsz-10 bg-transparent bd-none" style="cursor: pointer;"
                                 @onclick='() => Nav.NavigateTo("HeatEquation?demo=true")'>
+                            Run Demo
+                            <i class="mdi mdi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pd corner-2 bg-card-07 shadow-border-2"
+                     @onclick='() => Nav.NavigateTo("WaveEquation?demo=true")' style="cursor: pointer;">
+                    <div class="flex">
+                        <i class="mdi mdi-waveform fsz-25 mgr-3 cl-primary"></i>
+                        <div>
+                            <h4 class="mg-0 pdb fsz-15 cl-primary">Wave Equation</h4>
+                            <p class="mg-0 fsz-12">1D Wave Propagation</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <button class="cl-primary fsz-10 bg-transparent bd-none" style="cursor: pointer;"
+                                @onclick:stopPropagation="true" @onclick='() => Nav.NavigateTo("WaveEquation?demo=true")'>
                             Run Demo
                             <i class="mdi mdi-arrow-right"></i>
                         </button>

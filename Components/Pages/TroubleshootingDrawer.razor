@@ -239,6 +239,60 @@
                             </div>
                         </div>
                         break;
+                    
+                    case 5:
+                        <div class="troubleshoot-section">
+                            <div class="troubleshoot-icon">
+                                <i class="mdi mdi-waveform fsz-25 cl-primary"></i>
+                            </div>
+
+                            <h4>Check your wave simulation configuration</h4>
+                            <p>
+                                Review the parameters entered for the Wave Equation module.
+                                Ensure that all required values are supplied and that the
+                                configuration is valid before starting the simulation.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Confirm the simulation status</h4>
+                            <p>
+                                Check the simulation progress and status indicators.
+                                Allow the simulation to complete before expecting the final
+                                wave displacement results to appear.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Check the wave profile</h4>
+                            <p>
+                                If the wave profile is missing, confirm that displacement
+                                data is available and that the result visualization has
+                                received the simulation data.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-section">
+                            <h4>Review the simulation output</h4>
+                            <p>
+                                If the simulation fails or produces unexpected results,
+                                review any available error messages and verify the
+                                configuration before running it again.
+                            </p>
+                        </div>
+
+                        <div class="troubleshoot-tip">
+                            <i class="mdi mdi-lightbulb-outline cl-primary fsz-22"></i>
+                            <div>
+                                <strong>Quick Tip</strong>
+                                <p>
+                                    Start with a simple, valid configuration when testing
+                                    the Wave Equation module. Change one parameter at a
+                                    time to help identify the source of unexpected results.
+                                </p>
+                            </div>
+                        </div>
+                        break;
 
                     default:
                         <div class="troubleshoot-section">
@@ -270,14 +324,17 @@
 
     [Parameter] public EventCallback OnClose { get; set; }
 
+    
     private string DrawerTitle => TroubleshootingId switch
     {
         1 => "Simulation Won't Start",
         2 => "Poor Performance",
         3 => "Visualization Issues",
         4 => "Export Problems",
+        5 => "Wave Equation Issues",
         _ => "Troubleshooting"
     };
+
 
     private async Task CloseDrawer()
     {

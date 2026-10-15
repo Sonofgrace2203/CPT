@@ -1,0 +1,241 @@
+@using Plotly.Blazor
+@using Plotly.Blazor.Traces
+
+<div>
+    @if (Displacement is null || Displacement.Length < 2)
+    {
+        <p class="fsz-12">Waiting for wave displacement data...</p>
+    }
+    else
+    {
+        @* <div class="mgb-5">
+            <h5 class="mg-0 pdb fsz-15 cl-primary">Wave Profile</h5>
+            <p class="mg-0 fsz-10">
+                Current displacement along the spatial domain.
+            </p>
+        </div> *@
+
+        <PlotlyChart @bind-Config="config" @bind-Data="data" @bind-Layout="layout" @ref="chart" Style="height: 350px;" />
+
+        @if (DisplacementHistory is not null &&
+             DisplacementHistory.Count > 1)
+        {
+            <div class="mgt-10">
+                <h5 class="mg-0 pdb fsz-15 cl-primary">
+                    Wave Evolution
+                </h5>
+                <p class="mg-0 fsz-10">
+                    Wave profiles captured as the simulation progresses.
+                </p>
+            </div>
+
+            <PlotlyChart @bind-Config="historyConfig" @bind-Data="historyData" @bind-Layout="historyLayout"
+                         Style="height: 350px;" />
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public double[]? Displacement { get; set; }
+
+    [Parameter]
+    public List<double[]>? DisplacementHistory { get; set; }
+
+    [Parameter]
+    public double Length { get; set; } = 1.0;
+
+    [Parameter]
+    public double CurrentTime { get; set; }
+
+    [Parameter]
+    public double TimeStep { get; set; } = 0.01;
+    
+    [Parameter]
+    public bool ShowGrid { get; set; } = false;
+
+    private Config config = new()
+    {
+        Responsive = true
+    };
+
+    private Config historyConfig = new()
+    {
+        Responsive = true
+    };
+
+    private Layout layout = new();
+
+    private Layout historyLayout = new();
+
+    private IList<ITrace> data = new List<ITrace>();
+
+    private IList<ITrace> historyData = new List<ITrace>();
+
+    private PlotlyChart? chart;
+    private bool _chartNeedsRefresh;
+
+    protected override void OnParametersSet()
+    {
+        data = BuildProfileData();
+        layout = BuildLayout();
+
+        historyData = BuildHistoryData();
+        historyLayout = BuildHistoryLayout();
+
+        _chartNeedsRefresh = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_chartNeedsRefresh && chart is not null)
+        {
+            _chartNeedsRefresh = false;
+            await chart.React();
+        }
+    }
+
+    private IList<ITrace> BuildProfileData()
+    {
+        var traces = new List<ITrace>();
+
+        if (Displacement is null || Displacement.Length < 2)
+            return traces;
+
+        var xValues = new List<object>();
+        var yValues = new List<object>();
+
+        int count = Displacement.Length;
+
+        for (int i = 0; i < count; i++)
+        {
+            xValues.Add(Length * i / (count - 1));
+            yValues.Add(Displacement[i]);
+        }
+
+        traces.Add(new Scatter
+        {
+            X = xValues,
+            Y = yValues,
+            Mode = Plotly.Blazor.Traces.ScatterLib.ModeFlag.Lines
+        });
+
+        return traces;
+    }
+
+    private IList<ITrace> BuildHistoryData()
+    {
+        var traces = new List<ITrace>();
+
+        if (DisplacementHistory is null)
+            return traces;
+
+        int snapshotCount = DisplacementHistory.Count;
+
+        for (int snapshot = 0; snapshot < snapshotCount; snapshot++)
+        {
+            var displacement = DisplacementHistory[snapshot];
+
+            if (displacement is null || displacement.Length < 2)
+                continue;
+
+            var xValues = new List<object>();
+            var yValues = new List<object>();
+
+            int count = displacement.Length;
+
+            for (int i = 0; i < count; i++)
+            {
+                xValues.Add(Length * i / (count - 1));
+                yValues.Add(displacement[i]);
+            }
+
+            double snapshotTime =
+                snapshot == snapshotCount - 1
+                    ? CurrentTime
+                    : snapshot * TimeStep;
+
+            traces.Add(new Scatter
+            {
+                X = xValues,
+                Y = yValues,
+                Mode = Plotly.Blazor.Traces.ScatterLib.ModeFlag.Lines,
+                Name = $"t = {snapshotTime:F3}"
+            });
+        }
+
+        return traces;
+    }
+
+    private Layout BuildLayout()
+    {
+        return new Layout
+        {
+            Title = new Plotly.Blazor.LayoutLib.Title
+            {
+                Text = $"Wave Profile at t = {CurrentTime:F4}"
+            },
+
+            XAxis = new List<Plotly.Blazor.LayoutLib.XAxis>
+            {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.XAxisLib.Title
+                    {
+                        Text = "Position, x (m)"
+                    },
+                    ShowGrid = this.ShowGrid
+                }
+            },
+
+            YAxis = new List<Plotly.Blazor.LayoutLib.YAxis>
+            {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.YAxisLib.Title
+                    {
+                        Text = "Displacement, u(x,t)"
+                    },
+                    ShowGrid = this.ShowGrid
+                }
+            },
+
+            ShowLegend = false
+        };
+    }
+
+    private Layout BuildHistoryLayout()
+    {
+        return new Layout
+        {
+            Title = new Plotly.Blazor.LayoutLib.Title
+            {
+                Text = "Displacement Evolution"
+            },
+
+            XAxis = new List<Plotly.Blazor.LayoutLib.XAxis>
+            {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.XAxisLib.Title
+                    {
+                        Text = "Position, x"
+                    }
+                }
+            },
+
+            YAxis = new List<Plotly.Blazor.LayoutLib.YAxis>
+            {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.YAxisLib.Title
+                    {
+                        Text = "Displacement, u(x,t)"
+                    }
+                }
+            },
+
+            ShowLegend = true
+        };
+    }
+}

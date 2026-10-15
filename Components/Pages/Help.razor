@@ -84,7 +84,7 @@
 
                                                         <div class="flex flex-spacebetween flow mgt-5">
                                                             <div>
-                                                                <p class="fsz-12 cl-primary">Version 1.0.0</p>
+                                                                <p class="fsz-12 cl-primary">Version 1.1.0</p>
                                                                 <p class="fsz-12">2026 CPT Toolkit. All rights reserved.</p>
                                                             </div>
 
@@ -100,15 +100,17 @@
                                                     <div class="miwx-25 mgb-2 pd bd corner-2 bg-card scroll-y"
                                                          style="display: @(tutorials ? "block" : "none"); height: 80vh">
                                                         <h5 class="mg-0 pdb fsz-15 pd bg-primary-02">Tutorials</h5>
-                                                        <p class="mg-0 pdt pdb fsz-12">Step-by-step guides to help you get started and make the most of CPT.</p>
-
+                                                        <p class="mg-0 pdt pdb fsz-12">
+                                                            Step-by-step guides to help you configure simulations, understand
+                                                            results, and explore the Heat Equation and Wave Equation modules.
+                                                        </p>
                                                         <div class="bd pd corner-2 grid gap-1 colm-2">
 
                                                             <div class="bg-primary-02 corner-2 flex flex-center hx-1">
                                                                 <i class="mdi mdi-play-circle-outline cl-primary fsz-50"></i>
                                                             </div>
 
-                                                            <div>
+                                                            <div class="wf">
                                                                 <h5 class="mg-0 pdb-2">
                                                                     Getting Started with CPT
                                                                 </h5>
@@ -147,6 +149,10 @@
 
                                                                 <VideoCard Title="5. Using the Heat Equation Module"
                                                                            Description="Understand the Heat Equation parameters and how they affect your simulation."
+                                                                           Duration="6:33" VideoPath="videos/cptdem.mp4" />
+
+                                                                <VideoCard Title="6. Using the Wave Equation Module"
+                                                                           Description="Learn how to configure wave simulation parameters, run a simulation, and explore the resulting wave profile."
                                                                            Duration="6:33" VideoPath="videos/cptdem.mp4" />
                                                             </div>
 
@@ -248,6 +254,11 @@
                                                                               Text1="Check the selected export format" Text2="Allow the file to generate"
                                                                               Text3="Check browser downloads" Link="View Details" OnClick="() => OpenTroubleshooting(4)" />
 
+
+                                                            <TroubleshootCard Title="Wave Equation Issues" Text="Check the wave simulation configuration"
+                                                                              Text1="Verify the required parameters" Text2="Confirm the simulation has completed"
+                                                                              Text3="Check whether wave displacement data is available" Link="View Details"
+                                                                              OnClick="() => OpenTroubleshooting(5)" />
                                                         </div>
 
                                                         <div class="flex pd corner-2 bd bg-primary-01">
@@ -397,17 +408,42 @@
                                                                 </div>
                                                             </div>
 
+                                                            
                                                             <div class="mgb-7">
-                                                                <h4 class="mg-0 pdb">Current Version</h4>
+                                                                <h4 class="mg-0 pdb">Current Modules</h4>
 
                                                                 <p class="mg-0 fsz-13">
-                                                                    CPT V1 introduces the toolkit with the
-                                                                    <strong>2D Heat Equation</strong> module. The module provides a numerical
-                                                                    environment for exploring heat diffusion across a two-dimensional domain,
-                                                                    together with tools for monitoring simulation progress and studying the
-                                                                    resulting temperature distribution.
+                                                                    CPT currently includes two computational physics modules:
+                                                                </p>
+
+                                                                <div class="mgb-5">
+                                                                    <div class="mgt-3">
+                                                                        <h5 class="mg-0 pdb-2">1. 2D Heat Equation</h5>
+                                                                        <p class="mg-0 fsz-13">
+                                                                            Explore heat diffusion and temperature distribution across a
+                                                                            two-dimensional domain using numerical simulation and
+                                                                            visualization tools.
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <div class="mgt-3">
+                                                                        <h5 class="mg-0 pdb-2">2. Wave Equation</h5>
+                                                                        <p class="mg-0 fsz-13">
+                                                                            Investigate wave propagation and displacement profiles through
+                                                                            numerical simulation, with tools for monitoring progress and
+                                                                            examining simulation results.
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <p class="mg-0 fsz-13 mgt-3">
+                                                                    Together, these modules provide an interactive environment for
+                                                                    exploring different physical systems, understanding numerical
+                                                                    methods, and studying how simulation parameters influence
+                                                                    physical behaviour.
                                                                 </p>
                                                             </div>
+
 
                                                             <div class="mgb-7">
                                                                 <h4 class="mg-0 pdb">Key Features</h4>
@@ -473,7 +509,7 @@
                                                                 <div class="pd">
                                                                     <div class="mgb-5">
                                                                         <h6 class="mg-0 pdb-2">Version</h6>
-                                                                        <p class="mg-0 fsz-12">1.0.0</p>
+                                                                        <p class="mg-0 fsz-12">1.1.0</p>
                                                                     </div>
 
                                                                     <div class="mgb-5">
@@ -515,43 +551,66 @@
 
     private int openAnswer = 0;
 
+    
     private readonly List<FaqItem> Faqs = new()
     {
         new()
         {
             Id = 1,
             Question = "What is CPT?",
-            Answer = "CPT (Computational Physics Toolkit) is a web-based platform for solving, simulating, visualizing, and exploring physics problems using numerical methods."
+            Answer = "CPT (Computational Physics Toolkit) is a web-based platform for exploring physics problems through numerical simulation, visualization, and analysis."
         },
 
         new()
         {
             Id = 2,
             Question = "Do I need programming knowledge to use CPT?",
-            Answer = "No. CPT provides an interactive interface where users can configure and run simulations without writing code."
+            Answer = "No. CPT provides an interactive interface for configuring and running supported simulations without writing code."
         },
 
         new()
         {
             Id = 3,
             Question = "What physics modules are available?",
-            Answer = "CPT currently starts with the 2D Heat Equation module. Additional computational physics modules will be added as the toolkit expands."
+            Answer = "CPT currently includes the 2D Heat Equation module for exploring heat diffusion and the Wave Equation module for studying wave propagation and displacement."
         },
 
         new()
         {
             Id = 4,
-            Question = "Can I export my simulation results?",
-            Answer = "Yes. CPT provides tools for exporting simulation data and visual results in supported formats."
+            Question = "What is the difference between the Heat Equation and Wave Equation?",
+            Answer = "The Heat Equation models how temperature evolves through diffusion, while the Wave Equation models the propagation of disturbances through a medium. Each module provides tools suited to its physical problem."
         },
 
         new()
         {
             Id = 5,
-            Question = "Where can I get help if I have a problem?",
-            Answer = "Start with the Troubleshooting section in Help & Documentation. You can also review the relevant tutorial or documentation for the feature you are using."
+            Question = "Can I monitor simulation progress?",
+            Answer = "CPT provides progress-monitoring features for supported simulations. Available progress information depends on the module and its implementation."
+        },
+
+        new()
+        {
+            Id = 6,
+            Question = "Can I view previous simulations?",
+            Answer = "Use the Demo History section to review previously recorded simulations where history records are available to your account."
+        },
+
+        new()
+        {
+            Id = 7,
+            Question = "Can I export simulation results?",
+            Answer = "CPT supports exporting data and visual results in the formats available for the selected module. Check the simulation results interface for the available export options."
+        },
+
+        new()
+        {
+            Id = 8,
+            Question = "Where can I get help if a simulation fails?",
+            Answer = "Check your simulation parameters, review the relevant module guidance, and consult the Troubleshooting section. If the problem persists, record the module and the error message so it can be investigated."
         }
     };
+
 
     private IEnumerable<FaqItem> FilteredFaqs =>
         string.IsNullOrWhiteSpace(faqSearch)

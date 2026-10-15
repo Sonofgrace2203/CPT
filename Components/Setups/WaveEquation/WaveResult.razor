@@ -1,0 +1,908 @@
+@page "/WaveResult/{SimulationId:guid}"
+
+@using System.Text.Json
+@using CPT.Models.SimulationResults
+@using CPT.Models.WaveEquation
+@using CPT.Services
+@using cpt.Components.Shared
+@using cpt.Components.Visualization
+@using CPT.Models.Auth
+@using CPT.Services.Auth
+@using cpt.Components.Visualization.WaveEquation
+@implements IDisposable
+@inject AuthService AuthService
+@inject WaveEquationApiService WaveEquationApiService
+@inject NavigationManager Nav
+
+<ProtectedRouteView AllowAnonymous="@Demo">
+    <div class="hx-08 wvl-5"></div>
+
+    <div class="">
+        <div class="flex flex-center flow flex-end mgb-2 mgt-0 wvl-5">
+            <button class="bg-card pd fsz-10 corner-2 bd wx-15 flex flex-center shadow-border-1 mgr"
+                    @onclick="BackToSimulationData">
+                <i class="mdi mdi-arrow-left mgr-3"></i>
+                Simulation Data
+            </button>
+
+            @if (Demo)
+            {
+                <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center" @onclick="ExitDemo">
+                    <i class="mdi mdi-exit-to-app mgr-3"></i>
+                    Exit Demo
+                </button>
+            }
+            else
+            {
+                <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center" @onclick="BackToDashboard">
+                    <i class="mdi mdi-view-dashboard mgr-3"></i>
+                    Dashboard
+                </button>
+            }
+        </div>
+    </div>
+
+    <div class="bg-card">
+        <div class="mgb-5 flex flex-center flex-spacebetween flow bg-primary-02 bd pd border-shadow-5">
+            <div>
+                <h2 class="mg-0 pdb fsz-18 cl-primary">
+                    Wave Equation (1D) - Results
+                </h2>
+
+                <p class="mg-0 fsz-10">
+                    Analyse and visualize your wave propagation simulation
+                </p>
+            </div>
+
+            <div class="flex flex-center flow flex-end wvg-5">
+
+                <button class="bg-card pd fsz-10 corner-2 bd wx-15 flex flex-center shadow-border-1 mgr"
+                        @onclick="BackToSimulationData">
+                    <i class="mdi mdi-arrow-left mgr-3"></i>
+                    Simulation Data
+                </button>
+
+                @if (Demo)
+                {
+                    <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center" @onclick="ExitDemo">
+
+                        <i class="mdi mdi-exit-to-app mgr-3"></i>
+                        Exit Demo
+
+                    </button>
+                }
+                else
+                {
+                    <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center" @onclick="BackToDashboard">
+
+                        <i class="mdi mdi-view-dashboard mgr-3"></i>
+                        Dashboard
+
+                    </button>
+                }
+
+            </div>
+        </div>
+    </div>
+
+    <div class="mgb-2 scroll wf mgt-2">
+
+        <button
+            class="fsz-10 bd-none bdb pd bg-transparent mgb-1 mgr-1 @(ActiveVisualization == "Wave Profile" ? "bg-primary" : "bg-primary-02")"
+            @onclick='() => ActiveVisualization = "Wave Profile"'>
+            Wave Profile
+        </button>
+
+        <button
+            class="fsz-10 bd-none bdb pd bg-transparent mgb-1 mgr-1 @(ActiveVisualization == "Space-Time" ? "bg-primary" : "bg-primary-02")"
+            @onclick='() => ActiveVisualization = "Space-Time"'>
+            Space-Time
+        </button>
+
+        <button
+            class="fsz-10 bd-none bdb pd bg-transparent mgb-1 mgr-1 @(ActiveVisualization == "Animation" ? "bg-primary" : "bg-primary-02")"
+            @onclick='() => ActiveVisualization = "Animation"'>
+            Animation
+        </button>
+
+    </div>
+
+    <div class="scroll-y" style="height: 80vh;">
+
+        @if (IsLoading)
+        {
+            <div class="hf bg-card pd bd corner-2 flex flex-center justify-content-between">
+                <LoadingIndicator Text="Loading simulation results..." />
+            </div>
+        }
+        else if (HasError || Data is null)
+        {
+            <div class="hf bg-card pd bd corner-2 flex flex-center justify-content-between">
+                <p class="fsz-15 fw-bold">
+                    Unable to load simulation result.
+                </p>
+            </div>
+        }
+        else
+        {
+            @if (ActiveVisualization == "Wave Profile")
+            {
+                <div class="row responsive mgb">
+
+                    <div class="wf mgb">
+
+                        <div class="pd bd corner-2 bg-card">
+
+                            <div class="mgb-5">
+                                <h5 class="mg-0 pdb fsz-15 cl-primary">
+                                    Wave Profile
+                                </h5>
+
+                                <p class="mg-0 fsz-10">
+                                    One-dimensional displacement of the string along the spatial domain
+                                </p>
+                            </div>
+
+                            <div>
+                                <WaveProfile Displacement="@CurrentDisplacement" Length="@Data.Length" ShowGrid="@ShowGrid"
+                                             CurrentTime="@CurrentResultTime" TimeStep="@(TotalResultFrames > 1
+                                             ? Data.FinalTime / (TotalResultFrames - 1)
+                                             : 0.01)" />
+                            </div>
+
+                            @* <div class="wave-profile-container" style="height: 420px; position: relative;">
+                                <svg viewBox="0 0 1000 420" width="100%" height="100%" preserveAspectRatio="none"
+                                     style="background: var(--card-bg, transparent);">
+
+                                    @{
+                                        var values = CurrentDisplacement;
+
+                                        var maxAbs = values.Length > 0
+                                            ? Math.Max(
+                                                Math.Abs(values.Min()),
+                                                Math.Abs(values.Max()))
+                                            : 1.0;
+
+                                        if (maxAbs <= 0)
+                                        {
+                                            maxAbs = 1.0;
+                                        }
+
+                                        var left = 55.0;
+                                        var right = 980.0;
+                                        var top = 25.0;
+                                        var bottom = 370.0;
+
+                                        var plotWidth = right - left;
+                                        var plotHeight = bottom - top;
+
+                                        var points = new List<string>();
+
+                                        for (var i = 0; i < values.Length; i++)
+                                        {
+                                            var x = values.Length <= 1
+                                                ? left
+                                                : left + i * plotWidth / (values.Length - 1);
+
+                                            var y = top +
+                                                    (maxAbs - values[i]) /
+                                                    (2.0 * maxAbs) *
+                                                    plotHeight;
+
+                                            points.Add($"{x.ToString("F2",
+                            System.Globalization.CultureInfo.InvariantCulture)},{y.ToString("F2",
+                            System.Globalization.CultureInfo.InvariantCulture)}");
+                                        }
+
+                                        var zeroY = top + plotHeight / 2.0;
+                                    }
+
+                                    <line x1="@left" y1="@zeroY" x2="@right" y2="@zeroY" stroke="currentColor"
+                                          stroke-opacity="0.25" stroke-width="1" />
+
+                                    <line x1="@left" y1="@top" x2="@left" y2="@bottom" stroke="currentColor"
+                                          stroke-opacity="0.4" stroke-width="1" />
+
+                                    <line x1="@left" y1="@bottom" x2="@right" y2="@bottom" stroke="currentColor"
+                                          stroke-opacity="0.4" stroke-width="1" />
+
+                                    @if (points.Count > 1)
+                                    {
+                                        <polyline points="@string.Join(" ", points)" fill="none" stroke="currentColor"
+                                                  stroke-width="3" />
+                                    }
+
+                                    <text x="@left" y="405" font-size="12" fill="currentColor">
+                                        x = 0 m
+                                    </text>
+
+                                    <text x="@right" y="405" font-size="12" text-anchor="end" fill="currentColor">
+                                        x = @Data.Length.ToString("F2") m
+                                    </text>
+
+                                    <text x="15" y="@top" font-size="12" fill="currentColor">
+                                        +@maxAbs.ToString("F3")
+                                    </text>
+
+                                    <text x="15" y="@zeroY" font-size="12" fill="currentColor">
+                                        0
+                                    </text>
+
+                                    <text x="15" y="@bottom" font-size="12" fill="currentColor">
+                                        -@maxAbs.ToString("F3")
+                                    </text>
+
+                                </svg>
+                            </div> *@
+
+                            <div class="flex flex-center flex-spacebetween mgt-3">
+                                <span class="fsz-10 cl-gray">
+                                    Time: @CurrentResultTime.ToString("F3") s
+                                </span>
+
+                                <span class="fsz-10 cl-gray">
+                                    Wave speed: @Data.WaveSpeed.ToString("F3") m/s
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="miwx-25 mgb-2">
+
+                        <div class="pd bd corner-2 bg-card">
+
+                            <h5 class="mg-0 pdb fsz-15 cl-primary">
+                                Visualization Control
+                            </h5>
+
+                            <div class="mgb-5 mgt-5">
+
+                                <div class="flex flex-center flex-spacebetween">
+                                    <h3 class="mg-0 fsz-12">
+                                        Time Steps
+                                    </h3>
+
+                                    <span class="fsz-10">
+                                        @(ResultFrame + 1) / @TotalResultFrames
+                                    </span>
+                                </div>
+
+                                <input type="range" min="0" max="@Math.Max(0, TotalResultFrames - 1)" step="1"
+                                       value="@ResultFrame" @oninput="HandleResultFrameChanged" class="wf mgt-3" />
+
+                                <div class="flex flex-center flex-spacebetween mgt-2">
+
+                                    <span class="fsz-10 cl-gray">
+                                        Step @ResultFrame
+                                    </span>
+
+                                    <span class="fsz-10 cl-gray">
+                                        t = @CurrentResultTime.ToString("F3")
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="mgb-5 mgt-5">
+
+                                <h5 class="mg-0 pdb fsz-12">
+                                    Display
+                                </h5>
+
+                                <div class="flex flex-start">
+                                    <div class="flex flex-center">
+
+                                        <input type="checkbox" @bind="ShowGrid" />
+
+                                        <p class="fsz-12 mgl-3">
+                                            Show Grid
+                                        </p>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+            @if (ActiveVisualization == "Space-Time")
+            {
+                <div class="pd bd corner-2 bg-card mgb-5">
+
+                    <div class="mgb-5">
+                        <h5 class="mg-0 pdb fsz-15 cl-primary">
+                            Space-Time Wave Field
+                        </h5>
+
+                        <p class="mg-0 fsz-10">
+                            Displacement history of the wave across space and time
+                        </p>
+                    </div>
+
+                    @* <div style="overflow-x:auto;">
+                        <svg viewBox="0 0 1000 500" width="100%" height="500" preserveAspectRatio="none">
+
+                            @{
+                                var history = Data.DisplacementHistory;
+
+                                var historyMax = 1.0;
+
+                                if (history.Count > 0)
+                                {
+                                    var maxValue = history
+                                        .SelectMany(x => x ?? [])
+                                        .Select(Math.Abs)
+                                        .DefaultIfEmpty(1.0)
+                                        .Max();
+
+                                    historyMax = maxValue > 0 ? maxValue : 1.0;
+                                }
+
+                                var chartLeft = 65.0;
+                                var chartRight = 970.0;
+                                var chartTop = 25.0;
+                                var chartBottom = 455.0;
+
+                                var chartWidth = chartRight - chartLeft;
+                                var chartHeight = chartBottom - chartTop;
+                            }
+
+                            <line x1="@chartLeft" y1="@chartTop" x2="@chartLeft" y2="@chartBottom" stroke="currentColor"
+                                  stroke-opacity="0.4" />
+
+                            <line x1="@chartLeft" y1="@chartBottom" x2="@chartRight" y2="@chartBottom" stroke="currentColor"
+                                  stroke-opacity="0.4" />
+
+                            @for (var frame = 0; frame < history.Count; frame++)
+                            {
+                                var frameData = history[frame];
+
+                                if (frameData is null || frameData.Length == 0)
+                                {
+                                    continue;
+                                }
+
+                                var opacity = history.Count <= 1
+                                    ? 1.0
+                                    : 0.15 +
+                                      0.85 * frame /
+                                      (history.Count - 1);
+
+                                var framePoints = new List<string>();
+
+                                for (var i = 0; i < frameData.Length; i++)
+                                {
+                                    var x = frameData.Length <= 1
+                                        ? chartLeft
+                                        : chartLeft +
+                                          i * chartWidth /
+                                          (frameData.Length - 1);
+
+                                    var y = chartTop +
+                                            (historyMax - frameData[i]) /
+                                            (2.0 * historyMax) *
+                                            chartHeight;
+
+                                    framePoints.Add(
+                                        $"{x.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)},{y.ToString("F2",
+                    System.Globalization.CultureInfo.InvariantCulture)}");
+                                }
+
+                                if (framePoints.Count > 1)
+                                {
+                                    <polyline points="@string.Join(" ", framePoints)" fill="none" stroke="currentColor"
+                                              stroke-opacity="@opacity.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                              stroke-width="1" />
+                                }
+                            }
+
+                            <text x="@chartLeft" y="480" font-size="12" fill="currentColor">
+                                x = 0 m
+                            </text>
+
+                            <text x="@chartRight" y="480" font-size="12" text-anchor="end" fill="currentColor">
+                                x = @Data.Length.ToString("F2") m
+                            </text>
+
+                            <text x="15" y="@chartTop" font-size="12" fill="currentColor">
+                                +@historyMax.ToString("F3")
+                            </text>
+
+                            <text x="15" y="@chartBottom" font-size="12" fill="currentColor">
+                                -@historyMax.ToString("F3")
+                            </text>
+
+                        </svg>
+                    </div> *@
+
+                    <div>
+                        <WaveSpaceTime DisplacementHistory="@Data.DisplacementHistory" Length="@Data.Length"
+                                       FinalTime="@Data.FinalTime" />
+                    </div>
+
+                </div>
+            }
+
+            @if (ActiveVisualization == "Animation")
+            {
+                <div class="pd bd corner-2 bg-card mgb-5">
+
+                    <div class="mgb-5">
+                        <h5 class="mg-0 pdb fsz-15 cl-primary">
+                            Wave Evolution
+                        </h5>
+
+                        <p class="mg-0 fsz-10">
+                            Time-dependent evolution of the simulated wave
+                        </p>
+                    </div>
+
+                    @* <div class="wave-profile-container" style="height: 420px; position: relative;">
+
+                        <svg viewBox="0 0 1000 420" width="100%" height="100%" preserveAspectRatio="none">
+
+                            @{
+                                var animationValues = CurrentDisplacement;
+
+                                var animationMaxAbs =
+                                    animationValues.Length > 0
+                                        ? Math.Max(
+                                            Math.Abs(animationValues.Min()),
+                                            Math.Abs(animationValues.Max()))
+                                        : 1.0;
+
+                                if (animationMaxAbs <= 0)
+                                {
+                                    animationMaxAbs = 1.0;
+                                }
+
+                                var animationLeft = 55.0;
+                                var animationRight = 980.0;
+                                var animationTop = 25.0;
+                                var animationBottom = 370.0;
+
+                                var animationWidth =
+                                    animationRight - animationLeft;
+
+                                var animationHeight =
+                                    animationBottom - animationTop;
+
+                                var animationPoints = new List<string>();
+
+                                for (var i = 0;
+                                     i < animationValues.Length;
+                                     i++)
+                                {
+                                    var x = animationValues.Length <= 1
+                                        ? animationLeft
+                                        : animationLeft +
+                                          i * animationWidth /
+                                          (animationValues.Length - 1);
+
+                                    var y = animationTop +
+                                            (animationMaxAbs -
+                                             animationValues[i]) /
+                                            (2.0 * animationMaxAbs) *
+                                            animationHeight;
+
+                                    animationPoints.Add(
+                                        $"{x.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)},{y.ToString("F2",
+                    System.Globalization.CultureInfo.InvariantCulture)}");
+                                }
+
+                                var animationZeroY =
+                                    animationTop +
+                                    animationHeight / 2.0;
+                            }
+
+                            <line x1="@animationLeft" y1="@animationZeroY" x2="@animationRight" y2="@animationZeroY"
+                                  stroke="currentColor" stroke-opacity="0.25" />
+
+                            <line x1="@animationLeft" y1="@animationTop" x2="@animationLeft" y2="@animationBottom"
+                                  stroke="currentColor" stroke-opacity="0.4" />
+
+                            <line x1="@animationLeft" y1="@animationBottom" x2="@animationRight" y2="@animationBottom"
+                                  stroke="currentColor" stroke-opacity="0.4" />
+
+                            @if (animationPoints.Count > 1)
+                            {
+                                <polyline points="@string.Join(" ", animationPoints)" fill="none" stroke="currentColor"
+                                          stroke-width="3" />
+                            }
+
+                        </svg>
+
+                    </div> *@
+
+                    <div class="wave-profile-container">
+                        <WaveProfile Displacement="@CurrentAnimationDisplacement" Length="@Data.Length"
+                                     CurrentTime="@CurrentAnimationTime" TimeStep="@(TotalResultFrames > 1
+                                     ? Data.FinalTime / (TotalResultFrames - 1)
+                                     : 0.01)" />
+                    </div>
+
+                    <div class="row responsive colm-3 bg-card pd bd mgb-5">
+
+                        <div class="miwx-15 mawx-2">
+
+                            <button class="mdi mdi-play fsz-15 bd bd-primary-04 bg-primary-01 cl-primary corner-1 mgr-2 mgb-2"
+                                    @onclick="PlayAnimation">
+                            </button>
+
+                            <button
+                                class="mdi mdi-play-pause fsz-15 bd bd-primary-04 bg-primary-01 cl-primary corner-1 mgr-2 mgb-2"
+                                @onclick="ToggleAnimation">
+                            </button>
+
+                            <button
+                                class="mdi mdi-skip-backward fsz-15 bd bd-primary-04 bg-primary-01 cl-primary corner-1 mgr-2 mgb-2"
+                                @onclick="PreviousAnimationFrame">
+                            </button>
+
+                            <button
+                                class="mdi mdi-skip-forward fsz-15 bd bd-primary-04 bg-primary-01 cl-primary corner-1 mgr-2 mgb-2"
+                                @onclick="NextAnimationFrame">
+                            </button>
+
+                        </div>
+
+                        <div class="mgb-5 miwx-25">
+
+                            <div class="flex stack">
+
+                                <div class="hx-01 wf corner-5 bg-gray mgr-3 mgb bd-primary-01">
+
+                                    <div class="bg-secondary hx-01 corner-3" style="width:@AnimationProgress%;">
+                                    </div>
+
+                                </div>
+
+                                <h3 class="mg-0 fsz-15 cl-primary">
+                                    @CurrentAnimationTime.ToString("F3")
+                                    <span class="op-5">
+                                        /@Data.FinalTime.ToString("F3")
+                                    </span>
+                                </h3>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+            <div class="hx-05 wvl-5"></div>
+        }
+
+    </div>
+
+    @if (Demo && ShowDemoComplete)
+    {
+        <DemoComplete CreateAccount="GoToCreateAccount" CreateLater="HideDemoComplete" />
+    }
+
+    @if (ShowExitDemoDialog)
+    {
+        <ConfirmDialog IsVisible="@ShowExitDemoDialog" Title="Exit Demo" Message="Are you sure you want to exit the demo?"
+                       ConfirmText="Exit Demo" CancelText="Cancel" Icon="mdi-exit-to-app" OnConfirm="ConfirmExitDemo"
+                       OnCancel="CancelExitDemo" />
+    }
+
+</ProtectedRouteView>
+
+@code {
+
+    [SupplyParameterFromQuery(Name = "from")] public string? From { get; set; }
+
+    [Parameter] public Guid SimulationId { get; set; }
+
+    [SupplyParameterFromQuery(Name = "demo")] public bool Demo { get; set; }
+
+    private bool ShowDemoComplete { get; set; }
+
+    private bool ShowExitDemoDialog { get; set; }
+
+    private SimulationResultDto? Result;
+
+    private WaveEquationResultData? Data;
+
+    private int ResultFrame { get; set; }
+    private int AnimationFrame { get; set; }
+    private System.Threading.Timer? _animationTimer;
+    private bool IsAnimationPlaying { get; set; }
+    private const int AnimationIntervalMs = 100;
+
+    private int TotalResultFrames =>
+        Data?.DisplacementHistory?.Count ?? 0;
+
+    private double[] CurrentDisplacement =>
+        Data?.DisplacementHistory is not null &&
+        Data.DisplacementHistory.Count > 0
+            ? Data.DisplacementHistory[
+                Math.Clamp(
+                    ResultFrame,
+                    0,
+                    Data.DisplacementHistory.Count - 1)]
+            : Data?.Displacement ?? [];
+
+    private double[] CurrentAnimationDisplacement =>
+    Data?.DisplacementHistory is not null &&
+    Data.DisplacementHistory.Count > 0
+        ? Data.DisplacementHistory[
+            Math.Clamp(
+                AnimationFrame,
+                0,
+                Data.DisplacementHistory.Count - 1)]
+        : Data?.Displacement ?? [];
+
+    private double CurrentResultTime =>
+        TotalResultFrames <= 1 || Data is null
+            ? Data?.FinalTime ?? 0
+            : Data.FinalTime *
+              ResultFrame /
+              (TotalResultFrames - 1);
+
+    private double CurrentAnimationTime =>
+    TotalResultFrames <= 1 || Data is null
+        ? Data?.FinalTime ?? 0
+        : Data.FinalTime *
+          AnimationFrame /
+          (TotalResultFrames - 1);
+
+    private double AnimationProgress =>
+    TotalResultFrames <= 1
+        ? 0
+        : (double)AnimationFrame /
+          (TotalResultFrames - 1) *
+          100;
+
+    private string ActiveVisualization { get; set; } = "Wave Profile";
+
+    private bool ShowGrid { get; set; } = false;
+
+    private bool IsLoading = true;
+
+    private bool HasError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Result =
+                await WaveEquationApiService
+                    .GetLatestResultAsync(SimulationId);
+
+            if (Result?.ResultData is not null)
+            {
+                Data =
+                    JsonSerializer.Deserialize<WaveEquationResultData>(
+                        Result.ResultData,
+                        new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+            }
+        }
+        catch
+        {
+            HasError = true;
+        }
+        finally
+        {
+            IsLoading = false;
+
+            if (Demo && Data is not null)
+            {
+                ShowDemoComplete = true;
+            }
+        }
+    }
+
+    private async Task HandleResultFrameChanged(
+        ChangeEventArgs e)
+    {
+        if (int.TryParse(
+                e.Value?.ToString(),
+                out var frame))
+        {
+            ResultFrame = Math.Clamp(
+                frame,
+                0,
+                Math.Max(
+                    0,
+                    TotalResultFrames - 1));
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task PlayAnimation()
+    {
+        if (TotalResultFrames <= 1)
+            return;
+
+        if (AnimationFrame >= TotalResultFrames - 1)
+            AnimationFrame = 0;
+
+        StartAnimationTimer();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task PauseAnimation()
+    {
+        StopAnimationTimer();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ToggleAnimation()
+    {
+        if (IsAnimationPlaying)
+            await PauseAnimation();
+        else
+            await PlayAnimation();
+    }
+
+    private async Task PreviousAnimationFrame()
+    {
+        StopAnimationTimer();
+
+        AnimationFrame = Math.Max(0, AnimationFrame - 1);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task NextAnimationFrame()
+    {
+        StopAnimationTimer();
+
+        AnimationFrame = Math.Min(
+            Math.Max(0, TotalResultFrames - 1),
+            AnimationFrame + 1);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void StartAnimationTimer()
+    {
+        StopAnimationTimer();
+
+        IsAnimationPlaying = true;
+
+        _animationTimer = new System.Threading.Timer(
+            _ =>
+            {
+                _ = InvokeAsync(() =>
+                {
+                    if (_isDisposed ||
+                        !IsAnimationPlaying ||
+                        ActiveVisualization != "Animation" ||
+                        TotalResultFrames <= 1)
+                    {
+                        StopAnimationTimer();
+                        StateHasChanged();
+                        return;
+                    }
+
+                    if (AnimationFrame >= TotalResultFrames - 1)
+                    {
+                        StopAnimationTimer();
+                        StateHasChanged();
+                        return;
+                    }
+
+                    AnimationFrame++;
+
+                    if (AnimationFrame >= TotalResultFrames - 1)
+                        StopAnimationTimer();
+
+                    StateHasChanged();
+                });
+            },
+            null,
+            AnimationIntervalMs,
+            AnimationIntervalMs);
+    }
+
+    private void StopAnimationTimer()
+    {
+        IsAnimationPlaying = false;
+
+        _animationTimer?.Dispose();
+        _animationTimer = null;
+    }
+
+    private bool _isDisposed;
+
+    public void Dispose()
+    {
+        _isDisposed = true;
+        StopAnimationTimer();
+    }
+
+    private void BackToSimulationData()
+    {
+        if (Demo)
+        {
+            Nav.NavigateTo(
+                $"WaveSimulationData/{SimulationId}?demo=true");
+
+            return;
+        }
+
+        if (From == "demo-history")
+        {
+            Nav.NavigateTo(
+                $"WaveSimulationData/{SimulationId}?from=demo-history");
+
+            return;
+        }
+
+        if (From == "history")
+        {
+            Nav.NavigateTo(
+                $"WaveSimulationData/{SimulationId}?from=history");
+
+            return;
+        }
+
+        Nav.NavigateTo(
+            $"WaveSimulationData/{SimulationId}");
+    }
+
+    private async Task BackToDashboard()
+    {
+        var currentUser =
+            await AuthService.GetCurrentUserAsync();
+
+        if (currentUser?.Roles?.Contains(
+                "SuperAdmin",
+                StringComparer.OrdinalIgnoreCase) == true ||
+            currentUser?.Roles?.Contains(
+                "Admin",
+                StringComparer.OrdinalIgnoreCase) == true)
+        {
+            Nav.NavigateTo("Admin/Dashboard");
+            return;
+        }
+
+        Nav.NavigateTo("Dashboard");
+    }
+
+    private void ExitDemo()
+    {
+        ShowExitDemoDialog = true;
+    }
+
+    private void ConfirmExitDemo()
+    {
+        ShowExitDemoDialog = false;
+        Nav.NavigateTo("");
+    }
+
+    private void CancelExitDemo()
+    {
+        ShowExitDemoDialog = false;
+    }
+
+    private void GoToCreateAccount()
+    {
+        Nav.NavigateTo("SignUp");
+    }
+
+    private void HideDemoComplete()
+    {
+        ShowDemoComplete = false;
+    }
+}

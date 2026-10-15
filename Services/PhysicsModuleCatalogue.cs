@@ -92,7 +92,8 @@ new PhysicsModule
                 Name = "Wave Equation (1D)",
                 Category = "Mathematical Physics",
                 Icon = "icons/cooking.svg",
-                Available = false
+                Route = "WaveEquation",
+                Available = true
             },
 
             new PhysicsModule

@@ -1,0 +1,150 @@
+@using Plotly.Blazor
+@using Plotly.Blazor.Traces
+@using Plotly.Blazor.Traces.HeatMapLib
+
+<div>
+    @if (DisplacementHistory is null ||
+         DisplacementHistory.Count < 2 ||
+         DisplacementHistory.All(frame => frame is null || frame.Length < 2))
+    {
+        <p class="fsz-12">
+            Not enough displacement history to display the space-time field.
+        </p>
+    }
+    else
+    {
+        <PlotlyChart @bind-Config="config" @bind-Data="data" @bind-Layout="layout" @ref="chart" Style="height: 500px;" />
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<double[]>? DisplacementHistory { get; set; }
+
+    [Parameter]
+    public double Length { get; set; } = 1.0;
+
+    [Parameter]
+    public double FinalTime { get; set; }
+
+    private Config config = new()
+    {
+        Responsive = true
+    };
+
+    private Layout layout = new();
+
+    private IList<ITrace> data = new List<ITrace>();
+
+    private PlotlyChart? chart;
+
+    private bool chartNeedsRefresh;
+
+    protected override void OnParametersSet()
+    {
+        data = BuildHeatmapData();
+        layout = BuildLayout();
+        chartNeedsRefresh = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (chartNeedsRefresh && chart is not null)
+        {
+            chartNeedsRefresh = false;
+            await chart.React();
+        }
+    }
+
+    private IList<ITrace> BuildHeatmapData()
+    {
+        var traces = new List<ITrace>();
+
+        if (DisplacementHistory is null ||
+            DisplacementHistory.Count < 2)
+        {
+            return traces;
+        }
+
+        var validFrames = DisplacementHistory
+            .Where(frame => frame is not null && frame.Length >= 2)
+            .ToList();
+
+        if (validFrames.Count < 2)
+            return traces;
+
+        int frameCount = validFrames.Count;
+        int pointCount = validFrames.Min(frame => frame.Length);
+
+        var xValues = new List<object>();
+        var yValues = new List<object>();
+        var zValues = new List<object>();
+
+        for (int i = 0; i < pointCount; i++)
+        {
+            xValues.Add(Length * i / (pointCount - 1));
+        }
+
+        for (int frame = 0; frame < frameCount; frame++)
+        {
+            double time = frameCount > 1
+                ? FinalTime * frame / (frameCount - 1)
+                : 0;
+
+            yValues.Add(time);
+
+            var row = new List<object>();
+
+            for (int point = 0; point < pointCount; point++)
+            {
+                row.Add(validFrames[frame][point]);
+            }
+
+            zValues.Add(row);
+        }
+
+        traces.Add(new HeatMap
+        {
+            X = xValues,
+            Y = yValues,
+            Z = zValues
+        });
+
+        return traces;
+    }
+
+    private Layout BuildLayout()
+    {
+        return new Layout
+        {
+            Title = new Plotly.Blazor.LayoutLib.Title
+            {
+                Text = "Wave Displacement Across Space and Time"
+            },
+
+            XAxis = new List<Plotly.Blazor.LayoutLib.XAxis>
+            {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.XAxisLib.Title
+                    {
+                        Text = "Position, x (m)"
+                    }
+                }
+            },
+
+            YAxis = new List<Plotly.Blazor.LayoutLib.YAxis>
+            {
+                new()
+                {
+                    Title = new Plotly.Blazor.LayoutLib.YAxisLib.Title
+                    {
+                        Text = "Time, t (s)"
+                    }
+                }
+            },
+
+            ShowLegend = false
+        };
+    }
+}

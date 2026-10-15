@@ -4,12 +4,14 @@
 @using System.Globalization
 @using CPT.Services
 @using CPT.Services.Physics.HeatEquation
+@using CPT.Models.UserSettings
 
 @inject NavigationManager Nav
 @inject HeatEquationApiService HeatEquationApi
 @inject HeatEquationState HeatEquationState
 @inject UserSettingsApiService UserSettingsApi
 @inject PhysicsModuleApiService PhysicsModuleApi
+@inject HeatEquationSettingsApiService HeatEquationSettingsApi
 
 <ProtectedRouteView AllowAnonymous="@Demo">
     <div class="hx-08 wvl-5"></div>
@@ -516,7 +518,7 @@
 
             if (!Demo)
             {
-                var settings = await UserSettingsApi.GetAsync();
+                var settings = await HeatEquationSettingsApi.GetAsync();
 
                 if (settings is not null)
                 {
@@ -706,12 +708,8 @@
 
         switch (From?.ToLowerInvariant())
         {
-            case "login":
-                Nav.NavigateTo("Login");
-                break;
-
-            case "signup":
-                Nav.NavigateTo("SignUp");
+            case "demos":
+                Nav.NavigateTo("Demos");
                 break;
 
             case "home":

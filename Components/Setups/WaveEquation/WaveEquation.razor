@@ -1,0 +1,665 @@
+@page "/WaveEquation"
+
+@using CPT.Models.WaveEquation
+@using System.Globalization
+@using CPT.Services
+@using CPT.Services.Physics.WaveEquation
+@using CPT.Models.UserSettings
+
+@inject WaveEquationSettingsApiService WaveEquationSettingsApi
+@inject NavigationManager Nav
+@inject WaveEquationApiService WaveEquationApi
+@inject WaveEquationState WaveEquationState
+@inject PhysicsModuleApiService PhysicsModuleApi
+
+<ProtectedRouteView AllowAnonymous="@Demo">
+
+    <div class="hx-08 wvl-5"></div>
+
+    <div class="bg-card">
+
+        <div class="mgb-5 flex flex-center flex-spacebetween bg-primary-02 bd pd pdl-2 pdr-2 border-shadow-5">
+
+            <div class="flex flex-center">
+
+                <button class="bg-transparent bd-none fsz-15 mgr-2" @onclick="GoBack" title="Go back">
+
+                    <i class="mdi mdi-arrow-left round bd cl-primary bg-card pd fw-bold"></i>
+
+                </button>
+
+                <div>
+
+                    <h2 class="mg-0 pdb fsz-18 cl-primary">
+                        Wave Equation (1D)
+                    </h2>
+
+                    <p class="mg-0 fsz-10">
+                        Configure parameters for the simulation.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="mgt-5">
+
+                <div class="mgb-3">
+
+                    <span class="pd bd bd-white corner-2 bg-card op-5 fsz-10">
+                        SI Units
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    @if (IsModuleLoading)
+    {
+        <div class="pd corner-2 bd bg-card mgb-2">
+
+            <p class="fsz-12 mg-0">
+                Loading simulation module...
+            </p>
+
+        </div>
+    }
+    else if (ModuleLoadFailed)
+    {
+        <div class="pd corner-2 bd bg-card mgb-2">
+
+            <p class="fsz-12 cl-danger mg-0">
+                Unable to load the Wave Equation module.
+                Please refresh the page and try again.
+            </p>
+
+        </div>
+    }
+    else if (EditContext is not null)
+    {
+        <EditForm EditContext="@EditContext" OnValidSubmit="@StartSimulation">
+
+            <DataAnnotationsValidator />
+
+            <div class="scroll-y" style="height: 100vh;">
+
+                <!-- Simulation -->
+
+                <div class="pd corner-2 bd bg-card mgb-2">
+
+                    <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
+                        Simulation
+                    </h3>
+
+                    <div class="mgb-5">
+
+                        <h5 class="mg-0 pdb fsz-13">
+                            Simulation Name
+                        </h5>
+
+                        <input type="text" @bind="Configuration.SimulationName" maxlength="100"
+                               placeholder="e.g. String Wave Propagation" class="pd bd corner-1 bg-card block miwx-3"
+                               @onblur="ValidateSimulationName" />
+
+                        <ValidationMessage For="@(() => Configuration.SimulationName)" />
+
+                    </div>
+
+                </div>
+
+
+                <div class="grid gap-1 colm-4">
+
+
+                    <!-- Physical Parameters -->
+
+                    <div class="pd corner-2 bd bg-card">
+
+                        <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
+                            Physical Parameters
+                        </h3>
+
+
+                        <div class="mgb-5">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Wave Speed (c)
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.WaveSpeed"
+                                   class="pd bd corner-1 bg-card block miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.WaveSpeed)" />
+
+                        </div>
+
+
+                        <div class="mgb-5">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Initial Amplitude (A)
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.InitialAmplitude"
+                                   class="pd bd corner-1 bg-card block miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.InitialAmplitude)" />
+
+                        </div>
+
+
+                        <div class="mgb-5">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Initial Condition
+                            </h5>
+
+                            <select @bind="Configuration.InitialConditionType" class="pd bd corner-1 bg-card block miwx-3">
+
+                                <option value="Gaussian Pulse">
+                                    Gaussian Pulse
+                                </option>
+
+                                <option value="Sine Wave">
+                                    Sine Wave
+                                </option>
+
+                                <option value="Square Pulse">
+                                    Square Pulse
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="mgb-5">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Boundary Condition
+                            </h5>
+
+                            <p class="mg-0 fsz-12">
+                                Fixed Ends (u = 0)
+                            </p>
+
+                        </div>
+
+
+                        <div class="mgb-5">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Total Time (T)
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.TotalTime"
+                                   class="pd bd corner-1 bg-card block miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.TotalTime)" />
+
+                        </div>
+
+
+                        <div class="mgb-5">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Time Step (Δt)
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.TimeStep"
+                                   class="pd bd corner-1 bg-card block miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.TimeStep)" />
+
+                        </div>
+
+
+                        <div class="mgb-5">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Time Steps
+                            </h5>
+
+                            <p class="mg-0 fsz-12">
+                                @TimeSteps.ToString(
+                                    "N0",
+                                    CultureInfo.InvariantCulture)
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Domain -->
+
+                    <div class="pd corner-2 bd bg-card">
+
+                        <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
+                            Domain Range
+                        </h3>
+
+
+                        <div class="mgb-5">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Length (L)
+                            </h5>
+
+                            <input type="number" step="any" @bind="Configuration.Length"
+                                   class="pd bd corner-1 bg-card miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.Length)" />
+
+                        </div>
+
+
+                        <div class="mgb-5">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Grid Points (Nx)
+                            </h5>
+
+                            <input type="number" min="3" @bind="Configuration.GridPoints"
+                                   class="pd bd corner-1 bg-card miwx-3" />
+
+                            <ValidationMessage For="@(() => Configuration.GridPoints)" />
+
+                        </div>
+
+
+                        <div class="mgt-10">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Grid Spacing (Δx)
+                            </h5>
+
+                            <p class="mg-0 fsz-12">
+                                @Dx.ToString(
+                                    "0.000000",
+                                    CultureInfo.InvariantCulture)
+                                m
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Numerical Method -->
+
+                    <div class="pd corner-2 bd bg-card">
+
+                        <h3 class="fsz-15 cl-primary mgb-10 pdb bdb bd-primary">
+                            Numerical Method
+                        </h3>
+
+
+                        <div class="mgt-10 mgb-5">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                Method
+                            </h5>
+
+                            <p class="mg-0 fsz-12">
+                                Explicit Central Finite Difference
+                            </p>
+
+                        </div>
+
+
+                        <div class="mgt-10">
+
+                            <h5 class="mg-0 pdb fsz-13">
+                                CFL Number (r)
+                            </h5>
+
+                            <input type="text" value="@CFLNumber.ToString(
+                                       "0.000000",
+                                       CultureInfo.InvariantCulture)" readonly class="pd bd corner-1 bg-card miwx-3" />
+
+                        </div>
+
+
+                        <div class="mgt-10 flex flex-start">
+
+                            <div class="mgr-5">
+
+                                <h5 class="mg-0 pdb fsz-13">
+                                    Current (Δt)
+                                </h5>
+
+                                <p class="mg-0 fsz-12">
+                                    @Configuration.TimeStep.ToString(
+                                        "0.000000",
+                                        CultureInfo.InvariantCulture)
+                                </p>
+
+                            </div>
+
+
+                            @if (IsStable)
+                            {
+                                <p class="bd cl-success pd fsz-12 wx-1 mgt-1 text-center corner-1 bd-success">
+
+                                    Stable
+                                    <i class="mdi mdi-score fsz-15"></i>
+
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="bd cl-danger pd fsz-12 wx-1 mgt-1 text-center corner-1 bd-danger">
+                                    Unstable
+                                </p>
+                            }
+
+                        </div>
+
+
+                        @if (!IsStable)
+                        {
+                            <p class="cl-danger fsz-10 mgt-10">
+
+                                Reduce the time step or increase the grid
+                                spacing to satisfy the CFL stability condition.
+
+                            </p>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- Actions -->
+
+                <div class="flex flex-end pd-2 mgb-2 mgt-2">
+
+                    <button type="button"
+                            class="pd corner-1 bg-card bd-none bd-white fsz-12 mgr-5 cl-primary flex flex-center"
+                            @onclick="GoBack">
+
+                        <i class="mdi mdi-arrow-left fsz-15 mgr-1"></i>
+
+                        @if (Demo)
+                        {
+                            <span>Go Back</span>
+                        }
+                        else
+                        {
+                            <span>Go Back to Modules</span>
+                        }
+
+                    </button>
+
+
+                    <button type="submit" class="pd corner-1 bg-primary bd-none fsz-12 mdi"
+                            disabled="@(!IsStable || IsRunning)">
+
+                        @if (IsRunning)
+                        {
+                            <span>
+                                Creating Simulation...
+                            </span>
+                        }
+                        else
+                        {
+                            <span>
+                                Next: Run Simulation
+                                <i class="mdi mdi-arrow-rigt fsz-15"></i>
+                            </span>
+                        }
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </EditForm>
+    }
+
+    <div class="hx-05 wvl-5"></div>
+
+</ProtectedRouteView>
+
+
+@code {
+    private bool IsModuleLoading = true;
+
+    private bool ModuleLoadFailed;
+
+    private EditContext? EditContext;
+
+    private bool IsRunning;
+
+    [SupplyParameterFromQuery(Name = "demo")]
+    public bool Demo { get; set; }
+
+    [SupplyParameterFromQuery(Name = "from")]
+    public string? From { get; set; }
+
+    private WaveEquationConfiguration Configuration = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsModuleLoading = true;
+        ModuleLoadFailed = false;
+
+        try
+        {
+            var modules = await PhysicsModuleApi.GetAllAsync();
+
+            var waveEquationModule = modules.FirstOrDefault(
+                x => x.Slug.Equals(
+                    "wave-equation-1d",
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (waveEquationModule is null)
+            {
+                ModuleLoadFailed = true;
+                return;
+            }
+
+            
+            Configuration.PhysicsModuleId =
+                waveEquationModule.Id;
+
+            // Load saved defaults for authenticated simulations.
+            if (!Demo)
+            {
+                try
+                {
+                    var settings =
+                        await WaveEquationSettingsApi.GetAsync();
+
+                    if (settings is not null)
+                    {
+                        Configuration.GridPoints =
+                            settings.GridPoints;
+
+                        Configuration.Length =
+                            settings.Length;
+
+                        Configuration.WaveSpeed =
+                            settings.WaveSpeed;
+
+                        Configuration.TimeStep =
+                            settings.TimeStep;
+
+                        Configuration.TotalTime =
+                            settings.TotalTime;
+
+                        Configuration.InitialAmplitude =
+                            settings.InitialAmplitude;
+
+                        Configuration.InitialConditionType =
+                            settings.InitialConditionType;
+                    }
+                }
+                catch
+                {
+                    // Keep the configuration defaults if settings
+                    // cannot be loaded.
+                }
+            }
+
+            EditContext = new EditContext(Configuration);
+
+        }
+        catch
+        {
+            ModuleLoadFailed = true;
+        }
+        finally
+        {
+            IsModuleLoading = false;
+        }
+    }
+
+
+    private int TimeSteps =>
+        Configuration.TimeStep > 0
+            ? (int)Math.Ceiling(
+                Configuration.TotalTime /
+                Configuration.TimeStep)
+            : 0;
+
+
+    private double Dx
+    {
+        get
+        {
+            if (Configuration.GridPoints < 2 ||
+                Configuration.Length <= 0)
+            {
+                return 0;
+            }
+
+            return Configuration.Length /
+                   (Configuration.GridPoints - 1);
+        }
+    }
+
+
+    private double CFLNumber
+    {
+        get
+        {
+            if (Dx <= 0 ||
+                Configuration.WaveSpeed <= 0 ||
+                Configuration.TimeStep <= 0)
+            {
+                return 0;
+            }
+
+            return Configuration.WaveSpeed *
+                   Configuration.TimeStep /
+                   Dx;
+        }
+    }
+
+
+    private bool IsStable =>
+        Configuration.WaveSpeed > 0 &&
+        Configuration.TimeStep > 0 &&
+        Dx > 0 &&
+        CFLNumber <= 1.0;
+
+
+    private bool IsValid =>
+        Configuration.WaveSpeed > 0 &&
+        Configuration.Length > 0 &&
+        Configuration.TotalTime > 0 &&
+        Configuration.TimeStep > 0 &&
+        Configuration.InitialAmplitude > 0 &&
+        Configuration.GridPoints >= 3 &&
+        TimeSteps > 0;
+
+
+    private async Task StartSimulation()
+    {
+        if (string.IsNullOrWhiteSpace(
+                Configuration.SimulationName))
+        {
+            EditContext?.Validate();
+            return;
+        }
+
+        if (!IsValid ||
+            !IsStable ||
+            IsRunning)
+        {
+            return;
+        }
+
+        IsRunning = true;
+
+        try
+        {
+            var simulationId =
+                await WaveEquationApi.CreateSimulationAsync(
+                    Configuration,
+                    Demo);
+
+            if (simulationId is null)
+            {
+                return;
+            }
+
+            WaveEquationState.Configuration =
+                Configuration;
+
+            WaveEquationState.SimulationId =
+                simulationId;
+
+            if (Demo)
+            {
+                Nav.NavigateTo(
+                    $"WaveEquation/Simulate/{simulationId}?demo=true");
+            }
+            else
+            {
+                Nav.NavigateTo(
+                    $"WaveEquation/Simulate/{simulationId}");
+            }
+        }
+        finally
+        {
+            IsRunning = false;
+        }
+    }
+
+
+    private void ValidateSimulationName()
+    {
+        EditContext?.Validate();
+    }
+
+    private void GoBack()
+    {
+        if (!Demo)
+        {
+            Nav.NavigateTo("Modules");
+            return;
+        }
+
+        switch (From?.ToLowerInvariant())
+        {
+            case "demos":
+                Nav.NavigateTo("Demos");
+                break;
+
+            case "home":
+            default:
+                Nav.NavigateTo("");
+                break;
+        }
+    }
+}

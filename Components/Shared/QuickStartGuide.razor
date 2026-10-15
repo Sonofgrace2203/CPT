@@ -15,9 +15,7 @@
                     </p>
                 </div>
 
-                <button class="drawer-close pd bg-transparent bd-none fsz-20"
-                        @onclick="Close"
-                        aria-label="Close guide">
+                <button class="drawer-close pd bg-transparent bd-none fsz-20" @onclick="Close" aria-label="Close guide">
                     <i class="mdi mdi-close"></i>
                 </button>
             </div>
@@ -62,22 +60,43 @@
                 </div>
 
                 <!-- Physics Modules -->
+                
+                <!-- Physics Modules -->
                 <div class="drawer-section">
                     <h4 class="mg-0 pdb cl-primary">
                         3. Choose a Physics Module
                     </h4>
 
                     <p class="mg-0 fsz-12">
-                        Physics Modules contain the computational models used by CPT.
-                        Select a module based on the physics problem you want to
-                        investigate.
+                        CPT currently includes two computational physics modules.
+                        Select the module that matches the physical system you want
+                        to investigate.
                     </p>
 
-                    <p class="mgt-2 mg-b-0 fsz-12">
+                    <div class="mgb-5">
+                        <div class="mgt-3">
+                            <h5 class="mg-0 pdb-2">2D Heat Equation</h5>
+                            <p class="mg-0 fsz-12">
+                                Explore heat diffusion and temperature distribution across
+                                a two-dimensional domain.
+                            </p>
+                        </div>
+
+                        <div class="mgt-3">
+                            <h5 class="mg-0 pdb-2">Wave Equation</h5>
+                            <p class="mg-0 fsz-12">
+                                Explore wave propagation and displacement profiles through
+                                numerical simulation.
+                            </p>
+                        </div>
+                    </div>
+
+                    <p class="mgt-3 mgb-0 fsz-12">
                         Each module has its own configuration options, simulation
                         process, and result visualizations.
                     </p>
                 </div>
+
 
                 <!-- Configuration -->
                 <div class="drawer-section">
@@ -116,22 +135,31 @@
                 </div>
 
                 <!-- Results -->
+                
+                <!-- Results -->
                 <div class="drawer-section">
                     <h4 class="mg-0 pdb cl-primary">
                         6. Explore Your Results
                     </h4>
 
                     <p class="mg-0 fsz-12">
-                        When the simulation completes, CPT takes you to the results
-                        workspace where you can explore the computed solution.
+                        When a simulation completes, open its results workspace to
+                        examine the computed solution.
                     </p>
 
                     <p class="mgt-2 mg-b-0 fsz-12">
-                        Depending on the module, you may have access to different
-                        visualizations such as temperature maps, surface plots,
-                        contour plots, line plots, or animations.
+                        For the Heat Equation, explore the temperature distribution
+                        using the available maps, plots, and animation tools. For the
+                        Wave Equation, inspect the wave profile and displacement data
+                        provided by the module.
+                    </p>
+
+                    <p class="mgt-2 mgb-0 fsz-12">
+                        Available visualizations depend on the selected module and
+                        the results it produces.
                     </p>
                 </div>
+
 
                 <!-- Simulation Data -->
                 <div class="drawer-section">
@@ -150,6 +178,7 @@
                     </p>
                 </div>
 
+
                 <!-- History -->
                 <div class="drawer-section">
                     <h4 class="mg-0 pdb cl-primary">
@@ -157,15 +186,18 @@
                     </h4>
 
                     <p class="mg-0 fsz-12">
-                        Completed simulations can be reviewed from your simulation
-                        history.
+                        Use Demo History to review simulation records available to
+                        your account.
                     </p>
 
-                    <p class="mgt-2 mg-b-0 fsz-12">
-                        This allows you to return to previous work without having to
-                        repeat a simulation unnecessarily.
+                    <p class="mgt-2 mgb-0 fsz-12">
+                        Available records and details depend on which simulations
+                        have been saved and which history features are supported.
+                        Check the recorded details before relying on a previous
+                        simulation for comparison.
                     </p>
                 </div>
+
 
                 <!-- Settings -->
                 <div class="drawer-section">

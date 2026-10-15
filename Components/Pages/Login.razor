@@ -23,8 +23,8 @@
     </div>
 
     <div>
-        <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-primary fsz-10"
-                @onclick='() => Nav.NavigateTo("HeatEquation?demo=true&from=login")'>
+        <button class="pdt-1 pdb-1 pdl-10 pdr-10 bd bd-primary corner-5 bg-primary fsz-10" style="cursor: pointer;"
+                @onclick='() => Nav.NavigateTo("Demos")'>
             Run Demo
         </button>
     </div>
@@ -97,11 +97,11 @@
                         </label>
 
                         <div class="flex flex-center pos-rel">
-                            <InputText id="password" type="@(showPassword ? "text" : "password")"
+                            <InputText id="password" type="@(showPassword ? "text" : "password")" style="cursor: pointer;"
                                        placeholder="Enter password" class="corner-2 pd-2 bd wf fsz-10"
                                        @bind-Value="loginRequest.Password" />
 
-                            <button type="button" class="bd-none bg-transparent pos-abs r-0 mgr-2"
+                            <button type="button" class="bd-none bg-transparent pos-abs r-0 mgr-2" style="cursor: pointer;"
                                     @onclick="TogglePassword">
                                 <i class="mdi @(showPassword ? "mdi-eye-off" : "mdi-eye") fsz-12"></i>
                             </button>
@@ -133,7 +133,7 @@
                     </div>
 
 
-                    <button type="button" class="cl-primary bg-transparent bd-none fsz-10"
+                    <button type="button" class="cl-primary bg-transparent bd-none fsz-10" style="cursor: pointer;"
                             @onclick='() => Nav.NavigateTo("ForgotPassword")'>
                         Forget Password?
                     </button>
@@ -153,7 +153,7 @@
                 <!-- Login -->
                 <div class="mgb-3">
 
-                    <button type="submit" class="wf pd-2 bg-primary corner-2 bd-none fsz-10" disabled="@isLoading">
+                    <button type="submit" class="wf pd-2 bg-primary corner-2 bd-none fsz-10" disabled="@isLoading" style="cursor: pointer;">
 
                         @if (isLoading)
                         {
@@ -212,7 +212,7 @@
 
                         Don't have an account?
 
-                        <button type="button" class="bd-none bg-transparent cl-primary fsz-10 op-10"
+                        <button type="button" class="bd-none bg-transparent cl-primary fsz-10 op-10" style="cursor: pointer;"
                                 @onclick='() => Nav.NavigateTo("SignUp")'>
 
                             Sign Up

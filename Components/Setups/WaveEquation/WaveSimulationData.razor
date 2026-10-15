@@ -1,88 +1,95 @@
-@page "/SimulationData/{SimulationId:guid}"
-@using System.Text.Json
-@using System.Text.Json.Serialization;
-@using CPT.Models.SimulationResults
-@using CPT.Services
-@using cpt.Components.Shared
-@using cpt.Components.Visualization
-@using cpt.Models.Simulations;
-@using cpt.Models.HeatEquation
+@page "/WaveSimulationData/{SimulationId:guid}"
+
 @using System.Globalization
 @using System.Text
-@using Microsoft.JSInterop
+@using System.Text.Json
 @using System.IO
+@using Microsoft.JSInterop
+@using CPT.Models.SimulationResults
+@using CPT.Models.WaveEquation
+@using CPT.Services
+@using cpt.Components.Shared
+@using cpt.Models.Simulations
 
 @inject UserSettingsApiService UserSettingsApi
 @inject IJSRuntime JS
-@inject HeatEquationApiService HeatEquationApi
+@inject WaveEquationApiService WaveEquationApi
 @inject NavigationManager Nav
 
 <ProtectedRouteView AllowAnonymous="@Demo">
+
     <div class="hx-08 wvl-5"></div>
 
-    @* <div class="mgb-5 flex flex-center flex-spacebetween bg-primary-02 bd pd border-shadow-5">
-    <div>
-        <h2 class="mg-0 pdb fsz-18 cl-primary">Simulation Data</h2>
-        <p class="mg-0 fsz-10">Exports and download your results</p>
-    </div>
-    <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center shadow-border-2" @onclick="ViewResults">
-        <i class="mdi mdi-plus fsz-10 mgr-5"></i>
-        View Results
-    </button>
-</div> *@
-
-
     <div class="flex flex-end wf wvl-5 mgb-2">
+
         @if (Demo)
         {
             <div class="mgr-3">
+
                 <button class="bg-card pd fsz-10 corner-2 bd wx-15 flex flex-center shadow-border-2" @onclick="ExitDemo">
 
                     <i class="mdi mdi-exit-to-app bg-card fsz-10 mgr-5"></i>
                     Exit Demo
 
                 </button>
+
             </div>
         }
-        <div>
-            <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center shadow-border-2"
-                    @onclick="ViewResults">
 
-                <i class="mdi mdi-plus fsz-10 mgr-5"></i>
-                View Results
+        <div>
+
+            <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center shadow-border-2"
+                    @onclick="GoBack">
+
+                <i class="mdi mdi-arrow-left fsz-10 mgr-5"></i>
+                Back
 
             </button>
+
         </div>
+
     </div>
 
+
     <div class="bg-card">
+
         <div class="mgb-5 flex flex-center flex-spacebetween flow bg-primary-02 bd pd border-shadow-5">
 
             <div class="mgb-5">
+
                 <div class="flex flex-center">
 
                     <button class="bg-transparent bd-none fsz-15 mgr-2" @onclick="GoBack" title="Go back">
+
                         <i class="mdi mdi-arrow-left round bd cl-primary bg-card pd fw-bold"></i>
+
                     </button>
 
                     <div>
+
                         <h2 class="mg-0 pdb fsz-18 cl-primary">
                             Simulation Data
                         </h2>
 
                         <p class="mg-0 fsz-10">
-                            Exports and download your results
+                            Wave Equation (1D) results and exports
                         </p>
+
                     </div>
 
                 </div>
+
             </div>
 
+
             <div>
+
                 <div class="flex wvg-5">
+
                     @if (Demo)
                     {
                         <div class="mgr-3">
+
                             <button class="bg-card pd fsz-10 corner-2 bd wx-15 flex flex-center shadow-border-2"
                                     @onclick="ExitDemo">
 
@@ -90,62 +97,92 @@
                                 Exit Demo
 
                             </button>
+
                         </div>
                     }
+
                     <div>
+
                         <button class="bg-primary pd fsz-10 corner-2 bd-none wx-15 flex flex-center shadow-border-2"
                                 @onclick="ViewResults">
 
                             <i class="mdi mdi-plus fsz-10 mgr-5"></i>
-                            View Results
+                            View Result
 
                         </button>
+
                     </div>
+
                 </div>
+
             </div>
 
         </div>
+
     </div>
 
+
     <div class="mgb scroll wf">
+
         <button class="fsz-10 bd-none bdb pd mgb-1 mgr-1 @(ActiveTab == "Data Table" ? "bg-primary" : "bg-primary-02")"
                 @onclick='() => SetActiveTab("Data Table")'>
+
             Data Table
+
         </button>
+
 
         <button
             class="fsz-10 bd-none bdb pd bg-transparent mgb-1 mgr-1 @(ActiveTab == "Statistics" ? "bg-primary" : "bg-primary-02")"
             @onclick='() => SetActiveTab("Statistics")'>
+
             Statistics
+
         </button>
+
 
         @if (!Demo)
         {
             <button
                 class="fsz-10 bd-none bdb pd bg-transparent mgb-1 mgr-1 @(ActiveTab == "Export" ? "bg-primary" : "bg-primary-02")"
                 @onclick='() => SetActiveTab("Export")'>
+
                 Export
+
             </button>
         }
+
     </div>
 
+
     <div>
+
         @if (IsLoading)
         {
             <div class="hf bg-card pd bd corner-2 flex flex-center justify-content-between">
+
                 <LoadingIndicator Text="Loading simulation data..." />
+
             </div>
         }
         else if (HasError)
         {
             <div class="hf bg-card pd bd corner-2 flex flex-center justify-content-between">
-                <p class="fsz-15 fw-bold">Unable to load simulation results.</p>
+
+                <p class="fsz-15 fw-bold">
+                    Unable to load simulation results.
+                </p>
+
             </div>
         }
         else if (Data is null)
         {
             <div class="hf bg-card pd bd corner-2 flex flex-center justify-content-between">
-                <p class="fsz-15 fw-bold">No simulation result was found.</p>
+
+                <p class="fsz-15 fw-bold">
+                    No simulation result was found.
+                </p>
+
             </div>
         }
         else
@@ -153,50 +190,78 @@
             @if (ActiveTab == "Data Table")
             {
                 <div class="row responsive colm-3">
+
                     <div class="miwx-25">
 
                         <div class="wf hx-6 scroll-y">
+
                             <table class="wf scroll bg-card pd bd corner-2">
+
                                 <thead class="bg-primary-02">
+
                                     <tr class="mg-0">
-                                        <th class="pd mg-0 fsz-12">x</th>
-                                        <th class="pd fsz-12">y</th>
-                                        <th class="pd fsz-12">Temperature</th>
+
+                                        <th class="pd mg-0 fsz-12">
+                                            x
+                                        </th>
+
+                                        <th class="pd fsz-12">
+                                            Displacement
+                                        </th>
+
                                     </tr>
+
                                 </thead>
 
+
                                 <tbody>
+
                                     @foreach (var point in PagedPoints)
                                     {
                                         <tr>
-                                            <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
-                                                @FormatNumber(point.X, 3)
-                                            </td>
 
                                             <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
-                                                @FormatNumber(point.Y, 3)
+
+                                                @FormatNumber(
+                                                    point.X,
+                                                    3)
+
                                             </td>
 
+
                                             <td class="pd fsz-12 text-center bd-none bdb bdb-primary">
-                                                @FormatNumber(point.Temperature, 6)
+
+                                                @FormatNumber(
+                                                    point.Displacement,
+                                                    6)
+
                                             </td>
+
                                         </tr>
                                     }
+
                                 </tbody>
+
                             </table>
+
                         </div>
+
 
                         <div class="flex flex-spacebetween flow bg-card pd bd corner-1 shadow-border-1 mgb mgt-2">
 
                             <p class="fsz-12 mgb-3">
+
                                 Showing @StartItem–@EndItem of @TotalPoints grid points
+
                             </p>
+
 
                             <div class="flex flex-center">
 
                                 <button class="mdi mdi-arrow-left pd fsz-12 bg-transparent bd-none bd corner-1"
                                         disabled="@(CurrentPage == 1)" @onclick="PreviousPage">
                                 </button>
+
 
                                 @if (TotalPages <= 5)
                                 {
@@ -207,7 +272,9 @@
                                         <button
                                             class="mdi pd fsz-12 bg-transparent bd-none bd corner-1 @(CurrentPage == pageNumber ? "bg-primary" : "")"
                                             @onclick="() => GoToPage(pageNumber)">
+
                                             @pageNumber
+
                                         </button>
                                     }
                                 }
@@ -216,358 +283,371 @@
                                     <button
                                         class="mdi pd fsz-12 bg-transparent bd-none bd corner-1 @(CurrentPage == 1 ? "bg-primary" : "")"
                                         @onclick="() => GoToPage(1)">
+
                                         1
+
                                     </button>
+
 
                                     @if (CurrentPage > 3)
                                     {
-                                        <span class="pd fsz-12">...</span>
+                                        <span class="pd fsz-12">
+                                            ...
+                                        </span>
                                     }
+
 
                                     @if (CurrentPage > 2 && CurrentPage < TotalPages - 1)
                                     {
                                         <button class="mdi pd fsz-12 bg-transparent bd-none bd corner-1"
                                                 @onclick="() => GoToPage(CurrentPage - 1)">
+
                                             @(CurrentPage - 1)
+
                                         </button>
                                     }
+
 
                                     @if (CurrentPage != 1 && CurrentPage != TotalPages)
                                     {
                                         <button class="mdi pd fsz-12 bg-transparent bd-none bd corner-1 bg-primary"
                                                 @onclick="() => GoToPage(CurrentPage)">
+
                                             @CurrentPage
+
                                         </button>
                                     }
+
 
                                     @if (CurrentPage > 1 && CurrentPage < TotalPages - 1)
                                     {
                                         <button class="mdi pd fsz-12 bg-transparent bd-none bd corner-1"
                                                 @onclick="() => GoToPage(CurrentPage + 1)">
+
                                             @(CurrentPage + 1)
+
                                         </button>
                                     }
 
+
                                     @if (CurrentPage < TotalPages - 2)
                                     {
-                                        <span class="pd fsz-12">...</span>
+                                        <span class="pd fsz-12">
+                                            ...
+                                        </span>
                                     }
+
 
                                     <button
                                         class="mdi pd fsz-12 bg-transparent bd-none bd corner-1 @(CurrentPage == TotalPages ? "bg-primary" : "")"
                                         @onclick="() => GoToPage(TotalPages)">
+
                                         @TotalPages
+
                                     </button>
                                 }
+
 
                                 <button class="mdi mdi-arrow-right pd fsz-12 bg-transparent bd-none bd corner-1"
                                         disabled="@(CurrentPage == TotalPages)" @onclick="NextPage">
                                 </button>
 
                             </div>
+
                         </div>
 
                     </div>
+
                 </div>
             }
             else if (ActiveTab == "Statistics")
             {
                 <div class="row responsive colm-3 wvg-5 scroll-y" style="height: 100vh;">
+
                     <div class="miwx-25 mgr-10">
+
                         <div class="bg-card bd corner-1 pd">
+
                             <h5 class="mgt-0 mgl-0 mgr-0 mgb-10 pdb fsz-15 cl-primary bdb bd-primary">
+
                                 Statistics
+
                             </h5>
+
+
                             <div class="grid gap-1 colm-3">
 
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
                                     <p class="mg-0 fsz-10 pdb">
-                                        Minimum Temperature
+                                        Minimum Displacement
                                     </p>
 
                                     <h4 class="mg-0 fsz-15 cl-secondary">
-                                        @FormatNumber(Statistics.Minimum, 6) K
+
+                                        @FormatNumber(
+                                            Statistics.Minimum,
+                                            6) m
+
                                     </h4>
+
                                 </div>
 
+
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
                                     <p class="mg-0 fsz-10 pdb">
-                                        Maximum Temperature
+                                        Maximum Displacement
                                     </p>
 
                                     <h4 class="mg-0 fsz-15 cl-secondary">
-                                        @FormatNumber(Statistics.Maximum, 6) K
+
+                                        @FormatNumber(
+                                            Statistics.Maximum,
+                                            6) m
+
                                     </h4>
+
                                 </div>
 
+
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
                                     <p class="mg-0 fsz-10 pdb">
-                                        Average Temperature
+                                        Average Displacement
                                     </p>
 
                                     <h4 class="mg-0 fsz-15 cl-secondary">
-                                        @FormatNumber(Statistics.Mean, 6) K
+
+                                        @FormatNumber(
+                                            Statistics.Mean,
+                                            6) m
+
                                     </h4>
+
                                 </div>
 
+
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
                                     <p class="mg-0 fsz-10 pdb">
                                         Standard Deviation
                                     </p>
 
                                     <h4 class="mg-0 fsz-15 cl-secondary">
-                                        @FormatNumber(Statistics.StandardDeviation, 6) K
+
+                                        @FormatNumber(
+                                            Statistics.StandardDeviation,
+                                            6) m
+
                                     </h4>
+
                                 </div>
 
+
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
                                     <p class="mg-0 fsz-10 pdb">
                                         Final Simulation Time
                                     </p>
 
                                     <h4 class="mg-0 fsz-15 cl-secondary">
-                                        @FormatNumber(Data.FinalTime, 4) s
+
+                                        @FormatNumber(
+                                            Data.FinalTime,
+                                            4) s
+
                                     </h4>
+
                                 </div>
 
+
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
                                     <p class="mg-0 fsz-10 pdb">
                                         Grid Points
                                     </p>
 
                                     <h4 class="mg-0 fsz-15 cl-secondary">
+
                                         @TotalPoints
+
                                     </h4>
+
                                 </div>
 
                             </div>
+
                         </div>
+
 
                         <div class="mgt-5 corner-2 bd pd bg-card">
 
                             <h5 class="mg-0 pdb fsz-15 cl-primary">
-                                Boundary Conditions
+
+                                Wave Parameters
+
                             </h5>
 
                             <p class="mg-0 fsz-10 bdb bd-primary pdb">
-                                Temperature constraints applied at the simulation boundaries
+
+                                Numerical and physical parameters used in the simulation
+
                             </p>
+
 
                             <div class="grid gap-1 colm-3 mgt-10">
 
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
                                     <span class="fsz-10">
-                                        Boundary Type
+                                        Wave Speed
                                     </span>
 
                                     <div class="mgt-5 fw-600 cl-secondary">
+
+                                        @FormatNumber(
+                                            Data.WaveSpeed,
+                                            4) m/s
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
+                                    <span class="fsz-10">
+                                        Spatial Step
+                                    </span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">
+
+                                        @FormatNumber(
+                                            Data.Dx,
+                                            6) m
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
+                                    <span class="fsz-10">
+                                        Time Step
+                                    </span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">
+
+                                        @FormatNumber(
+                                            Data.TimeStep,
+                                            6) s
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
+                                    <span class="fsz-10">
+                                        Time Steps
+                                    </span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">
+
+                                        @Data.TimeSteps
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
+                                    <span class="fsz-10">
+                                        CFL Number
+                                    </span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">
+
+                                        @FormatNumber(
+                                            Data.CFLNumber,
+                                            6)
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
+                                    <span class="fsz-10">
+                                        Stability
+                                    </span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">
+
+                                        @Data.StabilityStatus
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
+                                    <span class="fsz-10">
+                                        Initial Condition
+                                    </span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">
+
+                                        @Data.InitialConditionType
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
+                                    <span class="fsz-10">
+                                        Initial Amplitude
+                                    </span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">
+
+                                        @FormatNumber(
+                                            Data.InitialAmplitude,
+                                            6) m
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+
+                                    <span class="fsz-10">
+                                        Boundary Condition
+                                    </span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">
+
                                         @Data.BoundaryConditionType
+
                                     </div>
-                                </div>
 
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
-                                    <span class="fsz-10">
-                                        Boundary Temperature
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-                                        @FormatNumber(BoundaryTemperature, 2) K
-                                    </div>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
-                                    <span class="fsz-10">
-                                        Top Boundary
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-                                        @Data.TopBoundaryCondition
-                                    </div>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
-                                    <span class="fsz-10">
-                                        Bottom Boundary
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-                                        @Data.BottomBoundaryCondition
-                                    </div>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
-                                    <span class="fsz-10">
-                                        Left Boundary
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-                                        @Data.LeftBoundaryCondition
-                                    </div>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
-                                    <span class="fsz-10">
-                                        Right Boundary
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-                                        @Data.RightBoundaryCondition
-                                    </div>
                                 </div>
 
                             </div>
+
                         </div>
 
                     </div>
-                </div>
 
-            
-                <div class="row responsive colm-3 wvl-5 scroll-y" style="height: 100vh">
-                    <div class="miwx-25">
-                        <div class="bg-card bd corner-1 pd">
-                            <h5 class="mgt-0 mgl-0 mgr-0 mgb-10 pdb fsz-15 cl-primary bdb bd-primary">
-                                Statistics
-                            </h5>
-                            <div class="grid gap-1 colm-3">
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
-                                    <p class="mg-0 fsz-10 pdb">
-                                        Minimum Temperature
-                                    </p>
-
-                                    <h4 class="mg-0 fsz-15 cl-secondary">
-                                        @Statistics.Minimum.ToString("F6") K
-                                    </h4>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
-                                    <p class="mg-0 fsz-10 pdb">
-                                        Maximum Temperature
-                                    </p>
-
-                                    <h4 class="mg-0 fsz-15 cl-secondary">
-                                        @Statistics.Maximum.ToString("F6") K
-                                    </h4>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
-                                    <p class="mg-0 fsz-10 pdb">
-                                        Average Temperature
-                                    </p>
-
-                                    <h4 class="mg-0 fsz-15 cl-secondary">
-                                        @Statistics.Mean.ToString("F6") K
-                                    </h4>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
-                                    <p class="mg-0 fsz-10 pdb">
-                                        Standard Deviation
-                                    </p>
-
-                                    <h4 class="mg-0 fsz-15 cl-secondary">
-                                        @Statistics.StandardDeviation.ToString("F6") K
-                                    </h4>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
-                                    <p class="mg-0 fsz-10 pdb">
-                                        Final Simulation Time
-                                    </p>
-
-                                    <h4 class="mg-0 fsz-15 cl-secondary">
-                                        @Data.FinalTime.ToString("F4") s
-                                    </h4>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
-                                    <p class="mg-0 fsz-10 pdb">
-                                        Grid Points
-                                    </p>
-
-                                    <h4 class="mg-0 fsz-15 cl-secondary">
-                                        @TotalPoints
-                                    </h4>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <div class="mgt-5 corner-2 bd pd bg-card">
-
-                            <h5 class="mg-0 pdb fsz-15 cl-primary">
-                                Boundary Conditions
-                            </h5>
-
-                            <p class="mg-0 fsz-10 bdb bd-primary pdb">
-                                Temperature constraints applied at the simulation boundaries
-                            </p>
-
-                            <div class="grid gap-1 colm-3 mgt-10">
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3">
-                                    <span class="fsz-10">
-                                        Boundary Type
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-                                        @Data.BoundaryConditionType
-                                    </div>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3">
-                                    <span class="fsz-10">
-                                        Boundary Temperature
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-                                        @BoundaryTemperature.ToString("F2") K
-                                    </div>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3">
-                                    <span class="fsz-10">
-                                        Top Boundary
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-                                        @Data.TopBoundaryCondition
-                                    </div>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3">
-                                    <span class="fsz-10">
-                                        Bottom Boundary
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-                                        @Data.BottomBoundaryCondition
-                                    </div>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3">
-                                    <span class="fsz-10">
-                                        Left Boundary
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-                                        @Data.LeftBoundaryCondition
-                                    </div>
-                                </div>
-
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3">
-                                    <span class="fsz-10">
-                                        Right Boundary
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-                                        @Data.RightBoundaryCondition
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
                 </div>
             }
             else if (ActiveTab == "Export" && !Demo)
@@ -575,32 +655,51 @@
                 <div class="wf miwx-15 mawx-25 bd pd corner-2 bg-card">
 
                     <h5 class="mg-0 pdb fsz-15 cl-primary bdb bd-primary">
+
                         Export Options
+
                     </h5>
+
 
                     <div class="mgb-5 mgt-5">
 
                         <h5 class="mg-0 pdb fsz-12">
+
                             File Format
+
                         </h5>
+
 
                         <select class="pd bd corner-1 bg-card wf" @bind="ExportFormat">
 
-                            <option value="CSV">CSV</option>
-                            <option value="PDF">PDF</option>
-                            <option value="PNG">PNG</option>
+                            <option value="CSV">
+                                CSV
+                            </option>
+
+                            <option value="PDF">
+                                PDF
+                            </option>
+
+                            <option value="PNG">
+                                PNG
+                            </option>
 
                         </select>
 
                     </div>
 
+
                     <div>
 
                         <h5 class="mg-0 pdb fsz-12">
+
                             Include
+
                         </h5>
 
+
                         <div class="flex flex-start">
+
                             <div class="flex flex-center">
 
                                 <input type="checkbox" @bind="IncludeParameters">
@@ -610,9 +709,12 @@
                                 </p>
 
                             </div>
+
                         </div>
 
+
                         <div class="flex flex-start">
+
                             <div class="flex flex-center">
 
                                 <input type="checkbox" @bind="IncludeGridData">
@@ -622,9 +724,12 @@
                                 </p>
 
                             </div>
+
                         </div>
 
+
                         <div class="flex flex-start">
+
                             <div class="flex flex-center">
 
                                 <input type="checkbox" @bind="IncludeStatistics">
@@ -634,9 +739,12 @@
                                 </p>
 
                             </div>
+
                         </div>
 
+
                         <div class="flex flex-start">
+
                             <div class="flex flex-center">
 
                                 <input type="checkbox" @bind="IncludeMetadata">
@@ -646,7 +754,9 @@
                                 </p>
 
                             </div>
+
                         </div>
+
 
                         <div class="pd mgt-10">
 
@@ -665,13 +775,18 @@
                 </div>
             }
         }
+
+
         <div class="hx-06 wvl-5"></div>
+
     </div>
+
 
     @if (ShowDemoComplete)
     {
         <DemoComplete CreateAccount="GoToCreateAccount" CreateLater="HideDemoComplete" />
     }
+
 
     @if (ShowExitDemoDialog)
     {
@@ -679,100 +794,189 @@
                        ConfirmText="Exit Demo" CancelText="Cancel" Icon="mdi-exit-to-app" OnConfirm="ConfirmExitDemo"
                        OnCancel="CancelExitDemo" />
     }
+
 </ProtectedRouteView>
 
+
 @code {
-    [Parameter] public Guid SimulationId { get; set; }
+
+    [Parameter]
+    public Guid SimulationId { get; set; }
+
 
     private SimulationResultDto? Result;
-    private HeatEquationResultData? Data;
+
+    private WaveEquationResultData? Data;
+
     private SimulationDto? Simulation;
+
 
     private SimulationStatistics Statistics { get; set; } = new();
 
+
     private bool IsLoading = true;
+
     private bool HasError = false;
 
+
     private const int PageSize = 20;
+
     private int CurrentPage = 1;
-    private int TotalPoints => Data?.Temperature?.Sum(row => row?.Length ?? 0) ?? 0;
-    private int TotalPages => TotalPoints == 0 ? 1 : (int)Math.Ceiling(TotalPoints / (double)PageSize);
 
-    private double BoundaryTemperature => Data?.BoundaryTemperature ?? 0;
 
-    private int StartItem => TotalPoints == 0 ? 0 : ((CurrentPage - 1) * PageSize) + 1;
-    private int EndItem => Math.Min(CurrentPage * PageSize, TotalPoints);
+    private int TotalPoints =>
+        Data?.Displacement?.Length ?? 0;
 
-    private string ActiveTab { get; set; } = "Data Table";
-    private string NumberFormat { get; set; } = "decimal";
 
-    private string ExportFormat { get; set; } = "CSV";
+    private int TotalPages =>
+        TotalPoints == 0
+            ? 1
+            : (int)Math.Ceiling(
+                TotalPoints /
+                (double)PageSize);
 
-    private bool IncludeParameters { get; set; } = true;
 
-    private bool IncludeGridData { get; set; } = true;
+    private int StartItem =>
+        TotalPoints == 0
+            ? 0
+            : ((CurrentPage - 1) * PageSize) + 1;
 
-    private bool IncludeStatistics { get; set; } = true;
 
-    private bool IncludeMetadata { get; set; } = true;
+    private int EndItem =>
+        Math.Min(
+            CurrentPage * PageSize,
+            TotalPoints);
 
-    [SupplyParameterFromQuery(Name = "from")] public string? From { get; set; }
-    [SupplyParameterFromQuery(Name = "tab")] public string? Tab { get; set; }
+
+    private string ActiveTab { get; set; } =
+        "Data Table";
+
+
+    private string NumberFormat { get; set; } =
+        "decimal";
+
+
+    private string ExportFormat { get; set; } =
+        "CSV";
+
+
+    private bool IncludeParameters { get; set; } =
+        true;
+
+
+    private bool IncludeGridData { get; set; } =
+        true;
+
+
+    private bool IncludeStatistics { get; set; } =
+        true;
+
+
+    private bool IncludeMetadata { get; set; } =
+        true;
+
+
+    [SupplyParameterFromQuery(Name = "from")]
+    public string? From { get; set; }
+
+
+    [SupplyParameterFromQuery(Name = "tab")]
+    public string? Tab { get; set; }
+
 
     [SupplyParameterFromQuery(Name = "demo")]
     public bool Demo { get; set; }
+
+
     private bool ShowDemoComplete { get; set; }
+
     private bool ShowExitDemoDialog { get; set; }
 
-    [SupplyParameterFromQuery(Name = "colorMap")] public string? ColorMap { get; set; }
-
-    private string SelectedColorMapName =>
-    ColorMap is "Viridis" or "Grayscale"
-        ? ColorMap
-        : "Thermal";
 
     private void GoToCreateAccount()
     {
         Nav.NavigateTo("SignUp");
     }
 
+
     private void HideDemoComplete()
     {
         ShowDemoComplete = false;
     }
+
 
     private void ExitDemo()
     {
         ShowExitDemoDialog = true;
     }
 
+
     private void ConfirmExitDemo()
     {
         ShowExitDemoDialog = false;
+
         Nav.NavigateTo("");
     }
+
 
     private void CancelExitDemo()
     {
         ShowExitDemoDialog = false;
     }
 
+
     private void GoBack()
     {
         if (From == "demo-history")
         {
-            Nav.NavigateTo("Admin/DemoHistory");
+            Nav.NavigateTo(
+                "Admin/DemoHistory");
+
+            return;
+        }
+
+
+        if (From == "history")
+        {
+            Nav.NavigateTo(
+                "SimulationHistory");
+
+            return;
+        }
+
+
+        Nav.NavigateTo(
+            $"WaveEquation/Simulate/{SimulationId}");
+    }
+
+
+    private void ViewResults()
+    {
+        if (Demo)
+        {
+            Nav.NavigateTo(
+                $"WaveResult/{SimulationId}?demo=true");
+            return;
+        }
+
+        if (From == "demo-history")
+        {
+            Nav.NavigateTo(
+                $"WaveResult/{SimulationId}?from=demo-history");
             return;
         }
 
         if (From == "history")
         {
-            Nav.NavigateTo("SimulationHistory");
+            Nav.NavigateTo(
+                $"WaveResult/{SimulationId}?from=history");
             return;
         }
 
-        Nav.NavigateTo($"HeatEquation/Simulate/{SimulationId}");
+        Nav.NavigateTo(
+            $"WaveResult/{SimulationId}");
     }
+
 
     private void SetActiveTab(string tab)
     {
@@ -780,111 +984,53 @@
     }
 
 
-
-    private async Task DownloadData()
-    {
-        if (Demo || Data is null)
-            return;
-
-        if (ExportFormat == "CSV")
-        {
-            var csv = GenerateCsv();
-
-            await JS.InvokeVoidAsync(
-                "cptDownloadFile",
-                GetDownloadFileName("csv"),
-                "text/csv;charset=utf-8",
-                csv);
-
-            return;
-        }
-
-        if (ExportFormat == "PDF")
-        {
-            var pdfContent = GeneratePdfContent();
-
-            var gridData = IncludeGridData
-                ? AllPoints.Select(point => new
-                {
-                    x = point.X,
-                    y = point.Y,
-                    temperature = point.Temperature
-                }).ToArray()
-                : Array.Empty<object>();
-
-            await JS.InvokeVoidAsync(
-                "cptDownloadPdf",
-                GetDownloadFileName("pdf"),
-                pdfContent,
-                Data.Temperature,
-                Data.GridWidth,
-                Data.GridHeight,
-                Statistics.Minimum,
-                Statistics.Maximum,
-                gridData,
-                IncludeGridData,
-                SelectedColorMapName);
-
-            return;
-        }
-
-        if (ExportFormat == "PNG")
-        {
-            var reportContent = GeneratePdfContent();
-
-            var gridData = IncludeGridData
-                ? AllPoints.Select(point => new
-                {
-                    x = point.X,
-                    y = point.Y,
-                    temperature = point.Temperature
-                }).ToArray()
-                : Array.Empty<object>();
-
-            await JS.InvokeVoidAsync(
-                "cptDownloadHeatmapPng",
-                GetDownloadFileName("png"),
-                reportContent,
-                Data.Temperature,
-                Data.GridWidth,
-                Data.GridHeight,
-                Statistics.Minimum,
-                Statistics.Maximum,
-                gridData,
-                IncludeGridData,
-                SelectedColorMapName);
-
-            return;
-        }
-    }
-
     protected override async Task OnInitializedAsync()
     {
-        if (!Demo && Tab?.Equals("export", StringComparison.OrdinalIgnoreCase) == true)
+        if (!Demo &&
+            Tab?.Equals(
+                "export",
+                StringComparison.OrdinalIgnoreCase) == true)
         {
             ActiveTab = "Export";
         }
 
+
         try
         {
-            var settings = await UserSettingsApi.GetAsync();
+            var settings =
+                await UserSettingsApi.GetAsync();
+
 
             if (settings is not null)
             {
-                NumberFormat = settings.NumberFormat;
+                NumberFormat =
+                    settings.NumberFormat;
             }
 
-            Result = await HeatEquationApi.GetLatestResultAsync(SimulationId);
-            Simulation = await HeatEquationApi.GetSimulationAsync(SimulationId);
+
+            Result =
+                await WaveEquationApi
+                    .GetLatestResultAsync(
+                        SimulationId);
+
+
+            Simulation =
+                await WaveEquationApi
+                    .GetSimulationAsync(
+                        SimulationId);
+
 
             if (Result?.ResultData is not null)
             {
-                Data = JsonSerializer.Deserialize<HeatEquationResultData>(
-                    Result.ResultData,
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+                Data =
+                    JsonSerializer.Deserialize<
+                        WaveEquationResultData>(
+                            Result.ResultData,
+                            new JsonSerializerOptions
+                            {
+                                PropertyNameCaseInsensitive = true
+                            });
+
 
                 if (Data is not null)
                 {
@@ -900,77 +1046,91 @@
         {
             IsLoading = false;
 
-            if (Demo && Data is not null)
+
+            if (Demo &&
+                Data is not null)
             {
                 ShowDemoComplete = true;
             }
         }
     }
 
+
     private string FormatNumber(
-    double value,
-    int decimalPlaces = 6)
+        double value,
+        int decimalPlaces = 6)
     {
         if (NumberFormat.Equals(
             "integer",
             StringComparison.OrdinalIgnoreCase))
         {
             return Math.Round(value)
-                .ToString("0", CultureInfo.InvariantCulture);
+                .ToString(
+                    "0",
+                    CultureInfo.InvariantCulture);
         }
+
 
         return value.ToString(
             $"F{decimalPlaces}",
             CultureInfo.InvariantCulture);
     }
 
-    private class GridPoint
+
+    private class WavePoint
     {
         public double X { get; set; }
-        public double Y { get; set; }
-        public double Temperature { get; set; }
+
+        public double Displacement { get; set; }
     }
 
-    private IEnumerable<GridPoint> AllPoints
+
+    private IEnumerable<WavePoint> AllPoints
     {
         get
         {
-            if (Data is null)
+            if (Data?.Displacement is null)
                 return [];
 
-            var points = new List<GridPoint>();
 
-            for (int y = 0; y < Data.Temperature.Length; y++)
+            var points =
+                new List<WavePoint>();
+
+
+            for (int i = 0;
+                 i < Data.Displacement.Length;
+                 i++)
             {
-                var row = Data.Temperature[y];
+                var x =
+                    Data.Length *
+                    i /
+                    Math.Max(
+                        1,
+                        Data.GridPoints - 1);
 
-                if (row is null)
-                    continue;
 
-                for (int x = 0; x < row.Length; x++)
-                {
-                    var xCoordinate =
-                        -1.0 +
-                        (2.0 * x / (Data.GridWidth - 1));
-
-                    var yCoordinate =
-                        -1.0 +
-                        (2.0 * y / (Data.GridHeight - 1));
-
-                    points.Add(new GridPoint
+                points.Add(
+                    new WavePoint
                     {
-                        X = xCoordinate,
-                        Y = yCoordinate,
-                        Temperature = row[x]
+                        X = x,
+                        Displacement =
+                            Data.Displacement[i]
                     });
-                }
             }
+
 
             return points;
         }
     }
 
-    private IEnumerable<GridPoint> PagedPoints => AllPoints.Skip((CurrentPage - 1) * PageSize).Take(PageSize);
+
+    private IEnumerable<WavePoint> PagedPoints =>
+        AllPoints
+            .Skip(
+                (CurrentPage - 1) *
+                PageSize)
+            .Take(PageSize);
+
 
     private void PreviousPage()
     {
@@ -980,6 +1140,7 @@
         }
     }
 
+
     private void NextPage()
     {
         if (CurrentPage < TotalPages)
@@ -988,135 +1149,368 @@
         }
     }
 
+
     private void GoToPage(int page)
     {
-        if (page >= 1 && page <= TotalPages)
+        if (page >= 1 &&
+            page <= TotalPages)
         {
             CurrentPage = page;
         }
     }
 
+
+    private async Task DownloadData()
+    {
+        if (Demo ||
+            Data is null)
+            return;
+
+
+        
+        if (ExportFormat == "CSV")
+        {
+            var metadata = new
+            {
+                name = Simulation?.Name ?? "Unnamed Simulation",
+                id = SimulationId.ToString(),
+                exportDate = DateTime.Now.ToString(
+                    "yyyy-MM-dd HH:mm:ss",
+                    CultureInfo.InvariantCulture)
+            };
+
+            var parameters = new
+            {
+                gridPoints = Data.GridPoints,
+                length = Data.Length,
+                waveSpeed = Data.WaveSpeed,
+                timeStep = Data.TimeStep,
+                timeSteps = Data.TimeSteps,
+                finalTime = Data.FinalTime,
+                dx = Data.Dx,
+                cflNumber = Data.CFLNumber,
+                stability = Data.StabilityStatus,
+                initialCondition = Data.InitialConditionType,
+                initialAmplitude = Data.InitialAmplitude,
+                boundaryCondition = Data.BoundaryConditionType
+            };
+
+            var statistics = new
+            {
+                minimum = Statistics.Minimum,
+                maximum = Statistics.Maximum,
+                mean = Statistics.Mean,
+                standardDeviation = Statistics.StandardDeviation,
+                gridPoints = TotalPoints
+            };
+
+            var gridData = IncludeGridData
+                ? AllPoints.Select(point => new
+                {
+                    x = point.X,
+                    displacement = point.Displacement
+                }).ToArray()
+                : Array.Empty<object>();
+
+            await JS.InvokeVoidAsync(
+                "cptDownloadWaveCsv",
+                GetDownloadFileName("csv"),
+                metadata,
+                parameters,
+                statistics,
+                gridData,
+                IncludeMetadata,
+                IncludeParameters,
+                IncludeStatistics,
+                IncludeGridData);
+
+            return;
+        }
+
+
+
+        if (ExportFormat == "PDF")
+        {
+            var pdfContent = GeneratePdfContent();
+
+            var gridData = IncludeGridData
+                ? AllPoints.Select(point => new
+                {
+                    x = point.X,
+                    displacement = point.Displacement
+                }).ToArray()
+                : Array.Empty<object>();
+
+            await JS.InvokeVoidAsync(
+                "cptDownloadWavePdf",
+                GetDownloadFileName("pdf"),
+                pdfContent,
+                Data.Displacement,
+                Data.Length,
+                Data.GridPoints,
+                Statistics.Minimum,
+                Statistics.Maximum,
+                gridData,
+                IncludeGridData);
+
+            return;
+        }
+        
+
+        if (ExportFormat == "PNG")
+        {
+            var pngContent = GeneratePdfContent();
+
+            var gridData = IncludeGridData
+                ? AllPoints.Select(point => new
+                {
+                    x = point.X,
+                    displacement = point.Displacement
+                }).ToArray()
+                : Array.Empty<object>();
+
+            await JS.InvokeVoidAsync(
+                "cptDownloadWavePng",
+                GetDownloadFileName("png"),
+                pngContent,
+                Data.Displacement,
+                Data.Length,
+                Data.GridPoints,
+                Statistics.Minimum,
+                Statistics.Maximum,
+                gridData,
+                IncludeGridData);
+
+            return;
+        }
+    }
+
+
     private string GenerateCsv()
     {
-        var csv = new StringBuilder();
+        var csv =
+            new StringBuilder();
+
 
         if (IncludeMetadata)
         {
-            csv.AppendLine("CPT - Computational Physics Toolkit");
-            csv.AppendLine($"Simulation Name,{Simulation?.Name ?? "Unnamed Simulation"}");
-            csv.AppendLine($"Simulation ID,{SimulationId}");
-            csv.AppendLine($"Export Date,{DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            csv.AppendLine(
+                "CPT - Computational Physics Toolkit");
+
+            csv.AppendLine(
+                $"Simulation Name," +
+                $"{Simulation?.Name ?? "Unnamed Simulation"}");
+
+            csv.AppendLine(
+                $"Simulation ID,{SimulationId}");
+
+            csv.AppendLine(
+                $"Export Date,{DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
             csv.AppendLine();
         }
+
 
         if (IncludeParameters)
         {
-            csv.AppendLine("PARAMETERS");
-            csv.AppendLine($"Grid Width,{Data!.GridWidth}");
-            csv.AppendLine($"Grid Height,{Data.GridHeight}");
-            csv.AppendLine($"Final Time,{Data.FinalTime.ToString(CultureInfo.InvariantCulture)}");
-            csv.AppendLine($"Boundary Condition Type,{Data.BoundaryConditionType}");
-            csv.AppendLine($"Boundary Temperature,{Data.BoundaryTemperature.ToString(CultureInfo.InvariantCulture)}");
+            csv.AppendLine(
+                "PARAMETERS");
+
+            csv.AppendLine(
+                $"Grid Points,{Data!.GridPoints}");
+
+            csv.AppendLine(
+                $"Length,{Data.Length.ToString(CultureInfo.InvariantCulture)}");
+
+            csv.AppendLine(
+                $"Wave Speed,{Data.WaveSpeed.ToString(CultureInfo.InvariantCulture)}");
+
+            csv.AppendLine(
+                $"Time Step,{Data.TimeStep.ToString(CultureInfo.InvariantCulture)}");
+
+            csv.AppendLine(
+                $"Time Steps,{Data.TimeSteps}");
+
+            csv.AppendLine(
+                $"Final Time,{Data.FinalTime.ToString(CultureInfo.InvariantCulture)}");
+
+            csv.AppendLine(
+                $"Spatial Step,{Data.Dx.ToString(CultureInfo.InvariantCulture)}");
+
+            csv.AppendLine(
+                $"CFL Number,{Data.CFLNumber.ToString(CultureInfo.InvariantCulture)}");
+
+            csv.AppendLine(
+                $"Stability,{Data.StabilityStatus}");
+
+            csv.AppendLine(
+                $"Initial Condition,{Data.InitialConditionType}");
+
+            csv.AppendLine(
+                $"Initial Amplitude,{Data.InitialAmplitude.ToString(CultureInfo.InvariantCulture)}");
+
+            csv.AppendLine(
+                $"Boundary Condition,{Data.BoundaryConditionType}");
+
             csv.AppendLine();
         }
+
 
         if (IncludeStatistics)
         {
-            csv.AppendLine("STATISTICS");
-            csv.AppendLine($"Minimum Temperature,{Statistics.Minimum.ToString(CultureInfo.InvariantCulture)}");
-            csv.AppendLine($"Maximum Temperature,{Statistics.Maximum.ToString(CultureInfo.InvariantCulture)}");
-            csv.AppendLine($"Average Temperature,{Statistics.Mean.ToString(CultureInfo.InvariantCulture)}");
-            csv.AppendLine($"Standard Deviation,{Statistics.StandardDeviation.ToString(CultureInfo.InvariantCulture)}");
-            csv.AppendLine($"Grid Points,{TotalPoints}");
+            csv.AppendLine(
+                "STATISTICS");
+
+            csv.AppendLine(
+                $"Minimum Displacement," +
+                $"{Statistics.Minimum.ToString(CultureInfo.InvariantCulture)}");
+
+            csv.AppendLine(
+                $"Maximum Displacement," +
+                $"{Statistics.Maximum.ToString(CultureInfo.InvariantCulture)}");
+
+            csv.AppendLine(
+                $"Average Displacement," +
+                $"{Statistics.Mean.ToString(CultureInfo.InvariantCulture)}");
+
+            csv.AppendLine(
+                $"Standard Deviation," +
+                $"{Statistics.StandardDeviation.ToString(CultureInfo.InvariantCulture)}");
+
+            csv.AppendLine(
+                $"Grid Points,{TotalPoints}");
+
             csv.AppendLine();
         }
 
+
         if (IncludeGridData)
         {
-            csv.AppendLine("GRID DATA");
-            csv.AppendLine("X,Y,Temperature");
+            csv.AppendLine(
+                "GRID DATA");
+
+            csv.AppendLine(
+                "X,Displacement");
+
 
             foreach (var point in AllPoints)
             {
                 csv.AppendLine(
                     $"{point.X.ToString("F6", CultureInfo.InvariantCulture)}," +
-                    $"{point.Y.ToString("F6", CultureInfo.InvariantCulture)}," +
-                    $"{point.Temperature.ToString("F6", CultureInfo.InvariantCulture)}");
+                    $"{point.Displacement.ToString("F6", CultureInfo.InvariantCulture)}");
             }
         }
+
 
         return csv.ToString();
     }
 
+
     private string GeneratePdfContent()
     {
-        var content = new StringBuilder();
+        var content =
+            new StringBuilder();
+
 
         if (IncludeMetadata)
         {
-            content.AppendLine("Simulation Report");
+            content.AppendLine(
+                "Simulation Report");
+
             content.AppendLine();
 
-            content.AppendLine($"Simulation ID: {SimulationId}");
+            content.AppendLine(
+                $"Simulation ID: {SimulationId}");
+
             content.AppendLine(
                 $"Export Date: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
             content.AppendLine(
-                $"Simulation Name: {Simulation?.Name ?? "Unnamed Simulation"}");
+                $"Simulation Name: " +
+                $"{Simulation?.Name ?? "Unnamed Simulation"}");
 
             content.AppendLine();
         }
+
 
         if (IncludeParameters)
         {
-            content.AppendLine("SIMULATION PARAMETERS");
-            content.AppendLine();
-
-            content.AppendLine($"Grid Width: {Data!.GridWidth}");
-            content.AppendLine($"Grid Height: {Data.GridHeight}");
             content.AppendLine(
-                $"Final Time: {Data.FinalTime.ToString(CultureInfo.InvariantCulture)}");
-
-            content.AppendLine(
-                $"Boundary Condition Type: {Data.BoundaryConditionType}");
-
-            content.AppendLine(
-                $"Boundary Temperature: {Data.BoundaryTemperature.ToString(CultureInfo.InvariantCulture)}");
+                "SIMULATION PARAMETERS");
 
             content.AppendLine();
 
-            content.AppendLine("Boundary Conditions");
+            content.AppendLine(
+                $"Grid Points: {Data!.GridPoints}");
 
             content.AppendLine(
-                $"Top: {Data.TopBoundaryCondition}");
+                $"Length: " +
+                $"{Data.Length.ToString(CultureInfo.InvariantCulture)} m");
 
             content.AppendLine(
-                $"Bottom: {Data.BottomBoundaryCondition}");
+                $"Wave Speed: " +
+                $"{Data.WaveSpeed.ToString(CultureInfo.InvariantCulture)} m/s");
 
             content.AppendLine(
-                $"Left: {Data.LeftBoundaryCondition}");
+                $"Time Step: " +
+                $"{Data.TimeStep.ToString(CultureInfo.InvariantCulture)} s");
 
             content.AppendLine(
-                $"Right: {Data.RightBoundaryCondition}");
+                $"Time Steps: {Data.TimeSteps}");
+
+            content.AppendLine(
+                $"Final Time: " +
+                $"{Data.FinalTime.ToString(CultureInfo.InvariantCulture)} s");
+
+            content.AppendLine(
+                $"Spatial Step: " +
+                $"{Data.Dx.ToString(CultureInfo.InvariantCulture)} m");
+
+            content.AppendLine(
+                $"CFL Number: " +
+                $"{Data.CFLNumber.ToString(CultureInfo.InvariantCulture)}");
+
+            content.AppendLine(
+                $"Stability: {Data.StabilityStatus}");
+
+            content.AppendLine(
+                $"Initial Condition: " +
+                $"{Data.InitialConditionType}");
+
+            content.AppendLine(
+                $"Initial Amplitude: " +
+                $"{Data.InitialAmplitude.ToString(CultureInfo.InvariantCulture)} m");
+
+            content.AppendLine(
+                $"Boundary Condition: " +
+                $"{Data.BoundaryConditionType}");
 
             content.AppendLine();
         }
 
+
         if (IncludeStatistics)
         {
-            content.AppendLine("STATISTICS");
+            content.AppendLine(
+                "STATISTICS");
+
             content.AppendLine();
 
             content.AppendLine(
-                $"Minimum Temperature: {Statistics.Minimum.ToString(CultureInfo.InvariantCulture)}");
+                $"Minimum Displacement: " +
+                $"{Statistics.Minimum.ToString(CultureInfo.InvariantCulture)} m");
 
             content.AppendLine(
-                $"Maximum Temperature: {Statistics.Maximum.ToString(CultureInfo.InvariantCulture)}");
+                $"Maximum Displacement: " +
+                $"{Statistics.Maximum.ToString(CultureInfo.InvariantCulture)} m");
 
             content.AppendLine(
-                $"Average Temperature: {Statistics.Mean.ToString(CultureInfo.InvariantCulture)}");
+                $"Average Displacement: " +
+                $"{Statistics.Mean.ToString(CultureInfo.InvariantCulture)} m");
 
             content.AppendLine(
-                $"Standard Deviation: {Statistics.StandardDeviation.ToString(CultureInfo.InvariantCulture)}");
+                $"Standard Deviation: " +
+                $"{Statistics.StandardDeviation.ToString(CultureInfo.InvariantCulture)} m");
 
             content.AppendLine(
                 $"Grid Points: {TotalPoints}");
@@ -1124,102 +1518,95 @@
             content.AppendLine();
         }
 
-        @* if (IncludeGridData)
-        {
-            content.AppendLine("GRID DATA");
-            content.AppendLine();
-
-            content.AppendLine("X Y Temperature");
-
-            foreach (var point in AllPoints)
-            {
-                content.AppendLine(
-                    $"{point.X.ToString("F6", CultureInfo.InvariantCulture)} " +
-                    $"{point.Y.ToString("F6", CultureInfo.InvariantCulture)} " +
-                    $"{point.Temperature.ToString("F6", CultureInfo.InvariantCulture)}");
-            }
-        } *@
-
         return content.ToString();
     }
-
 
 
     private class SimulationStatistics
     {
         public double Minimum { get; set; }
+
         public double Maximum { get; set; }
+
         public double Mean { get; set; }
+
         public double StandardDeviation { get; set; }
     }
 
+
     private void CalculateStatistics()
     {
-        if (Data?.Temperature is null)
+        if (Data?.Displacement is null)
             return;
 
-        var values = Data.Temperature
-            .Where(row => row is not null)
-            .SelectMany(row => row!)
-            .ToList();
+
+        var values =
+            Data.Displacement
+                .ToList();
+
 
         if (values.Count == 0)
             return;
 
-        var mean = values.Average();
 
-        var variance = values
-            .Select(value => Math.Pow(value - mean, 2))
-            .Average();
+        var mean =
+            values.Average();
 
-        Statistics = new SimulationStatistics
-        {
-            Minimum = values.Min(),
-            Maximum = values.Max(),
-            Mean = mean,
-            StandardDeviation = Math.Sqrt(variance)
-        };
+
+        var variance =
+            values
+                .Select(
+                    value =>
+                        Math.Pow(
+                            value - mean,
+                            2))
+                .Average();
+
+
+        Statistics =
+            new SimulationStatistics
+            {
+                Minimum =
+                    values.Min(),
+
+                Maximum =
+                    values.Max(),
+
+                Mean =
+                    mean,
+
+                StandardDeviation =
+                    Math.Sqrt(variance)
+            };
     }
 
-    private void ViewResults()
+
+    private string GetDownloadFileName(
+        string extension)
     {
-        if (Demo)
-        {
-            Nav.NavigateTo(
-                $"Result/{SimulationId}?demo=true");
-            return;
-        }
+        var name =
+            Simulation?.Name;
 
-        if (From == "demo-history")
-        {
-            Nav.NavigateTo(
-                $"Result/{SimulationId}?from=demo-history");
-            return;
-        }
-
-        if (From == "history")
-        {
-            Nav.NavigateTo(
-                $"Result/{SimulationId}?from=history");
-            return;
-        }
-
-        Nav.NavigateTo(
-            $"Result/{SimulationId}");
-    }
-
-    private string GetDownloadFileName(string extension)
-    {
-        var name = Simulation?.Name;
 
         if (string.IsNullOrWhiteSpace(name))
-            name = "CPT Heat Equation Simulation";
-
-        foreach (var invalidChar in Path.GetInvalidFileNameChars())
         {
-            name = name.Replace(invalidChar, '-');
+            name =
+                "CPT Wave Equation Simulation";
         }
+
+
+        foreach (
+            var invalidChar
+            in Path.GetInvalidFileNameChars())
+        {
+            name =
+                name.Replace(
+                    invalidChar,
+                    '-');
+        }
+
 
         return $"{name}.{extension}";
     }
+
 }

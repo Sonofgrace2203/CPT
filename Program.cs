@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using cpt;
 using CPT.Services;
 using CPT.Services.Physics.HeatEquation;
+using CPT.Services.Physics.WaveEquation;
 using CPT.Services.Auth;
 // using Plotly.Blazor;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-Console.WriteLine($"CPT Environment: {builder.HostEnvironment.Environment}");
-Console.WriteLine($"CPT API Base URL: {builder.Configuration["ApiBaseUrl"]}");
+// Console.WriteLine($"CPT Environment: {builder.HostEnvironment.Environment}");
+// Console.WriteLine($"CPT API Base URL: {builder.Configuration["ApiBaseUrl"]}");
 
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
@@ -62,12 +63,21 @@ builder.Services.AddScoped(sp =>
 });
 
 builder.Services.AddScoped<AuthService>();
+
 builder.Services.AddScoped<HeatEquationApiService>();
 builder.Services.AddScoped<HeatEquationState>();
+
+builder.Services.AddScoped<WaveEquationApiService>();
+builder.Services.AddScoped<WaveEquationState>();
+
 builder.Services.AddScoped<DashboardApiService>();
 builder.Services.AddSingleton<PhysicsModuleCatalogue>();
 builder.Services.AddScoped<SimulationApiService>();
+
 builder.Services.AddScoped<UserSettingsApiService>();
+builder.Services.AddScoped<HeatEquationSettingsApiService>();
+builder.Services.AddScoped<WaveEquationSettingsApiService>();
+
 builder.Services.AddScoped<PhysicsModuleApiService>();
 builder.Services.AddScoped<AdminUserApiService>();
 builder.Services.AddScoped<AdminDashboardApiService>();
