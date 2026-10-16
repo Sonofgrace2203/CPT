@@ -367,32 +367,18 @@
         <!-- Actions -->
 
         <div class="flex flex-end pd">
-
             @if (IsCompleted)
             {
                 <button class="pd corner-1 bg-secondary bd-none fsz-12 mgr-5" @onclick="ViewResults">
-
                     View Results
-
                     <i class="mdi mdi-arrow-rigt fsz-15"></i>
-
                 </button>
             }
-
-
-            @if (IsRunning)
-            {
-                <button class="pd corner-1 bg-card cl-error bd-none bd bd-error fsz-12" @onclick="StopSimulation">
-
-                    Stop
-
-                    <i class="mdi mdi-arrow-rigt fsz-15"></i>
-
-                </button>
-            }
-
+            <button class="pd corner-1 bg-card cl-error bd-none bd bd-error fsz-12" @onclick="StopSimulation">
+                Stop
+                <i class="mdi mdi-arrow-rigt fsz-15"></i>
+            </button>
         </div>
-
     </div>
 
 

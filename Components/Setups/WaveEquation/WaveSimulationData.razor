@@ -42,7 +42,7 @@
                     @onclick="ViewResults">
 
                 <i class="mdi mdi-plus fsz-10 mgr-5"></i>
-                View Results
+                View Result
 
             </button>
 
@@ -363,291 +363,220 @@
             else if (ActiveTab == "Statistics")
             {
                 <div class="row responsive colm-3 wvg-5 scroll-y" style="height: 100vh;">
-
                     <div class="miwx-25 mgr-10">
-
                         <div class="bg-card bd corner-1 pd">
-
-                            <h5 class="mgt-0 mgl-0 mgr-0 mgb-10 pdb fsz-15 cl-primary bdb bd-primary">
-
-                                Statistics
-
-                            </h5>
-
-
+                            <h5 class="mgt-0 mgl-0 mgr-0 mgb-10 pdb fsz-15 cl-primary bdb bd-primary">Statistics</h5>
                             <div class="grid gap-1 colm-3">
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
-
-                                    <p class="mg-0 fsz-10 pdb">
-                                        Minimum Displacement
-                                    </p>
-
-                                    <h4 class="mg-0 fsz-15 cl-secondary">
-
-                                        @FormatNumber(
-                                            Statistics.Minimum,
-                                            6) m
-
-                                    </h4>
-
+                                    <p class="mg-0 fsz-10 pdb">Minimum Displacement</p>
+                                    <h4 class="mg-0 fsz-15 cl-secondary">@FormatNumber(Statistics.Minimum, 6) m</h4>
                                 </div>
 
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <p class="mg-0 fsz-10 pdb">Maximum Displacement</p>
 
-                                    <p class="mg-0 fsz-10 pdb">
-                                        Maximum Displacement
-                                    </p>
-
-                                    <h4 class="mg-0 fsz-15 cl-secondary">
-
-                                        @FormatNumber(
-                                            Statistics.Maximum,
-                                            6) m
-
-                                    </h4>
-
+                                    <h4 class="mg-0 fsz-15 cl-secondary"> @FormatNumber(Statistics.Maximum, 6) m</h4>
                                 </div>
 
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <p class="mg-0 fsz-10 pdb">Average Displacement</p>
 
-                                    <p class="mg-0 fsz-10 pdb">
-                                        Average Displacement
-                                    </p>
-
-                                    <h4 class="mg-0 fsz-15 cl-secondary">
-
-                                        @FormatNumber(
-                                            Statistics.Mean,
-                                            6) m
-
-                                    </h4>
-
+                                    <h4 class="mg-0 fsz-15 cl-secondary"> @FormatNumber(Statistics.Mean, 6) m</h4>
                                 </div>
 
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <p class="mg-0 fsz-10 pdb">Standard Deviation</p>
 
-                                    <p class="mg-0 fsz-10 pdb">
-                                        Standard Deviation
-                                    </p>
-
-                                    <h4 class="mg-0 fsz-15 cl-secondary">
-
-                                        @FormatNumber(
-                                            Statistics.StandardDeviation,
-                                            6) m
-
-                                    </h4>
-
+                                    <h4 class="mg-0 fsz-15 cl-secondary"> @FormatNumber(Statistics.StandardDeviation, 6) m</h4>
                                 </div>
 
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <p class="mg-0 fsz-10 pdb">Final Simulation Time</p>
 
-                                    <p class="mg-0 fsz-10 pdb">
-                                        Final Simulation Time
-                                    </p>
-
-                                    <h4 class="mg-0 fsz-15 cl-secondary">
-
-                                        @FormatNumber(
-                                            Data.FinalTime,
-                                            4) s
-
-                                    </h4>
-
+                                    <h4 class="mg-0 fsz-15 cl-secondary"> @FormatNumber(Data.FinalTime, 4) s</h4>
                                 </div>
 
+                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <p class="mg-0 fsz-10 pdb">Grid Points</p>
 
-                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
-
-                                    <p class="mg-0 fsz-10 pdb">
-                                        Grid Points
-                                    </p>
-
-                                    <h4 class="mg-0 fsz-15 cl-secondary">
-
-                                        @TotalPoints
-
-                                    </h4>
-
+                                    <h4 class="mg-0 fsz-15 cl-secondary"> @TotalPoints</h4>
                                 </div>
-
                             </div>
-
                         </div>
 
 
                         <div class="mgt-5 corner-2 bd pd bg-card">
 
-                            <h5 class="mg-0 pdb fsz-15 cl-primary">
-
-                                Wave Parameters
-
-                            </h5>
-
-                            <p class="mg-0 fsz-10 bdb bd-primary pdb">
-
-                                Numerical and physical parameters used in the simulation
-
-                            </p>
+                            <h5 class="mg-0 pdb fsz-15 cl-primary">Wave Parameters</h5>
+                            <p class="mg-0 fsz-10 bdb bd-primary pdb"> Numerical and physical parameters used in the simulation</p>
 
 
                             <div class="grid gap-1 colm-3 mgt-10">
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Wave Speed</span>
 
-                                    <span class="fsz-10">
-                                        Wave Speed
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-
-                                        @FormatNumber(
-                                            Data.WaveSpeed,
-                                            4) m/s
-
-                                    </div>
-
+                                    <div class="mgt-5 fw-600 cl-secondary">@FormatNumber(Data.WaveSpeed, 4) m/s</div>
                                 </div>
 
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Special Step</span>
 
-                                    <span class="fsz-10">
-                                        Spatial Step
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-
-                                        @FormatNumber(
-                                            Data.Dx,
-                                            6) m
-
-                                    </div>
-
+                                    <div class="mgt-5 fw-600 cl-secondary">@FormatNumber(Data.Dx, 6) m</div>
                                 </div>
 
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Time Step</span>
 
-                                    <span class="fsz-10">
-                                        Time Step
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-
-                                        @FormatNumber(
-                                            Data.TimeStep,
-                                            6) s
-
-                                    </div>
-
+                                    <div class="mgt-5 fw-600 cl-secondary">@FormatNumber(Data.TimeStep, 6) s</div>
                                 </div>
 
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Time Steps</span>
 
-                                    <span class="fsz-10">
-                                        Time Steps
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-
-                                        @Data.TimeSteps
-
-                                    </div>
-
+                                    <div class="mgt-5 fw-600 cl-secondary">@Data.TimeSteps</div>
                                 </div>
 
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">CFL Number</span>
 
-                                    <span class="fsz-10">
-                                        CFL Number
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-
-                                        @FormatNumber(
-                                            Data.CFLNumber,
-                                            6)
-
-                                    </div>
-
+                                    <div class="mgt-5 fw-600 cl-secondary">@FormatNumber(Data.CFLNumber, 6)</div>
                                 </div>
 
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Stability</span>
 
-                                    <span class="fsz-10">
-                                        Stability
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-
-                                        @Data.StabilityStatus
-
-                                    </div>
-
+                                    <div class="mgt-5 fw-600 cl-secondary">@Data.StabilityStatus</div>
                                 </div>
 
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Initial Condition</span>
 
-                                    <span class="fsz-10">
-                                        Initial Condition
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-
-                                        @Data.InitialConditionType
-
-                                    </div>
-
+                                    <div class="mgt-5 fw-600 cl-secondary">@Data.InitialConditionType</div>
                                 </div>
 
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Initial Amplitude</span>
 
-                                    <span class="fsz-10">
-                                        Initial Amplitude
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-
-                                        @FormatNumber(
-                                            Data.InitialAmplitude,
-                                            6) m
-
-                                    </div>
-
+                                    <div class="mgt-5 fw-600 cl-secondary">@Data.InitialAmplitude</div>
                                 </div>
 
-
                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Boundary Condition</span>
 
-                                    <span class="fsz-10">
-                                        Boundary Condition
-                                    </span>
-
-                                    <div class="mgt-5 fw-600 cl-secondary">
-
-                                        @Data.BoundaryConditionType
-
-                                    </div>
-
+                                    <div class="mgt-5 fw-600 cl-secondary">@Data.BoundaryConditionType</div>
                                 </div>
-
                             </div>
+                        </div>
+                    </div>
+                </div>
 
+
+                <div class="row responsive colm-3 wvl-5 scroll-y" style="height: 100vh">
+                    <div class="miwx-25">
+                        <div class="bg-card bd corner-1 pd">
+                            <h5 class="mgt-0 mgl-0 mgr-0 mgb-10 pdb fsz-15 cl-primary bdb bd-primary">Statistics</h5>
+                            <div class="grid gap-1 colm-3">
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <p class="mg-0 fsz-10 pdb">Minimum Displacement</p>
+                                    <h4 class="mg-0 fsz-15 cl-secondary">@FormatNumber(Statistics.Minimum, 6) m</h4>
+                                </div>
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <p class="mg-0 fsz-10 pdb">Maximum Displacement</p>
+
+                                    <h4 class="mg-0 fsz-15 cl-secondary"> @FormatNumber(Statistics.Maximum, 6) m</h4>
+                                </div>
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <p class="mg-0 fsz-10 pdb">Average Displacement</p>
+
+                                    <h4 class="mg-0 fsz-15 cl-secondary"> @FormatNumber(Statistics.Mean, 6) m</h4>
+                                </div>
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <p class="mg-0 fsz-10 pdb">Standard Deviation</p>
+
+                                    <h4 class="mg-0 fsz-15 cl-secondary"> @FormatNumber(Statistics.StandardDeviation, 6) m</h4>
+                                </div>
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <p class="mg-0 fsz-10 pdb">Final Simulation Time</p>
+
+                                    <h4 class="mg-0 fsz-15 cl-secondary"> @FormatNumber(Data.FinalTime, 4) s</h4>
+                                </div>
+
+                                 <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <p class="mg-0 fsz-10 pdb">Grid Points</p>
+
+                                    <h4 class="mg-0 fsz-15 cl-secondary"> @TotalPoints</h4>
+                                </div>
+                            </div>
                         </div>
 
-                    </div>
 
+                        <div class="mgt-5 corner-2 bd pd bg-card">
+
+                            <h5 class="mg-0 pdb fsz-15 cl-primary">Wave Parameters</h5>
+                            <p class="mg-0 fsz-10 bdb bd-primary pdb"> Numerical and physical parameters used in the simulation</p>
+
+
+                            <div class="grid gap-1 colm-3 mgt-10">
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Wave Speed</span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">@FormatNumber(Data.WaveSpeed, 4) m/s</div>
+                                </div>
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Special Step</span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">@FormatNumber(Data.Dx, 6) m</div>
+                                </div>
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Time Step</span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">@FormatNumber(Data.TimeStep, 6) s</div>
+                                </div>
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Time Steps</span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">@Data.TimeSteps</div>
+                                </div>
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">CFL Number</span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">@FormatNumber(Data.CFLNumber, 6)</div>
+                                </div>
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Stability</span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">@Data.StabilityStatus</div>
+                                </div>
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Initial Condition</span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">@Data.InitialConditionType</div>
+                                </div>
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Initial Amplitude</span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">@Data.InitialAmplitude</div>
+                                </div>
+
+                                <div class="pd bg-secondary-01 bdl bd-secondary bdw-3 mgb">
+                                    <span class="fsz-10">Boundary Condition</span>
+
+                                    <div class="mgt-5 fw-600 cl-secondary">@Data.BoundaryConditionType</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             }
             else if (ActiveTab == "Export" && !Demo)
